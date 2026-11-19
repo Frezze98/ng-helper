@@ -33,7 +33,6 @@ const UI_HTML: &[u8] = include_bytes!("../assets/ui.html");
 const RULES_JSON: &[u8] = include_bytes!("../assets/rules_index.json");
 const AI_STUDIO_URL: &str = "https://aistudio.google.com/apikey";
 const CREATE_NO_WINDOW: u32 = 0x08000000;
-// Порт для проверки «уже запущено»: второй экземпляр просто будит первый.
 const SINGLE_INSTANCE_ADDR: &str = "127.0.0.1:47631";
 
 enum UserEvent {
@@ -59,7 +58,6 @@ fn app_data_dir() -> PathBuf {
     base.join("NGHelper")
 }
 
-/// Пишет сообщение в %LOCALAPPDATA%\NGHelper\error.log
 fn log_error(msg: &str) {
     let dir = app_data_dir();
     let _ = fs::create_dir_all(&dir);
@@ -83,7 +81,6 @@ fn install_panic_log() {
 }
 
 fn load_tray_icon() -> Icon {
-    // 1 — ординал иконки, вшитой через build.rs (winresource)
     Icon::from_resource(1, Some((32, 32))).unwrap_or_else(|_| make_tray_icon())
 }
 
@@ -121,16 +118,49 @@ fn open_external_url(url: &str) {
         .spawn();
 }
 
-fn run_uninstall() {
-    let mut exe_dir = match std::env::current_exe() {
-        Ok(p) => p,
-        Err(_) => return,
-    };
-    exe_dir.pop();
-    let uninst = exe_dir.join("unins000.exe");
-    if uninst.exists() {
-        let _ = Command::new(&uninst).spawn();
-        std::process::exit(0);
+fn find_uninstaller() -> Option<PathBuf> {
+    let mut dirs = Vec::new();
+    if let Ok(mut exe_dir) = std::env::current_exe() {
+        exe_dir.pop();
+        dirs.push(exe_dir);
+    }
+    if let Ok(local_app) = std::env::var("LOCALAPPDATA") {
+        dirs.push(PathBuf::from(local_app).join("Programs").join("NG Helper"));
+    }
+
+    for dir in dirs {
+        let direct = dir.join("unins000.exe");
+        if direct.exists() {
+            return Some(direct);
+        }
+        if let Ok(entries) = fs::read_dir(&dir) {
+            for entry in entries.flatten() {
+                let name = entry.file_name().to_string_lossy().to_lowercase();
+                if name.starts_with("unins") && name.ends_with(".exe") {
+                    return Some(entry.path());
+                }
+            }
+        }
+    }
+    None
+}
+
+fn run_uninstall() -> Result<(), String> {
+    let uninst = find_uninstaller().ok_or_else(|| {
+        "Деінсталятор не знайдено (працює лише після встановлення через Setup-NG-Helper.exe)."
+            .to_string()
+    })?;
+
+    let started = Command::new(&uninst).spawn().or_else(|_| {
+        Command::new("cmd")
+            .args(["/C", "start", "", uninst.to_string_lossy().as_ref()])
+            .creation_flags(CREATE_NO_WINDOW)
+            .spawn()
+    });
+
+    match started {
+        Ok(_) => Ok(()),
+        Err(e) => Err(format!("Не вдалося запустити деінсталятор: {e}")),
     }
 }
 
@@ -187,9 +217,6 @@ fn run_self_update(url: String, proxy: EventLoopProxy<UserEvent>) {
 fn main() {
     install_panic_log();
 
-    // Единственный экземпляр: если приложение уже запущено (например, свёрнуто
-    // в трей), будим его и выходим. Раньше второй запуск молча падал на
-    // регистрации Alt+Q, и казалось, что программа «не запускается».
     let single_listener = match TcpListener::bind(SINGLE_INSTANCE_ADDR) {
         Ok(l) => Some(l),
         Err(_) => {
@@ -289,7 +316,6 @@ fn main() {
     let hotkey_manager = GlobalHotKeyManager::new().expect("failed to init hotkey manager");
     let toggle_hotkey = HotKey::new(Some(Modifiers::ALT), Code::KeyQ);
     let quit_hotkey = HotKey::new(Some(Modifiers::ALT | Modifiers::SHIFT), Code::KeyQ);
-    // Если Alt+Q занят другой программой — не падаем, работаем через трей.
     if let Err(e) = hotkey_manager.register(toggle_hotkey) {
         log_error(&format!("Alt+Q register failed: {e}"));
     }
@@ -401,9 +427,15 @@ fn main() {
                     "window.onUpdateError && window.onUpdateError(\"{safe}\");"
                 ));
             }
-            Event::UserEvent(UserEvent::Uninstall) => {
-                run_uninstall();
-            }
+            Event::UserEvent(UserEvent::Uninstall) => match run_uninstall() {
+                Ok(()) => *control_flow = ControlFlow::Exit,
+                Err(msg) => {
+                    let safe = msg.replace('\\', "\\\\").replace('"', "\\\"");
+                    let _ = webview.evaluate_script(&format!(
+                        "var el = document.getElementById('update-status'); if (el) {{ el.className = 'update-status err'; el.textContent = \"{safe}\"; }}"
+                    ));
+                }
+            },
             Event::UserEvent(UserEvent::Quit) => {
                 *control_flow = ControlFlow::Exit;
             }
