@@ -3,3 +3,4 @@ overlay/target/
 .env
 __pycache__/
 *.pyc
+dist/

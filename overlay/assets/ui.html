@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -255,6 +255,11 @@
     box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.08);
   }
   .ai-box.visible { display: block; }
+  .ai-box.warn-mode {
+    border-color: var(--warn);
+    background: linear-gradient(180deg, rgba(255, 184, 77, 0.14), rgba(16, 27, 23, 0.94));
+  }
+  .ai-box.warn-mode .ai-head { color: var(--warn); }
   .ai-head {
     display: flex;
     justify-content: space-between;
@@ -271,6 +276,13 @@
     line-height: 1.55;
   }
   .ai-content strong { color: var(--accent); font-weight: 700; }
+  .no-key-notice {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 9px;
+    white-space: normal;
+  }
 
   .card {
     background: var(--panel);
@@ -361,6 +373,41 @@
   .setting-label { font-size: 12px; font-weight: 600; color: var(--text); }
   .setting-hint { font-size: 11.5px; color: var(--muted); }
 
+  .mini-guide {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px 8px 24px;
+    font-size: 11.5px;
+    color: #c7dcd5;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .mini-guide b { color: var(--accent); }
+
+  .hotkeys-info {
+    font-size: 11.5px;
+    color: var(--muted);
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 7px;
+    padding: 7px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .hotkeys-info kbd {
+    background: rgba(var(--accent-rgb), 0.14);
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
   .swatch-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .swatch {
     width: 26px;
@@ -431,7 +478,13 @@
   .update-status.ok { color: var(--accent); }
   .update-status.err { color: var(--danger); }
 
-  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 2px; }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2px;
+  }
   .btn-primary {
     background: var(--accent);
     color: var(--accent-fg);
@@ -452,6 +505,19 @@
     text-align: center;
   }
   .btn-outline:hover { background: var(--accent-dim); }
+  .btn-danger-outline {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid rgba(255, 107, 107, 0.45);
+    border-radius: 7px;
+    padding: 6px 11px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .btn-danger-outline:hover {
+    border-color: var(--danger);
+    background: rgba(255, 107, 107, 0.12);
+  }
 </style>
 </head>
 <body>
@@ -460,16 +526,16 @@
   <div class="brand">
     <span class="brand-badge">NG</span>
     <span>HELPER</span>
-    <span id="app-version" class="ver-badge">v1.0.0</span>
+    <span id="app-version" class="ver-badge">v1.0.1</span>
     <span class="hotkey-hint">Alt+Q</span>
   </div>
   <div class="header-controls">
-    <button id="pin-btn" class="icon-btn active" title="Поверх всех окон">📌</button>
+    <button id="pin-btn" class="icon-btn active" title="Поверх усіх вікон">📌</button>
     <button id="settings-btn" class="icon-btn">
       <span id="key-dot" class="key-dot"></span>
-      <span id="settings-btn-text">Настройки</span>
+      <span id="settings-btn-text">Налаштування</span>
     </button>
-    <button id="hide-btn" class="icon-btn close-btn" title="Скрыть в трей (Alt+Q)">✕</button>
+    <button id="hide-btn" class="icon-btn close-btn" title="Сховати в трей (Alt+Q)">✕</button>
   </div>
 </header>
 
@@ -477,19 +543,19 @@
   <span id="update-bar-text" class="update-bar-text"></span>
   <div class="update-bar-actions">
     <button id="update-notes-btn" class="btn-xs-ghost" data-i18n="upd_release">GitHub</button>
-    <button id="update-now-btn" class="btn-xs" data-i18n="upd_now">Обновить</button>
+    <button id="update-now-btn" class="btn-xs" data-i18n="upd_now">Оновити</button>
   </div>
 </div>
 
 <div class="search-wrap">
   <div class="input-row">
-    <input id="query" type="text" placeholder="Поиск или вопрос по правилам NG..." autocomplete="off" />
-    <button id="ask-ai-btn" title="Разобрать ситуацию через ИИ (Enter)">✨ ИИ</button>
+    <input id="query" type="text" placeholder="Пошук або питання по правилах NG..." autocomplete="off" />
+    <button id="ask-ai-btn" title="Розібрати ситуацію через ШІ (Enter)">✨ ШІ</button>
   </div>
   <div class="filters" id="filters">
-    <button class="chip active" data-cat="all" data-i18n="cat_all">Все</button>
+    <button class="chip active" data-cat="all" data-i18n="cat_all">Усі</button>
     <button class="chip" data-cat="rules" data-i18n="cat_rules">Правила</button>
-    <button class="chip" data-cat="laws" data-i18n="cat_laws">Законы</button>
+    <button class="chip" data-cat="laws" data-i18n="cat_laws">Закони</button>
     <button class="chip" data-cat="sbu" data-i18n="cat_sbu">СБУ</button>
     <button class="chip" data-cat="npu" data-i18n="cat_npu">НПУ</button>
     <button class="chip" data-cat="crime" data-i18n="cat_crime">Крайм</button>
@@ -499,25 +565,25 @@
 <main id="main">
   <div id="ai-box" class="ai-box">
     <div class="ai-head">
-      <span id="ai-status">✨ Ответ ИИ</span>
-      <button id="copy-ai-btn" class="copy-btn">📋 Копировать</button>
+      <span id="ai-status">✨ Відповідь ШІ</span>
+      <button id="copy-ai-btn" class="copy-btn">📋 Копіювати</button>
     </div>
     <div id="ai-content" class="ai-content"></div>
   </div>
 
-  <div id="results-label" class="section-label">⚡ Топ частых вопросов NG</div>
+  <div id="results-label" class="section-label">⚡ Топ частих питань NG</div>
   <div id="results"></div>
 </main>
 
 <div id="modal-bg" class="modal-bg">
   <div class="modal">
     <div class="modal-head">
-      <h3 data-i18n="settings_title">Настройки NG Helper</h3>
+      <h3 data-i18n="settings_title">Налаштування NG Helper</h3>
       <button id="close-modal-x" class="icon-btn close-btn">✕</button>
     </div>
 
     <div class="setting-group">
-      <div class="setting-label" data-i18n="set_color">Основной цвет</div>
+      <div class="setting-label" data-i18n="set_color">Основний колір</div>
       <div class="swatch-row" id="swatches">
         <button class="swatch" data-color="#26ffae" style="background:#26ffae" title="NG Mint"></button>
         <button class="swatch" data-color="#00d4ff" style="background:#00d4ff" title="Cyan"></button>
@@ -527,78 +593,89 @@
         <button class="swatch" data-color="#e2e8f0" style="background:#e2e8f0" title="Silver"></button>
         <label class="color-picker-wrap">
           <input type="color" id="custom-color" value="#26ffae" />
-          <span data-i18n="set_custom_color">Свой</span>
+          <span data-i18n="set_custom_color">Свій</span>
         </label>
       </div>
     </div>
 
     <div class="setting-group">
-      <div class="setting-label" data-i18n="set_theme">Фон окна</div>
+      <div class="setting-label" data-i18n="set_theme">Фон вікна</div>
       <div class="seg-row" data-setting="theme">
-        <button class="seg-btn" data-val="dark" data-i18n="theme_dark">Тёмный NG</button>
-        <button class="seg-btn" data-val="oled" data-i18n="theme_oled">OLED Чёрный</button>
-        <button class="seg-btn" data-val="graphite" data-i18n="theme_graphite">Графит</button>
+        <button class="seg-btn" data-val="dark" data-i18n="theme_dark">Темний NG</button>
+        <button class="seg-btn" data-val="oled" data-i18n="theme_oled">OLED Чорний</button>
+        <button class="seg-btn" data-val="graphite" data-i18n="theme_graphite">Графіт</button>
       </div>
     </div>
 
     <div class="setting-group">
-      <div class="setting-label" data-i18n="set_ui_lang">Язык интерфейса</div>
+      <div class="setting-label" data-i18n="set_ui_lang">Мова інтерфейсу</div>
       <div class="seg-row" data-setting="uiLang">
-        <button class="seg-btn" data-val="ru">Русский</button>
         <button class="seg-btn" data-val="uk">Українська</button>
+        <button class="seg-btn" data-val="ru">Русский</button>
       </div>
     </div>
 
     <div class="setting-group">
-      <div class="setting-label" data-i18n="set_ai_lang">Язык ответов ИИ</div>
+      <div class="setting-label" data-i18n="set_ai_lang">Мова відповідей ШІ</div>
       <div class="seg-row" data-setting="aiLang">
-        <button class="seg-btn" data-val="auto" data-i18n="lang_auto">Авто (как вопрос)</button>
-        <button class="seg-btn" data-val="ru">Русский</button>
+        <button class="seg-btn" data-val="auto" data-i18n="lang_auto">Авто (як питання)</button>
         <button class="seg-btn" data-val="uk">Українська</button>
+        <button class="seg-btn" data-val="ru">Русский</button>
       </div>
     </div>
 
     <div class="setting-group">
-      <div class="setting-label" data-i18n="set_style">Стиль ответов ИИ</div>
+      <div class="setting-label" data-i18n="set_style">Стиль відповідей ШІ</div>
       <div class="seg-row" data-setting="aiStyle">
-        <button class="seg-btn" data-val="open" data-i18n="style_open">Открытый (подробно)</button>
-        <button class="seg-btn" data-val="short" data-i18n="style_short">Короткий (в бою)</button>
+        <button class="seg-btn" data-val="open" data-i18n="style_open">Детальний</button>
+        <button class="seg-btn" data-val="short" data-i18n="style_short">Короткий</button>
       </div>
     </div>
 
     <div class="setting-group">
-      <div class="setting-label" data-i18n="set_size">Размер окна и шрифта</div>
+      <div class="setting-label" data-i18n="set_size">Розмір вікна та шрифту</div>
       <div class="seg-row" data-setting="winSize">
         <button class="seg-btn" data-val="480,640" data-i18n="size_sm">Компакт</button>
         <button class="seg-btn" data-val="560,740" data-i18n="size_md">Стандарт</button>
         <button class="seg-btn" data-val="680,820" data-i18n="size_lg">Широкий</button>
       </div>
       <div class="seg-row" data-setting="fontSize" style="margin-top:4px">
-        <button class="seg-btn" data-val="12.5">Шрифт S</button>
-        <button class="seg-btn" data-val="13.5">Шрифт M</button>
-        <button class="seg-btn" data-val="15">Шрифт L</button>
+        <button class="seg-btn" data-val="12.5">S</button>
+        <button class="seg-btn" data-val="13.5">M</button>
+        <button class="seg-btn" data-val="15">L</button>
       </div>
     </div>
 
-    <div class="setting-group">
-      <div class="setting-label" data-i18n="set_key">Персональный API-ключ Gemini</div>
-      <div class="setting-hint" data-i18n="set_key_hint">Офлайн-поиск работает без ключа. Ключ нужен только для кнопки «✨ ИИ» (у каждого свой бесплатный лимит).</div>
-      <button id="open-browser-btn" class="btn-outline" data-i18n="open_studio">🌐 Открыть Google AI Studio в браузере</button>
+    <div class="setting-group" id="api-key-section">
+      <div class="setting-label" data-i18n="set_key">Персональний API-ключ Gemini</div>
+      <div class="setting-hint" data-i18n="set_key_hint">Офлайн-пошук працює без ключа. Ключ безкоштовний і потрібен лише для кнопки ШІ (у кожного свій ліміт).</div>
+      <ol class="mini-guide" id="api-guide"></ol>
+      <button id="open-browser-btn" class="btn-outline" data-i18n="open_studio">🌐 Відкрити Google AI Studio у браузері</button>
       <input id="api-key-input" type="password" placeholder="AIzaSy... / AQ...." />
     </div>
 
     <div class="setting-group">
-      <div class="about-row">
-        <div class="setting-label"><span data-i18n="set_about">Версия и исходный код</span> (<span id="modal-version">v1.0.0</span>)</div>
-        <span id="update-status" class="update-status"></span>
-      </div>
-      <div class="seg-row">
-        <button id="check-update-btn" class="btn-outline" style="flex:1" data-i18n="btn_check_upd">🔄 Проверить обновления</button>
-        <button id="open-github-btn" class="btn-outline" style="flex:1" data-i18n="btn_github">💻 Исходный код (GitHub)</button>
+      <div class="setting-label" data-i18n="set_hotkeys">Гарячі клавіші</div>
+      <div class="hotkeys-info">
+        <div><kbd>Alt + Q</kbd> — <span data-i18n="hk_toggle">Відкрити / сховати оверлей</span></div>
+        <div><kbd>Alt + Shift + Q</kbd> — <span data-i18n="hk_quit">Повністю закрити програму</span></div>
       </div>
     </div>
 
+    <div class="setting-group">
+      <div class="about-row">
+        <div class="setting-label"><span data-i18n="set_about">Версія, оновлення та зв'язок</span> (<span id="modal-version">v1.0.1</span>)</div>
+        <span id="update-status" class="update-status"></span>
+      </div>
+      <div class="seg-row">
+        <button id="check-update-btn" class="btn-outline" style="flex:1" data-i18n="btn_check_upd">🔄 Перевірити оновлення</button>
+        <button id="open-github-btn" class="btn-outline" style="flex:1" data-i18n="btn_github">💻 Код на GitHub</button>
+      </div>
+      <button id="copy-discord-btn" class="btn-outline">💬 Discord автора: @Frezze98</button>
+    </div>
+
     <div class="modal-actions">
+      <button id="quit-app-btn" class="btn-danger-outline" data-i18n="btn_quit">Закрити повністю</button>
       <button id="save-settings-btn" class="btn-primary" data-i18n="btn_done">Готово</button>
     </div>
   </div>
@@ -606,65 +683,6 @@
 
 <script>
 const I18N = {
-  ru: {
-    settings_btn: "Настройки",
-    settings_title: "Настройки NG Helper",
-    placeholder: "Поиск или вопрос (напр: какую статью дать за стрельбу)...",
-    ask_ai: "✨ ИИ",
-    cat_all: "Все",
-    cat_rules: "Правила",
-    cat_laws: "Законы",
-    cat_sbu: "СБУ",
-    cat_npu: "НПУ",
-    cat_crime: "Крайм",
-    top_faq: "⚡ Топ частых вопросов NG",
-    copy: "📋 Копировать",
-    copy_report: "📋 Для репорта",
-    copied: "✓ Скопировано",
-    found_prefix: "Найдено в правилах:",
-    found_hint: "(Enter — ответ ИИ)",
-    no_matches: "Точных совпадений не найдено. Нажми <b>✨ ИИ</b> — он сам найдёт нужный кодекс или раздел правил.",
-    read_full: "ИИ прочитал целиком:",
-    checked_frags: "Проверено фрагментов:",
-    st_routing: "⏳ Выбираю нужные кодексы и правила...",
-    st_reading: "⏳ Читаю документы и готовлю ответ...",
-    st_switch: "⏳ Перегружено, пробую",
-    st_done: "✨ Ответ ИИ",
-    st_err: "⚠ Ошибка API",
-    set_color: "Основной цвет",
-    set_custom_color: "Свой",
-    set_theme: "Фон окна",
-    theme_dark: "Тёмный NG",
-    theme_oled: "OLED Чёрный",
-    theme_graphite: "Графит",
-    set_ui_lang: "Язык интерфейса",
-    set_ai_lang: "Язык ответов ИИ",
-    lang_auto: "Авто (как вопрос)",
-    set_style: "Стиль ответов ИИ",
-    style_open: "Открытый (подробно)",
-    style_short: "Короткий (в бою)",
-    set_size: "Размер окна и шрифта",
-    size_sm: "Компакт",
-    size_md: "Стандарт",
-    size_lg: "Широкий",
-    set_key: "Персональный API-ключ Gemini",
-    set_key_hint: "Офлайн-поиск работает без ключа. Ключ нужен только для кнопки «✨ ИИ» (у каждого свой бесплатный лимит).",
-    open_studio: "🌐 Открыть Google AI Studio в браузере",
-    set_about: "Версия и исходный код",
-    btn_check_upd: "🔄 Проверить обновления",
-    btn_github: "💻 Исходный код (GitHub)",
-    upd_available: "Доступно обновление",
-    upd_now: "Обновить",
-    upd_downloading: "⏳ Скачиваю...",
-    upd_release: "GitHub",
-    upd_checking: "Проверяю...",
-    upd_latest: "Установлена последняя версия",
-    upd_none: "Релизов на GitHub пока нет",
-    upd_err: "Ошибка проверки",
-    btn_done: "Готово",
-    pin_title: "Поверх всех окон",
-    hide_title: "Скрыть в трей (Alt+Q)"
-  },
   uk: {
     settings_btn: "Налаштування",
     settings_title: "Налаштування NG Helper",
@@ -690,6 +708,9 @@ const I18N = {
     st_switch: "⏳ Перевантажено, пробую",
     st_done: "✨ Відповідь ШІ",
     st_err: "⚠ Помилка API",
+    no_key_title: "⚠ Потрібен API-ключ",
+    no_key_msg: "Щоб користуватися ШІ, потрібно додати безкоштовний Gemini API-ключ у налаштуваннях. Офлайн-пошук по правилах нижче працює і без ключа.",
+    no_key_btn: "⚙ Додати ключ у налаштуваннях",
     set_color: "Основний колір",
     set_custom_color: "Свій",
     set_theme: "Фон вікна",
@@ -700,18 +721,28 @@ const I18N = {
     set_ai_lang: "Мова відповідей ШІ",
     lang_auto: "Авто (як питання)",
     set_style: "Стиль відповідей ШІ",
-    style_open: "Відкритий (детально)",
-    style_short: "Короткий (у бою)",
+    style_open: "Детальний",
+    style_short: "Короткий",
     set_size: "Розмір вікна та шрифту",
     size_sm: "Компакт",
     size_md: "Стандарт",
     size_lg: "Широкий",
     set_key: "Персональний API-ключ Gemini",
-    set_key_hint: "Офлайн-пошук працює без ключа. Ключ потрібен лише для кнопки «✨ ШІ» (у кожного свій безкоштовний ліміт).",
+    set_key_hint: "Офлайн-пошук працює без ключа. Ключ безкоштовний і потрібен лише для кнопки ШІ (у кожного свій ліміт).",
+    api_guide_html:
+      "<li>Натисни кнопку нижче — відкриється <b>Google AI Studio</b> у твоєму браузері.</li>" +
+      "<li>Увійди у свій Google-акаунт (пароль у програму вводити не потрібно).</li>" +
+      "<li>Натисни <b>Create API key</b> та скопіюй створений ключ.</li>" +
+      "<li>Встав ключ у поле нижче й натисни <b>Готово</b>.</li>",
     open_studio: "🌐 Відкрити Google AI Studio у браузері",
-    set_about: "Версія та вихідний код",
+    set_hotkeys: "Гарячі клавіші",
+    hk_toggle: "Відкрити / сховати оверлей",
+    hk_quit: "Повністю закрити програму",
+    set_about: "Версія, оновлення та зв'язок",
     btn_check_upd: "🔄 Перевірити оновлення",
-    btn_github: "💻 Вихідний код (GitHub)",
+    btn_github: "💻 Код на GitHub",
+    btn_discord: "💬 Зв'язок у Discord: @Frezze98",
+    discord_copied: "✓ Скопійовано: @Frezze98",
     upd_available: "Доступне оновлення",
     upd_now: "Оновити",
     upd_downloading: "⏳ Завантажую...",
@@ -720,40 +751,87 @@ const I18N = {
     upd_latest: "Встановлена остання версія",
     upd_none: "Релізів на GitHub поки немає",
     upd_err: "Помилка перевірки",
+    btn_quit: "Закрити повністю",
     btn_done: "Готово",
     pin_title: "Поверх усіх вікон",
     hide_title: "Сховати в трей (Alt+Q)"
+  },
+  ru: {
+    settings_btn: "Настройки",
+    settings_title: "Настройки NG Helper",
+    placeholder: "Поиск или вопрос (напр: какую статью дать за стрельбу)...",
+    ask_ai: "✨ ИИ",
+    cat_all: "Все",
+    cat_rules: "Правила",
+    cat_laws: "Законы",
+    cat_sbu: "СБУ",
+    cat_npu: "НПУ",
+    cat_crime: "Крайм",
+    top_faq: "⚡ Топ частых вопросов NG",
+    copy: "📋 Копировать",
+    copy_report: "📋 Для репорта",
+    copied: "✓ Скопировано",
+    found_prefix: "Найдено в правилах:",
+    found_hint: "(Enter — ответ ИИ)",
+    no_matches: "Точных совпадений не найдено. Нажми <b>✨ ИИ</b> — он сам найдёт нужный кодекс или раздел правил.",
+    read_full: "ИИ прочитал целиком:",
+    checked_frags: "Проверено фрагментов:",
+    st_routing: "⏳ Выбираю нужные кодексы и правила...",
+    st_reading: "⏳ Читаю документы и готовлю ответ...",
+    st_switch: "⏳ Перегружено, пробую",
+    st_done: "✨ Ответ ИИ",
+    st_err: "⚠ Ошибка API",
+    no_key_title: "⚠ Нужен API-ключ",
+    no_key_msg: "Чтобы пользоваться ИИ, нужно добавить бесплатный Gemini API-ключ в настройках. Офлайн-поиск по правилам ниже работает и без ключа.",
+    no_key_btn: "⚙ Добавить ключ в настройках",
+    set_color: "Основной цвет",
+    set_custom_color: "Свой",
+    set_theme: "Фон окна",
+    theme_dark: "Тёмный NG",
+    theme_oled: "OLED Чёрный",
+    theme_graphite: "Графит",
+    set_ui_lang: "Язык интерфейса",
+    set_ai_lang: "Язык ответов ИИ",
+    lang_auto: "Авто (как вопрос)",
+    set_style: "Стиль ответов ИИ",
+    style_open: "Подробный",
+    style_short: "Короткий",
+    set_size: "Размер окна и шрифта",
+    size_sm: "Компакт",
+    size_md: "Стандарт",
+    size_lg: "Широкий",
+    set_key: "Персональный API-ключ Gemini",
+    set_key_hint: "Офлайн-поиск работает без ключа. Ключ бесплатный и нужен только для кнопки ИИ (у каждого свой лимит).",
+    api_guide_html:
+      "<li>Нажми кнопку ниже — откроется <b>Google AI Studio</b> в твоём браузере.</li>" +
+      "<li>Войди в свой Google-аккаунт (пароль в программу вводить не нужно).</li>" +
+      "<li>Нажми <b>Create API key</b> и скопируй созданный ключ.</li>" +
+      "<li>Вставь ключ в поле ниже и нажми <b>Готово</b>.</li>",
+    open_studio: "🌐 Открыть Google AI Studio в браузере",
+    set_hotkeys: "Горячие клавиши",
+    hk_toggle: "Открыть / скрыть оверлей",
+    hk_quit: "Полностью закрыть программу",
+    set_about: "Версия, обновления и связь",
+    btn_check_upd: "🔄 Проверить обновления",
+    btn_github: "💻 Код на GitHub",
+    btn_discord: "💬 Связь в Discord: @Frezze98",
+    discord_copied: "✓ Скопировано: @Frezze98",
+    upd_available: "Доступно обновление",
+    upd_now: "Обновить",
+    upd_downloading: "⏳ Скачиваю...",
+    upd_release: "GitHub",
+    upd_checking: "Проверяю...",
+    upd_latest: "Установлена последняя версия",
+    upd_none: "Релизов на GitHub пока нет",
+    upd_err: "Ошибка проверки",
+    btn_quit: "Закрыть полностью",
+    btn_done: "Готово",
+    pin_title: "Поверх всех окон",
+    hide_title: "Скрыть в трей (Alt+Q)"
   }
 };
 
 const TOP_FAQ = {
-  ru: [
-    {
-      q: "Может ли СБУ / НПУ устроить засаду возле угонки?",
-      a: "Нет. Силовикам запрещено устраивать засады, дежурить или кемпить возле точек спавна угонок, домов под взлом и точек сдачи в радиусе 150 метров (п. 1.29 Загальних правил державних організацій).",
-      punish: "Наказание: Деморган 30–60 мин / Warn"
-    },
-    {
-      q: "Сколько нужно хранить откат (видеозапись)?",
-      a: "Обычные игроки, жалобы, капты и похищения — минимум 72 часа (п. 15 ОПП). Силовые госструктуры для процессуальных действий — 48 часов (п. 3.7 Загальних правил держорганізацій).",
-      punish: "Отсутствие отката у силовика при жалобе: Деморган 60–180 мин / Warn"
-    },
-    {
-      q: "Сколько грабителей нужно на 1 жертву?",
-      a: "Минимум 2 грабителя на 1 жертву (1 авто + 2 чел.). В Гетто можно 1 на 1 при наличии огнестрела. На дальнобойщика — минимум 4 грабителя на 2 авто (п. 8.3 Загальних правил крайму).",
-      punish: "Наказание: Demorgan 30–360 мин"
-    },
-    {
-      q: "Сколько человек нужно СБУ / НПУ для патруля в Гетто?",
-      a: "НПУ / НГУ / ДБР — минимум 3 вооружённых сотрудника в авто (п. 3.5). СБУ — минимум 2 сотрудника в авто (п. 3.5.1 Загальних правил держорганізацій).",
-      punish: "Наказание: Деморган 30–60 мин"
-    },
-    {
-      q: "Скольким нападающим может сопротивляться силовик (PG)?",
-      a: "Сотрудник в полном экипировании имеет право оказывать сопротивление максимум двоим нападающим (п. 1.13 Загальних правил держорганізацій).",
-      punish: "Наказание: Деморган 30–60 мин (PG)"
-    }
-  ],
   uk: [
     {
       q: "Чи може СБУ / НПУ влаштувати засідку біля угонки?",
@@ -779,6 +857,33 @@ const TOP_FAQ = {
       q: "Скільком нападникам може чинити опір силовик (PG)?",
       a: "Співробітник у повному екіпіруванні має право чинити опір максимум двом нападникам (п. 1.13 Загальних правил держорганізацій).",
       punish: "Покарання: Деморган 30–60 хв (PG)"
+    }
+  ],
+  ru: [
+    {
+      q: "Может ли СБУ / НПУ устроить засаду возле угонки?",
+      a: "Нет. Силовикам запрещено устраивать засады, дежурить или кемпить возле точек спавна угонок, домов под взлом и точек сдачи в радиусе 150 метров (п. 1.29 Загальних правил державних організацій).",
+      punish: "Наказание: Деморган 30–60 мин / Warn"
+    },
+    {
+      q: "Сколько нужно хранить откат (видеозапись)?",
+      a: "Обычные игроки, жалобы, капты и похищения — минимум 72 часа (п. 15 ОПП). Силовые госструктуры для процессуальных действий — 48 часов (п. 3.7 Загальних правил держорганізацій).",
+      punish: "Отсутствие отката у силовика при жалобе: Деморган 60–180 мин / Warn"
+    },
+    {
+      q: "Сколько грабителей нужно на 1 жертву?",
+      a: "Минимум 2 грабителя на 1 жертву (1 авто + 2 чел.). В Гетто можно 1 на 1 при наличии огнестрела. На дальнобойщика — минимум 4 грабителя на 2 авто (п. 8.3 Загальних правил крайму).",
+      punish: "Наказание: Demorgan 30–360 мин"
+    },
+    {
+      q: "Сколько человек нужно СБУ / НПУ для патруля в Гетто?",
+      a: "НПУ / НГУ / ДБР — минимум 3 вооружённых сотрудника в авто (п. 3.5). СБУ — минимум 2 сотрудника в авто (п. 3.5.1 Загальних правил держорганізацій).",
+      punish: "Наказание: Деморган 30–60 мин"
+    },
+    {
+      q: "Скольким нападающим может сопротивляться силовик (PG)?",
+      a: "Сотрудник в полном экипировании имеет право оказывать сопротивление максимум двоим нападающим (п. 1.13 Загальних правил держорганізацій).",
+      punish: "Наказание: Деморган 30–60 мин (PG)"
     }
   ]
 };
@@ -856,7 +961,7 @@ const MAX_CONTEXT_CHARS = 115000;
 const DEFAULT_SETTINGS = {
   accent: "#26ffae",
   theme: "dark",
-  uiLang: "ru",
+  uiLang: "uk",
   aiLang: "auto",
   aiStyle: "open",
   winSize: "560,740",
@@ -864,7 +969,7 @@ const DEFAULT_SETTINGS = {
   aot: true
 };
 
-let APP_INFO = { version: "1.0.0", repo: "Frezze98/ng-helper" };
+let APP_INFO = { version: "1.0.1", repo: "Frezze98/ng-helper" };
 let LATEST_RELEASE = null;
 
 let SETTINGS = loadSettings();
@@ -887,8 +992,11 @@ const $pinBtn = document.getElementById("pin-btn");
 const $hideBtn = document.getElementById("hide-btn");
 const $modalBg = document.getElementById("modal-bg");
 const $apiKeyInput = document.getElementById("api-key-input");
+const $apiKeySection = document.getElementById("api-key-section");
+const $apiGuide = document.getElementById("api-guide");
 const $customColor = document.getElementById("custom-color");
 const $copyAiBtn = document.getElementById("copy-ai-btn");
+const $copyDiscordBtn = document.getElementById("copy-discord-btn");
 const $appVersion = document.getElementById("app-version");
 const $modalVersion = document.getElementById("modal-version");
 const $updateBar = document.getElementById("update-bar");
@@ -915,8 +1023,8 @@ function saveSettings() {
 }
 
 function t(key) {
-  const dict = I18N[SETTINGS.uiLang] || I18N.ru;
-  return dict[key] || I18N.ru[key] || key;
+  const dict = I18N[SETTINGS.uiLang] || I18N.uk;
+  return dict[key] || I18N.uk[key] || key;
 }
 
 function hexToRgb(hex) {
@@ -961,6 +1069,8 @@ function applySettings(sendWindowIpc = false) {
   $query.placeholder = t("placeholder");
   $askBtn.textContent = t("ask_ai");
   $copyAiBtn.textContent = t("copy");
+  $copyDiscordBtn.textContent = t("btn_discord");
+  $apiGuide.innerHTML = t("api_guide_html");
   $pinBtn.title = t("pin_title");
   $hideBtn.title = t("hide_title");
   $pinBtn.classList.toggle("active", !!SETTINGS.aot);
@@ -1010,7 +1120,10 @@ async function checkUpdates(manual = false) {
   }
   try {
     const url = `https://api.github.com/repos/${APP_INFO.repo}/releases/latest`;
-    const resp = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
+    const resp = await fetch(url, {
+      cache: "no-store",
+      headers: { Accept: "application/vnd.github+json" }
+    });
     if (resp.status === 404) {
       if (manual) {
         $updateStatus.className = "update-status";
@@ -1022,9 +1135,13 @@ async function checkUpdates(manual = false) {
 
     const rel = await resp.json();
     const tag = rel.tag_name || "";
-    const exeAsset = (rel.assets || []).find(a =>
-      String(a.name || "").toLowerCase().endsWith(".exe")
-    );
+    const assets = rel.assets || [];
+    const exeAsset =
+      assets.find(a => String(a.name || "").toLowerCase() === "ng-helper.exe") ||
+      assets.find(a => {
+        const n = String(a.name || "").toLowerCase();
+        return n.endsWith(".exe") && !n.includes("setup");
+      });
 
     if (tag && isNewerVersion(tag, APP_INFO.version)) {
       LATEST_RELEASE = {
@@ -1257,7 +1374,7 @@ function buildFullDocContext(route, q) {
 }
 
 function renderFaq() {
-  const list = TOP_FAQ[SETTINGS.uiLang] || TOP_FAQ.ru;
+  const list = TOP_FAQ[SETTINGS.uiLang] || TOP_FAQ.uk;
   $label.textContent = t("top_faq");
   $results.innerHTML = list.map((f, idx) => `
     <div class="card faq-card" data-faq="${idx}">
@@ -1311,7 +1428,7 @@ function renderCards(matches, terms, labelText) {
 function renderSearch() {
   const q = $query.value.trim();
   if (!q) {
-    $aiBox.classList.remove("visible");
+    $aiBox.classList.remove("visible", "warn-mode");
     renderFaq();
     return;
   }
@@ -1395,7 +1512,7 @@ function buildSystemPrompt() {
       "Ты — быстрый игровой справочник правил и законов GTA 5 RP проекта NG.\n" +
       langRule + "\n" +
       "Опирайся ТОЛЬКО на переданные документы, не выдумывай номера статей. Без воды и без фраз вроде «в предоставленных фрагментах».\n" +
-      "ВАЖНО: перед тем как писать «Да» или «Нет», убедись, что ответ совпадает с смыслом вопроса (если действие запрещено — пиши «Нет, нельзя», а не «Да»).\n" +
+      "ВАЖНО: перед тем как писать «Да» или «Нет», убедись, что ответ совпадает со смыслом вопроса (если действие запрещено — пиши «Нет, нельзя», а не «Да»).\n" +
       "Формат: короткий прямой ответ + список статей/пунктов (номер, суть, наказание)."
     );
   }
@@ -1409,22 +1526,33 @@ function buildSystemPrompt() {
     "3. Внимательно следи за «Да / Нет»: если игрок спрашивает «можно ли так делать?», а правило это запрещает — пиши «Нет, так делать нельзя», а не «Да».\n" +
     "4. Если в вопросе смешаны IC-нарушения (законы, статьи КПЗ) и OOC-нарушения (правила сервера, Деморган/Бан) — раздели ответ на два понятных блока: **IC (статьи)** и **OOC (правила сервера)**.\n\n" +
     "КАК ОФОРМЛЯТЬ:\n" +
-    "- Если спрашивают **какую статью дать / за что сажать**: начни с прямого ответа («В этой ситуации ему можно вменить следующие статьи:»), а ниже перечисли каждую статью с **жирным номером**, коротко объясни в 1 предложение, **за какое именно действие** она даётся, и укажи точный срок / штраф / конфискацию.\n" +
+    "- Если спрашивают **какую статью дать / за что сажать**: начни с прямого ответа, а ниже перечисли каждую статью с **жирным номером**, коротко объясни в 1 предложение, **за какое именно действие** она даётся, и укажи точный срок / штраф / конфискацию.\n" +
     "- Если спрашивают **можно ли / законно ли / какое наказание**: начни с чёткого вердикта и краткого пояснения почему, затем перечисли конкретные **пункты правил** с их сутью, важными исключениями и точным **наказанием**."
   );
 }
 
 async function askAI() {
-  const q = $query.value.trim();
-  if (!q) return;
-
   const key = getApiKey();
   if (!key) {
-    openSettings();
+    $aiBox.classList.add("visible", "warn-mode");
+    $aiStatus.textContent = t("no_key_title");
+    $copyAiBtn.style.display = "none";
+    $aiContent.innerHTML =
+      `<div class="no-key-notice">` +
+      `<div>${escapeHtml(t("no_key_msg"))}</div>` +
+      `<button id="open-key-settings-btn" class="btn-xs">${escapeHtml(t("no_key_btn"))}</button>` +
+      `</div>`;
+    const btn = document.getElementById("open-key-settings-btn");
+    if (btn) btn.addEventListener("click", () => openSettings(true));
     return;
   }
 
+  const q = $query.value.trim();
+  if (!q) return;
+
+  $aiBox.classList.remove("warn-mode");
   $aiBox.classList.add("visible");
+  $copyAiBtn.style.display = "inline-block";
   $aiStatus.textContent = t("st_routing");
   $aiContent.innerHTML = "";
   lastAiRaw = "";
@@ -1486,10 +1614,16 @@ async function askAI() {
   }
 }
 
-function openSettings() {
+function openSettings(focusKey = false) {
   $apiKeyInput.value = getApiKey();
   applySettings(false);
   $modalBg.classList.add("open");
+  if (focusKey) {
+    setTimeout(() => {
+      $apiKeySection.scrollIntoView({ behavior: "smooth", block: "center" });
+      $apiKeyInput.focus();
+    }, 50);
+  }
 }
 
 function closeSettings() {
@@ -1498,6 +1632,9 @@ function closeSettings() {
   updateKeyBadge();
   saveSettings();
   $modalBg.classList.remove("open");
+  if (newKey && $aiBox.classList.contains("warn-mode")) {
+    $aiBox.classList.remove("visible", "warn-mode");
+  }
 }
 
 document.getElementById("drag-header").addEventListener("mousedown", e => {
@@ -1514,9 +1651,10 @@ $pinBtn.addEventListener("click", () => {
 });
 
 $hideBtn.addEventListener("click", () => ipcSend("hide"));
-$settingsBtn.addEventListener("click", openSettings);
+$settingsBtn.addEventListener("click", () => openSettings(false));
 document.getElementById("close-modal-x").addEventListener("click", closeSettings);
 document.getElementById("save-settings-btn").addEventListener("click", closeSettings);
+document.getElementById("quit-app-btn").addEventListener("click", () => ipcSend("quit"));
 $modalBg.addEventListener("click", e => {
   if (e.target === $modalBg) closeSettings();
 });
@@ -1524,6 +1662,12 @@ document.getElementById("open-browser-btn").addEventListener("click", () => ipcS
 
 document.getElementById("open-github-btn").addEventListener("click", () => {
   ipcSend(`open_url:https://github.com/${APP_INFO.repo}`);
+});
+
+$copyDiscordBtn.addEventListener("click", () => {
+  navigator.clipboard.writeText("@Frezze98");
+  $copyDiscordBtn.textContent = t("discord_copied");
+  setTimeout(() => ($copyDiscordBtn.textContent = t("btn_discord")), 1500);
 });
 
 document.getElementById("check-update-btn").addEventListener("click", () => checkUpdates(true));
@@ -1595,7 +1739,7 @@ $results.addEventListener("click", e => {
   }
   const faq = e.target.closest(".faq-card");
   if (faq) {
-    const list = TOP_FAQ[SETTINGS.uiLang] || TOP_FAQ.ru;
+    const list = TOP_FAQ[SETTINGS.uiLang] || TOP_FAQ.uk;
     const item = list[Number(faq.dataset.faq)];
     if (item) {
       $query.value = item.q;
@@ -1642,7 +1786,7 @@ $copyAiBtn.addEventListener("click", e => {
     }
     DOC_CATALOG = Array.from(seen.values());
   } catch (e) {
-    $label.textContent = "Ошибка загрузки базы правил: " + e.message;
+    $label.textContent = "Помилка завантаження бази правил: " + e.message;
   }
 
   checkUpdates(false);

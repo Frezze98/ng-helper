@@ -22,8 +22,28 @@ jobs:
         working-directory: overlay
         run: cargo build --release
 
+      - name: Build Windows installer
+        shell: pwsh
+        run: |
+          $ver = "${{ github.ref_name }}".TrimStart("v")
+          $iscc = Get-Command iscc -ErrorAction SilentlyContinue
+          if (-not $iscc) {
+            $defaultPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+            if (Test-Path $defaultPath) {
+              $isccPath = $defaultPath
+            } else {
+              choco install innosetup -y
+              $isccPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+            }
+          } else {
+            $isccPath = $iscc.Source
+          }
+          & $isccPath "/DMyAppVersion=$ver" installer/setup.iss
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: overlay/target/release/ng-helper.exe
+          files: |
+            overlay/target/release/ng-helper.exe
+            dist/Setup-NG-Helper.exe
           generate_release_notes: true

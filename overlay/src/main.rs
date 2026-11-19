@@ -87,7 +87,7 @@ fn run_self_update(url: String, proxy: EventLoopProxy<UserEvent>) {
     let allowed_prefix = format!("https://github.com/{}/releases/download/", GITHUB_REPO);
     if !url.starts_with(&allowed_prefix) || !url.ends_with(".exe") {
         let _ = proxy.send_event(UserEvent::UpdateError(
-            "Некорректная ссылка обновления.".into(),
+            "Некоректне посилання оновлення.".into(),
         ));
         return;
     }
@@ -97,7 +97,7 @@ fn run_self_update(url: String, proxy: EventLoopProxy<UserEvent>) {
             Ok(p) => p,
             Err(e) => {
                 let _ = proxy.send_event(UserEvent::UpdateError(format!(
-                    "Не удалось определить путь к exe: {e}"
+                    "Не вдалося визначити шлях до exe: {e}"
                 )));
                 return;
             }
@@ -124,7 +124,7 @@ fn run_self_update(url: String, proxy: EventLoopProxy<UserEvent>) {
             _ => {
                 let _ = fs::remove_file(&new_exe);
                 let _ = proxy.send_event(UserEvent::UpdateError(
-                    "Не удалось скачать обновление с GitHub.".into(),
+                    "Не вдалося завантажити оновлення з GitHub.".into(),
                 ));
                 return;
             }
@@ -136,7 +136,7 @@ fn run_self_update(url: String, proxy: EventLoopProxy<UserEvent>) {
         if !size_ok {
             let _ = fs::remove_file(&new_exe);
             let _ = proxy.send_event(UserEvent::UpdateError(
-                "Скачанный файл повреждён или пустой.".into(),
+                "Завантажений файл пошкоджений або порожній.".into(),
             ));
             return;
         }
@@ -163,7 +163,7 @@ fn run_self_update(url: String, proxy: EventLoopProxy<UserEvent>) {
         if let Err(e) = fs::write(&bat_path, bat_script) {
             let _ = fs::remove_file(&new_exe);
             let _ = proxy.send_event(UserEvent::UpdateError(format!(
-                "Ошибка подготовки обновления: {e}"
+                "Помилка підготовки оновлення: {e}"
             )));
             return;
         }
@@ -177,7 +177,7 @@ fn run_self_update(url: String, proxy: EventLoopProxy<UserEvent>) {
             let _ = proxy.send_event(UserEvent::Quit);
         } else {
             let _ = proxy.send_event(UserEvent::UpdateError(
-                "Не удалось запустить установщик обновления.".into(),
+                "Не вдалося запустити оновлення.".into(),
             ));
         }
     });
@@ -237,6 +237,8 @@ fn main() {
                 let _ = proxy_ipc.send_event(UserEvent::DragWindow);
             } else if msg == "hide" {
                 let _ = proxy_ipc.send_event(UserEvent::HideOverlay);
+            } else if msg == "quit" {
+                let _ = proxy_ipc.send_event(UserEvent::Quit);
             } else if let Some(val) = msg.strip_prefix("aot:") {
                 let _ = proxy_ipc.send_event(UserEvent::SetAlwaysOnTop(val == "true"));
             } else if let Some(dims) = msg.strip_prefix("resize:") {
@@ -254,20 +256,27 @@ fn main() {
 
     let hotkey_manager = GlobalHotKeyManager::new().expect("failed to init hotkey manager");
     let toggle_hotkey = HotKey::new(Some(Modifiers::ALT), Code::KeyQ);
+    let quit_hotkey = HotKey::new(Some(Modifiers::ALT | Modifiers::SHIFT), Code::KeyQ);
     hotkey_manager
         .register(toggle_hotkey)
         .expect("failed to register Alt+Q hotkey");
+    let _ = hotkey_manager.register(quit_hotkey);
 
     let proxy_hk = event_loop.create_proxy();
-    let hk_id = toggle_hotkey.id();
+    let toggle_hk_id = toggle_hotkey.id();
+    let quit_hk_id = quit_hotkey.id();
     GlobalHotKeyEvent::set_event_handler(Some(move |event: GlobalHotKeyEvent| {
-        if event.id == hk_id && event.state == HotKeyState::Pressed {
-            let _ = proxy_hk.send_event(UserEvent::ToggleOverlay);
+        if event.state == HotKeyState::Pressed {
+            if event.id == toggle_hk_id {
+                let _ = proxy_hk.send_event(UserEvent::ToggleOverlay);
+            } else if event.id == quit_hk_id {
+                let _ = proxy_hk.send_event(UserEvent::Quit);
+            }
         }
     }));
 
-    let item_toggle = MenuItem::new("Открыть / Скрыть (Alt+Q)", true, None);
-    let item_quit = MenuItem::new("Выход", true, None);
+    let item_toggle = MenuItem::new("Відкрити / Сховати (Alt+Q)", true, None);
+    let item_quit = MenuItem::new("Вихід (Alt+Shift+Q)", true, None);
 
     let tray_menu = Menu::new();
     let _ = tray_menu.append(&item_toggle);
