@@ -39,6 +39,7 @@ enum UserEvent {
     SetAlwaysOnTop(bool),
     Resize(f64, f64),
     UpdateError(String),
+    Uninstall,
     Quit,
 }
 
@@ -83,6 +84,19 @@ fn open_external_url(url: &str) {
         .spawn();
 }
 
+fn run_uninstall() {
+    let mut exe_dir = match std::env::current_exe() {
+        Ok(p) => p,
+        Err(_) => return,
+    };
+    exe_dir.pop();
+    let uninst = exe_dir.join("unins000.exe");
+    if uninst.exists() {
+        let _ = Command::new(&uninst).spawn();
+        std::process::exit(0);
+    }
+}
+
 fn run_self_update(url: String, proxy: EventLoopProxy<UserEvent>) {
     let allowed_prefix = format!("https://github.com/{}/releases/download/", GITHUB_REPO);
     if !url.starts_with(&allowed_prefix) || !url.ends_with(".exe") {
@@ -93,19 +107,7 @@ fn run_self_update(url: String, proxy: EventLoopProxy<UserEvent>) {
     }
 
     thread::spawn(move || {
-        let cur_exe = match std::env::current_exe() {
-            Ok(p) => p,
-            Err(e) => {
-                let _ = proxy.send_event(UserEvent::UpdateError(format!(
-                    "Не вдалося визначити шлях до exe: {e}"
-                )));
-                return;
-            }
-        };
-
-        let mut new_os = cur_exe.as_os_str().to_os_string();
-        new_os.push(".new");
-        let new_exe = PathBuf::from(new_os);
+        let temp_setup = std::env::temp_dir().join("Setup-NG-Helper.exe");
 
         let status = Command::new("curl.exe")
             .args([
@@ -113,7 +115,7 @@ fn run_self_update(url: String, proxy: EventLoopProxy<UserEvent>) {
                 "-f",
                 "-sS",
                 "-o",
-                new_exe.to_string_lossy().as_ref(),
+                temp_setup.to_string_lossy().as_ref(),
                 &url,
             ])
             .creation_flags(CREATE_NO_WINDOW)
@@ -122,7 +124,7 @@ fn run_self_update(url: String, proxy: EventLoopProxy<UserEvent>) {
         match status {
             Ok(s) if s.success() => {}
             _ => {
-                let _ = fs::remove_file(&new_exe);
+                let _ = fs::remove_file(&temp_setup);
                 let _ = proxy.send_event(UserEvent::UpdateError(
                     "Не вдалося завантажити оновлення з GitHub.".into(),
                 ));
@@ -130,54 +132,16 @@ fn run_self_update(url: String, proxy: EventLoopProxy<UserEvent>) {
             }
         }
 
-        let size_ok = fs::metadata(&new_exe)
-            .map(|m| m.len() > 100_000)
-            .unwrap_or(false);
-        if !size_ok {
-            let _ = fs::remove_file(&new_exe);
-            let _ = proxy.send_event(UserEvent::UpdateError(
-                "Завантажений файл пошкоджений або порожній.".into(),
-            ));
-            return;
-        }
-
-        let bat_path = std::env::temp_dir().join("ng_helper_updater.bat");
-        let cur_str = cur_exe.to_string_lossy();
-        let new_str = new_exe.to_string_lossy();
-
-        let bat_script = format!(
-            "@echo off\r\n\
-             chcp 65001 >nul\r\n\
-             set \"CUR={cur_str}\"\r\n\
-             set \"NEW={new_str}\"\r\n\
-             for /L %%i in (1,1,15) do (\r\n\
-                 move /Y \"%NEW%\" \"%CUR%\" >nul 2>&1\r\n\
-                 if not errorlevel 1 goto launch\r\n\
-                 timeout /t 1 /nobreak >nul\r\n\
-             )\r\n\
-             :launch\r\n\
-             start \"\" \"%CUR%\"\r\n\
-             (goto) 2>nul & del \"%~f0\"\r\n"
-        );
-
-        if let Err(e) = fs::write(&bat_path, bat_script) {
-            let _ = fs::remove_file(&new_exe);
-            let _ = proxy.send_event(UserEvent::UpdateError(format!(
-                "Помилка підготовки оновлення: {e}"
-            )));
-            return;
-        }
-
-        let launched = Command::new("cmd")
-            .args(["/C", bat_path.to_string_lossy().as_ref()])
-            .creation_flags(CREATE_NO_WINDOW)
+        let launched = Command::new(&temp_setup)
+            .args(["/SP-", "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART"])
             .spawn();
 
         if launched.is_ok() {
             let _ = proxy.send_event(UserEvent::Quit);
         } else {
+            let _ = fs::remove_file(&temp_setup);
             let _ = proxy.send_event(UserEvent::UpdateError(
-                "Не вдалося запустити оновлення.".into(),
+                "Не вдалося запустити інсталятор оновлення.".into(),
             ));
         }
     });
@@ -237,6 +201,8 @@ fn main() {
                 let _ = proxy_ipc.send_event(UserEvent::DragWindow);
             } else if msg == "hide" {
                 let _ = proxy_ipc.send_event(UserEvent::HideOverlay);
+            } else if msg == "uninstall" {
+                let _ = proxy_ipc.send_event(UserEvent::Uninstall);
             } else if msg == "quit" {
                 let _ = proxy_ipc.send_event(UserEvent::Quit);
             } else if let Some(val) = msg.strip_prefix("aot:") {
@@ -334,8 +300,10 @@ fn main() {
                 is_visible = !is_visible;
                 window.set_visible(is_visible);
                 if is_visible {
+                    window.set_always_on_top(false);
                     window.set_always_on_top(always_on_top);
-                    window.set_focus();
+                    let _ = window.set_focus();
+                    window.request_redraw();
                 }
             }
             Event::UserEvent(UserEvent::HideOverlay) => {
@@ -357,6 +325,9 @@ fn main() {
                 let _ = webview.evaluate_script(&format!(
                     "window.onUpdateError && window.onUpdateError(\"{safe}\");"
                 ));
+            }
+            Event::UserEvent(UserEvent::Uninstall) => {
+                run_uninstall();
             }
             Event::UserEvent(UserEvent::Quit) => {
                 *control_flow = ControlFlow::Exit;

@@ -44,6 +44,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            overlay/target/release/ng-helper.exe
             dist/Setup-NG-Helper.exe
           generate_release_notes: true

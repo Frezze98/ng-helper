@@ -47,6 +47,8 @@
     flex-direction: column;
     overflow: hidden;
     border: 1px solid rgba(var(--accent-rgb), 0.38);
+    will-change: transform;
+    backface-visibility: hidden;
   }
 
   header {
@@ -105,12 +107,12 @@
     padding: 4px 9px;
     cursor: pointer;
     font-size: 12px;
-    transition: 0.15s;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     display: inline-flex;
     align-items: center;
     gap: 5px;
   }
-  .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
   .icon-btn.active {
     background: var(--accent-dim);
     border-color: var(--accent);
@@ -142,6 +144,7 @@
     background: rgba(var(--accent-rgb), 0.14);
     border-bottom: 1px solid var(--accent);
     font-size: 12px;
+    animation: slideDown 0.35s cubic-bezier(0.23, 1, 0.32, 1);
   }
   .update-bar.visible { display: flex; }
   .update-bar-text { color: var(--text); font-weight: 600; }
@@ -155,7 +158,9 @@
     font-size: 11.5px;
     font-weight: 700;
     cursor: pointer;
+    transition: filter 0.15s;
   }
+  .btn-xs:hover { filter: brightness(1.1); }
   .btn-xs:disabled { opacity: 0.6; cursor: wait; }
   .btn-xs-ghost {
     background: transparent;
@@ -165,7 +170,9 @@
     padding: 3px 8px;
     font-size: 11.5px;
     cursor: pointer;
+    transition: background 0.15s;
   }
+  .btn-xs-ghost:hover { background: var(--accent-dim); }
 
   .search-wrap {
     padding: 11px 14px 9px;
@@ -182,7 +189,7 @@
     color: var(--text);
     font-size: 1em;
     outline: none;
-    transition: 0.15s;
+    transition: all 0.2s;
   }
   #query:focus {
     border-color: var(--accent);
@@ -198,10 +205,11 @@
     font-size: 0.96em;
     cursor: pointer;
     white-space: nowrap;
-    transition: 0.15s;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.25);
   }
-  #ask-ai-btn:hover { filter: brightness(1.08); }
+  #ask-ai-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  #ask-ai-btn:active { transform: translateY(0); }
   #ask-ai-btn:disabled { opacity: 0.5; cursor: wait; }
 
   .filters {
@@ -218,7 +226,7 @@
     padding: 3px 10px;
     font-size: 11.5px;
     cursor: pointer;
-    transition: 0.15s;
+    transition: all 0.15s;
   }
   .chip:hover { color: var(--text); border-color: var(--border); }
   .chip.active {
@@ -234,6 +242,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    scroll-behavior: smooth;
   }
   main::-webkit-scrollbar { width: 6px; }
   main::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), 0.28); border-radius: 3px; }
@@ -253,6 +262,8 @@
     border-radius: 10px;
     padding: 12px 13px;
     box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.08);
+    will-change: opacity, transform;
+    animation: slideInUp 0.35s cubic-bezier(0.23, 1, 0.32, 1);
   }
   .ai-box.visible { display: block; }
   .ai-box.warn-mode {
@@ -289,9 +300,10 @@
     border: 1px solid rgba(255,255,255,0.07);
     border-radius: 9px;
     padding: 10px 12px;
-    transition: 0.15s;
+    transition: all 0.2s ease-out;
+    will-change: opacity, transform;
   }
-  .card:hover { border-color: var(--border); background: var(--panel-hover); }
+  .card:hover { border-color: var(--border); background: var(--panel-hover); transform: translateX(1px); }
   .card-top {
     display: flex;
     justify-content: space-between;
@@ -317,8 +329,9 @@
     font-size: 11px;
     cursor: pointer;
     flex-shrink: 0;
+    transition: all 0.15s;
   }
-  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
 
   .faq-card { cursor: pointer; border-left: 3px solid var(--accent); }
   .faq-q { font-weight: 600; color: var(--text); margin-bottom: 4px; }
@@ -341,6 +354,8 @@
     justify-content: center;
     padding: 14px;
     z-index: 99;
+    will-change: opacity;
+    animation: fadeIn 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   .modal-bg.open { display: flex; }
   .modal {
@@ -356,6 +371,8 @@
     flex-direction: column;
     gap: 13px;
     box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    will-change: transform, opacity;
+    animation: slideInUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .modal::-webkit-scrollbar { width: 5px; }
   .modal::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), 0.3); border-radius: 3px; }
@@ -415,9 +432,9 @@
     border-radius: 50%;
     border: 2px solid transparent;
     cursor: pointer;
-    transition: 0.15s;
+    transition: all 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
-  .swatch:hover { transform: scale(1.1); }
+  .swatch:hover { transform: scale(1.15); }
   .swatch.active { border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.45); }
   .color-picker-wrap {
     display: inline-flex;
@@ -445,7 +462,7 @@
     font-size: 12px;
     cursor: pointer;
     text-align: center;
-    transition: 0.15s;
+    transition: all 0.15s;
   }
   .seg-btn:hover { color: var(--text); border-color: var(--border); }
   .seg-btn.active {
@@ -493,7 +510,10 @@
     padding: 7px 16px;
     font-weight: 700;
     cursor: pointer;
+    transition: transform 0.15s;
   }
+  .btn-primary:hover { transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
   .btn-outline {
     background: transparent;
     color: var(--accent);
@@ -503,8 +523,9 @@
     cursor: pointer;
     font-size: 12px;
     text-align: center;
+    transition: all 0.15s ease-out;
   }
-  .btn-outline:hover { background: var(--accent-dim); }
+  .btn-outline:hover { background: var(--accent-dim); transform: translateY(-1px); }
   .btn-danger-outline {
     background: transparent;
     color: var(--danger);
@@ -513,10 +534,25 @@
     padding: 6px 11px;
     cursor: pointer;
     font-size: 12px;
+    transition: all 0.15s ease-out;
   }
   .btn-danger-outline:hover {
     border-color: var(--danger);
     background: rgba(255, 107, 107, 0.12);
+    transform: translateY(-1px);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes slideInUp {
+    from { transform: translateY(12px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
   }
 </style>
 </head>
@@ -526,7 +562,7 @@
   <div class="brand">
     <span class="brand-badge">NG</span>
     <span>HELPER</span>
-    <span id="app-version" class="ver-badge">v1.0.1</span>
+    <span id="app-version" class="ver-badge">v1.0.2</span>
     <span class="hotkey-hint">Alt+Q</span>
   </div>
   <div class="header-controls">
@@ -664,7 +700,7 @@
 
     <div class="setting-group">
       <div class="about-row">
-        <div class="setting-label"><span data-i18n="set_about">Версія, оновлення та зв'язок</span> (<span id="modal-version">v1.0.1</span>)</div>
+        <div class="setting-label"><span data-i18n="set_about">Версія, оновлення та зв'язок</span> (<span id="modal-version">v1.0.2</span>)</div>
         <span id="update-status" class="update-status"></span>
       </div>
       <div class="seg-row">
@@ -675,7 +711,7 @@
     </div>
 
     <div class="modal-actions">
-      <button id="quit-app-btn" class="btn-danger-outline" data-i18n="btn_quit">Закрити повністю</button>
+      <button id="uninstall-btn" class="btn-danger-outline" data-i18n="btn_uninstall">Видалити повністю</button>
       <button id="save-settings-btn" class="btn-primary" data-i18n="btn_done">Готово</button>
     </div>
   </div>
@@ -751,7 +787,7 @@ const I18N = {
     upd_latest: "Встановлена остання версія",
     upd_none: "Релізів на GitHub поки немає",
     upd_err: "Помилка перевірки",
-    btn_quit: "Закрити повністю",
+    btn_uninstall: "Видалити повністю",
     btn_done: "Готово",
     pin_title: "Поверх усіх вікон",
     hide_title: "Сховати в трей (Alt+Q)"
@@ -824,7 +860,7 @@ const I18N = {
     upd_latest: "Установлена последняя версия",
     upd_none: "Релизов на GitHub пока нет",
     upd_err: "Ошибка проверки",
-    btn_quit: "Закрыть полностью",
+    btn_uninstall: "Удалить полностью",
     btn_done: "Готово",
     pin_title: "Поверх всех окон",
     hide_title: "Скрыть в трей (Alt+Q)"
@@ -969,7 +1005,7 @@ const DEFAULT_SETTINGS = {
   aot: true
 };
 
-let APP_INFO = { version: "1.0.1", repo: "Frezze98/ng-helper" };
+let APP_INFO = { version: "1.0.2", repo: "Frezze98/ng-helper" };
 let LATEST_RELEASE = null;
 
 let SETTINGS = loadSettings();
@@ -1018,7 +1054,7 @@ function loadSettings() {
   }
 }
 
-function saveSettings() {
+fn saveSettings() {
   localStorage.setItem("ng_settings_v1", JSON.stringify(SETTINGS));
 }
 
@@ -1136,18 +1172,16 @@ async function checkUpdates(manual = false) {
     const rel = await resp.json();
     const tag = rel.tag_name || "";
     const assets = rel.assets || [];
-    const exeAsset =
-      assets.find(a => String(a.name || "").toLowerCase() === "ng-helper.exe") ||
-      assets.find(a => {
-        const n = String(a.name || "").toLowerCase();
-        return n.endsWith(".exe") && !n.includes("setup");
-      });
+    const setupAsset = assets.find(a => {
+      const n = String(a.name || "").toLowerCase();
+      return n.includes("setup") && n.endsWith(".exe");
+    });
 
     if (tag && isNewerVersion(tag, APP_INFO.version)) {
       LATEST_RELEASE = {
         tag,
         htmlUrl: rel.html_url || `https://github.com/${APP_INFO.repo}/releases`,
-        exeUrl: exeAsset ? exeAsset.browser_download_url : ""
+        exeUrl: setupAsset ? setupAsset.browser_download_url : ""
       };
       $updateBarText.textContent = `✨ ${t("upd_available")}: ${tag}`;
       $updateNowBtn.style.display = LATEST_RELEASE.exeUrl ? "inline-block" : "none";
@@ -1408,10 +1442,10 @@ function renderCards(matches, terms, labelText) {
     return;
   }
 
-  $results.innerHTML = matches.map(m => {
+  $results.innerHTML = matches.map((m, i) => {
     const copyText = `${m.d} (${m.s}):\n${m.t}`;
     return `
-      <div class="card">
+      <div class="card" style="animation: slideInUp 0.3s cubic-bezier(0.23, 1, 0.32, 1) ${i * 0.02}s both">
         <div class="card-top">
           <div>
             <div class="card-title">${escapeHtml(m.d)}</div>
@@ -1605,6 +1639,7 @@ async function askAI() {
     lastAiRaw = text;
     $aiStatus.textContent = `${t("st_done")} (${model})`;
     $aiContent.innerHTML = renderMarkdownLite(text);
+    $aiBox.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (err) {
     lastAiRaw = err.message;
     $aiStatus.textContent = t("st_err");
@@ -1654,7 +1689,7 @@ $hideBtn.addEventListener("click", () => ipcSend("hide"));
 $settingsBtn.addEventListener("click", () => openSettings(false));
 document.getElementById("close-modal-x").addEventListener("click", closeSettings);
 document.getElementById("save-settings-btn").addEventListener("click", closeSettings);
-document.getElementById("quit-app-btn").addEventListener("click", () => ipcSend("quit"));
+document.getElementById("uninstall-btn").addEventListener("click", () => ipcSend("uninstall"));
 $modalBg.addEventListener("click", e => {
   if (e.target === $modalBg) closeSettings();
 });

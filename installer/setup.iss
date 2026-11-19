@@ -1,5 +1,5 @@
 ﻿#ifndef MyAppVersion
-  #define MyAppVersion "1.0.1"
+  #define MyAppVersion "1.0.2"
 #endif
 
 [Setup]
@@ -12,11 +12,13 @@ DefaultDirName={autopf}\NG Helper
 DefaultGroupName=NG Helper
 OutputDir=..\dist
 OutputBaseFilename=Setup-NG-Helper
+SetupIconFile=icon.ico
 Compression=lzma2
 SolidCompression=yes
 PrivilegesRequired=lowest
 WizardStyle=modern
-CloseApplications=yes
+CloseApplications=force
+UninstallDisplayIcon={app}\ng-helper.exe
 
 [Languages]
 Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl"
@@ -38,9 +40,9 @@ Name: "autostart"; Description: "{cm:AutoStartApp}"; GroupDescription: "{cm:Addi
 Source: "..\overlay\target\release\ng-helper.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\NG Helper"; Filename: "{app}\ng-helper.exe"
+Name: "{group}\NG Helper"; Filename: "{app}\ng-helper.exe"; IconFilename: "{app}\ng-helper.exe"
 Name: "{group}\Видалити NG Helper"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\NG Helper"; Filename: "{app}\ng-helper.exe"; Tasks: desktopicon
+Name: "{autodesktop}\NG Helper"; Filename: "{app}\ng-helper.exe"; Tasks: desktopicon; IconFilename: "{app}\ng-helper.exe"
 
 [Registry]
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "NG Helper"; ValueData: """{app}\ng-helper.exe"""; Flags: uninsdeletevalue; Tasks: autostart
