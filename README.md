@@ -1,32 +1,24 @@
 <div align="center">
 
-<img src="docs/logo.png" width="180" alt="NG Helper Logo" />
+<img src="docs/logo.png" width="160" alt="NG Helper Logo" />
 
 <h1>NG Helper</h1>
 
 <p>
-  <b>Швидкий ігровий оверлей для GTA 5 RP (проєкт NG)</b><br />
-  Миттєвий офлайн-пошук по базі правил, законів і статутів + розбір RP-ситуацій через ШІ (Gemini) поверх вікна гри.
+  <b>Ігровий оверлей для GTA 5 RP (проєкт NG)</b><br />
+  Офлайн-пошук по базі правил, законів і статутів + розбір RP-ситуацій через ШІ (Gemini) поверх гри.
 </p>
 
 <p>
-  <a href="https://github.com/Frezze98/ng-helper/releases/latest">
-    <img src="https://img.shields.io/github/v/release/Frezze98/ng-helper?label=Завантажити%20Setup&color=26ffae&style=for-the-badge" alt="Download Setup" />
-  </a>
-  <a href="https://github.com/Frezze98/ng-helper/releases">
-    <img src="https://img.shields.io/github/downloads/Frezze98/ng-helper/total?label=Завантажень&color=10b981&style=for-the-badge" alt="Total Downloads" />
-  </a>
-  <a href="https://www.virustotal.com/gui/file/c49c1157725623b1368c9a36c5b0f549aafc50cdea2d9ee59accd0a2919cdb01">
-    <img src="https://img.shields.io/badge/VirusTotal-Перевірити%20звіт-394eff?style=for-the-badge&logo=virustotal&logoColor=white" alt="VirusTotal" />
-  </a>
+  <a href="https://github.com/Frezze98/ng-helper/releases/latest"><img src="https://img.shields.io/github/v/release/Frezze98/ng-helper?label=Download%20Setup&labelColor=101b17&color=26ffae&style=for-the-badge" alt="Download Setup" /></a>
+  <a href="https://github.com/Frezze98/ng-helper/releases"><img src="https://img.shields.io/github/downloads/Frezze98/ng-helper/total?label=Downloads&labelColor=101b17&color=10b981&style=for-the-badge" alt="Total Downloads" /></a>
+  <a href="https://www.virustotal.com/gui/file/c49c1157725623b1368c9a36c5b0f549aafc50cdea2d9ee59accd0a2919cdb01"><img src="https://img.shields.io/badge/VirusTotal-Report-394eff?style=for-the-badge&labelColor=101b17&logo=virustotal&logoColor=white" alt="VirusTotal" /></a>
 </p>
 
 <p>
-  <a href="https://github.com/Frezze98/ng-helper/actions/workflows/release.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/Frezze98/ng-helper/release.yml?label=GitHub%20Build&style=flat-square" alt="Build Status" />
-  </a>
-  <img src="https://img.shields.io/badge/Platform-Windows%2010%2F11-0078D6?style=flat-square&logo=windows&logoColor=white" alt="Windows" />
-  <img src="https://img.shields.io/badge/Built%20with-Rust%20%2B%20WebView2-dea584?style=flat-square&logo=rust&logoColor=white" alt="Rust" />
+  <a href="https://github.com/Frezze98/ng-helper/actions/workflows/release.yml"><img src="https://img.shields.io/github/actions/workflow/status/Frezze98/ng-helper/release.yml?label=Build&labelColor=101b17&style=flat-square" alt="Build Status" /></a>
+  <img src="https://img.shields.io/badge/Windows-10%20%2F%2011-1f2937?style=flat-square&labelColor=101b17&logo=windows&logoColor=26ffae" alt="Windows 10/11" />
+  <img src="https://img.shields.io/badge/Stack-Rust%20%2B%20WebView2-1f2937?style=flat-square&labelColor=101b17&logo=rust&logoColor=26ffae" alt="Rust + WebView2" />
 </p>
 
 </div>
