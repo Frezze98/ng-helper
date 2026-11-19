@@ -2,6 +2,13 @@
 
 Удобный игровой оверлей для GTA 5 RP (проект NG): быстрый поиск по правилам и законам в офлайне и разбор ситуаций через Gemini API.
 
+<p align="center">
+  <img src="installer/icon.ico" width="128" height="128" alt="NG Helper Logo"><br>
+  <a href="https://github.com/Frezze98/ng-helper/releases/latest">
+    <img src="https://img.shields.io/github/v/release/Frezze98/ng-helper?label=%D0%97%D0%B0%D0%B2%D0%B0%D0%BD%D1%82%D0%B0%D0%B6%D0%B8%D1%82%D0%B8%20Setup&color=26ffae&style=for-the-badge" alt="Download setup">
+  </a>
+</p>
+
 [![Releases](https://img.shields.io/github/v/release/Frezze98/ng-helper?label=Download%20Setup&color=26ffae&style=for-the-badge)](https://github.com/Frezze98/ng-helper/releases/latest)
 [![GitHub](https://img.shields.io/badge/Source-GitHub-101b17?style=for-the-badge&logo=github&logoColor=26ffae)](https://github.com/Frezze98/ng-helper)
 
