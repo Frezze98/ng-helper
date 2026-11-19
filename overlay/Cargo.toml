@@ -1,0 +1,16 @@
+[package]
+name = "ng-helper"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+tao = "0.37"
+wry = "0.57"
+global-hotkey = "0.10"
+tray-icon = "0.26"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true

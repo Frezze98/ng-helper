@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NG Helper</title>
+<style>
+  :root {
+    --bg: #09100e;
+    --header-bg: #0c1512;
+    --panel: #101b17;
+    --panel-hover: #14241f;
+    --accent: #26ffae;
+    --accent-rgb: 38, 255, 174;
+    --accent-fg: #041610;
+    --border: rgba(var(--accent-rgb), 0.24);
+    --accent-dim: rgba(var(--accent-rgb), 0.12);
+    --text: #e9f5f0;
+    --muted: #84a096;
+    --warn: #ffb84d;
+    --danger: #ff6b6b;
+    --base-font: 13.5px;
+  }
+
+  body.theme-oled {
+    --bg: #000000;
+    --header-bg: #060908;
+    --panel: #0b0f0e;
+    --panel-hover: #111816;
+  }
+  body.theme-graphite {
+    --bg: #131618;
+    --header-bg: #181c1f;
+    --panel: #1e2327;
+    --panel-hover: #252b30;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: var(--base-font);
+    line-height: 1.5;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(var(--accent-rgb), 0.38);
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+    cursor: grab;
+  }
+  header:active { cursor: grabbing; }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    pointer-events: none;
+  }
+  .brand-badge {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 1px 7px;
+    border-radius: 6px;
+    font-size: 12px;
+    box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.28);
+  }
+  .ver-badge {
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+  .hotkey-hint {
+    color: var(--muted);
+    font-size: 11px;
+    background: rgba(255,255,255,0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .icon-btn {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 4px 9px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .icon-btn.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .close-btn:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+    background: rgba(255, 107, 107, 0.12);
+  }
+  .key-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--warn);
+    display: inline-block;
+  }
+  .key-dot.ok {
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+  }
+
+  .update-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 14px;
+    background: rgba(var(--accent-rgb), 0.14);
+    border-bottom: 1px solid var(--accent);
+    font-size: 12px;
+  }
+  .update-bar.visible { display: flex; }
+  .update-bar-text { color: var(--text); font-weight: 600; }
+  .update-bar-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .btn-xs {
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-xs:disabled { opacity: 0.6; cursor: wait; }
+  .btn-xs-ghost {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11.5px;
+    cursor: pointer;
+  }
+
+  .search-wrap {
+    padding: 11px 14px 9px;
+    background: var(--header-bg);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .input-row { display: flex; gap: 8px; }
+  #query {
+    flex: 1;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-size: 1em;
+    outline: none;
+    transition: 0.15s;
+  }
+  #query:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.18);
+  }
+  #ask-ai-btn {
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: none;
+    border-radius: 8px;
+    padding: 0 15px;
+    font-weight: 700;
+    font-size: 0.96em;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: 0.15s;
+    box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.25);
+  }
+  #ask-ai-btn:hover { filter: brightness(1.08); }
+  #ask-ai-btn:disabled { opacity: 0.5; cursor: wait; }
+
+  .filters {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 11.5px;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  .chip:hover { color: var(--text); border-color: var(--border); }
+  .chip.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  main::-webkit-scrollbar { width: 6px; }
+  main::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), 0.28); border-radius: 3px; }
+
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .ai-box {
+    display: none;
+    background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.11), rgba(16, 27, 23, 0.92));
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 13px;
+    box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.08);
+  }
+  .ai-box.visible { display: block; }
+  .ai-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 12.5px;
+  }
+  .ai-content {
+    white-space: pre-wrap;
+    font-size: 1em;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .ai-content strong { color: var(--accent); font-weight: 700; }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 9px;
+    padding: 10px 12px;
+    transition: 0.15s;
+  }
+  .card:hover { border-color: var(--border); background: var(--panel-hover); }
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .card-title { color: var(--accent); font-weight: 600; font-size: 0.94em; }
+  .card-sec { color: var(--muted); font-size: 11px; }
+  .card-body {
+    white-space: pre-wrap;
+    font-size: 0.95em;
+    color: #d6e6e0;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .copy-btn {
+    background: rgba(255,255,255,0.05);
+    color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  .faq-card { cursor: pointer; border-left: 3px solid var(--accent); }
+  .faq-q { font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .faq-a { color: #c7dcd5; font-size: 0.93em; }
+  .faq-punish { color: var(--warn); font-size: 11.5px; margin-top: 4px; }
+
+  mark {
+    background: rgba(var(--accent-rgb), 0.28);
+    color: #fff;
+    border-radius: 2px;
+    padding: 0 2px;
+  }
+
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.76);
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    z-index: 99;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--header-bg);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 16px;
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  }
+  .modal::-webkit-scrollbar { width: 5px; }
+  .modal::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), 0.3); border-radius: 3px; }
+  .modal-head { display: flex; justify-content: space-between; align-items: center; }
+  .modal h3 { color: var(--accent); font-size: 15px; }
+
+  .setting-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .setting-group:last-of-type { border-bottom: none; padding-bottom: 0; }
+  .setting-label { font-size: 12px; font-weight: 600; color: var(--text); }
+  .setting-hint { font-size: 11.5px; color: var(--muted); }
+
+  .swatch-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .swatch {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  .swatch:hover { transform: scale(1.1); }
+  .swatch.active { border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.45); }
+  .color-picker-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 2px 9px 2px 4px;
+    font-size: 11.5px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  #custom-color { width: 20px; height: 20px; border: none; background: none; cursor: pointer; padding: 0; }
+
+  .seg-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .seg-btn {
+    flex: 1;
+    min-width: 78px;
+    background: var(--panel);
+    color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 7px;
+    padding: 6px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: 0.15s;
+  }
+  .seg-btn:hover { color: var(--text); border-color: var(--border); }
+  .seg-btn.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .modal input[type="password"] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+  }
+  .modal input[type="password"]:focus { border-color: var(--accent); }
+
+  .about-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .update-status { font-size: 11.5px; color: var(--muted); }
+  .update-status.ok { color: var(--accent); }
+  .update-status.err { color: var(--danger); }
+
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 2px; }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-fg);
+    border: none;
+    border-radius: 7px;
+    padding: 7px 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 7px;
+    padding: 6px 11px;
+    cursor: pointer;
+    font-size: 12px;
+    text-align: center;
+  }
+  .btn-outline:hover { background: var(--accent-dim); }
+</style>
+</head>
+<body>
+
+<header id="drag-header">
+  <div class="brand">
+    <span class="brand-badge">NG</span>
+    <span>HELPER</span>
+    <span id="app-version" class="ver-badge">v1.0.0</span>
+    <span class="hotkey-hint">Alt+Q</span>
+  </div>
+  <div class="header-controls">
+    <button id="pin-btn" class="icon-btn active" title="Поверх всех окон">📌</button>
+    <button id="settings-btn" class="icon-btn">
+      <span id="key-dot" class="key-dot"></span>
+      <span id="settings-btn-text">Настройки</span>
+    </button>
+    <button id="hide-btn" class="icon-btn close-btn" title="Скрыть в трей (Alt+Q)">✕</button>
+  </div>
+</header>
+
+<div id="update-bar" class="update-bar">
+  <span id="update-bar-text" class="update-bar-text"></span>
+  <div class="update-bar-actions">
+    <button id="update-notes-btn" class="btn-xs-ghost" data-i18n="upd_release">GitHub</button>
+    <button id="update-now-btn" class="btn-xs" data-i18n="upd_now">Обновить</button>
+  </div>
+</div>
+
+<div class="search-wrap">
+  <div class="input-row">
+    <input id="query" type="text" placeholder="Поиск или вопрос по правилам NG..." autocomplete="off" />
+    <button id="ask-ai-btn" title="Разобрать ситуацию через ИИ (Enter)">✨ ИИ</button>
+  </div>
+  <div class="filters" id="filters">
+    <button class="chip active" data-cat="all" data-i18n="cat_all">Все</button>
+    <button class="chip" data-cat="rules" data-i18n="cat_rules">Правила</button>
+    <button class="chip" data-cat="laws" data-i18n="cat_laws">Законы</button>
+    <button class="chip" data-cat="sbu" data-i18n="cat_sbu">СБУ</button>
+    <button class="chip" data-cat="npu" data-i18n="cat_npu">НПУ</button>
+    <button class="chip" data-cat="crime" data-i18n="cat_crime">Крайм</button>
+  </div>
+</div>
+
+<main id="main">
+  <div id="ai-box" class="ai-box">
+    <div class="ai-head">
+      <span id="ai-status">✨ Ответ ИИ</span>
+      <button id="copy-ai-btn" class="copy-btn">📋 Копировать</button>
+    </div>
+    <div id="ai-content" class="ai-content"></div>
+  </div>
+
+  <div id="results-label" class="section-label">⚡ Топ частых вопросов NG</div>
+  <div id="results"></div>
+</main>
+
+<div id="modal-bg" class="modal-bg">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 data-i18n="settings_title">Настройки NG Helper</h3>
+      <button id="close-modal-x" class="icon-btn close-btn">✕</button>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-label" data-i18n="set_color">Основной цвет</div>
+      <div class="swatch-row" id="swatches">
+        <button class="swatch" data-color="#26ffae" style="background:#26ffae" title="NG Mint"></button>
+        <button class="swatch" data-color="#00d4ff" style="background:#00d4ff" title="Cyan"></button>
+        <button class="swatch" data-color="#a855f7" style="background:#a855f7" title="Purple"></button>
+        <button class="swatch" data-color="#ff4d6d" style="background:#ff4d6d" title="Crimson"></button>
+        <button class="swatch" data-color="#ffb84d" style="background:#ffb84d" title="Gold"></button>
+        <button class="swatch" data-color="#e2e8f0" style="background:#e2e8f0" title="Silver"></button>
+        <label class="color-picker-wrap">
+          <input type="color" id="custom-color" value="#26ffae" />
+          <span data-i18n="set_custom_color">Свой</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-label" data-i18n="set_theme">Фон окна</div>
+      <div class="seg-row" data-setting="theme">
+        <button class="seg-btn" data-val="dark" data-i18n="theme_dark">Тёмный NG</button>
+        <button class="seg-btn" data-val="oled" data-i18n="theme_oled">OLED Чёрный</button>
+        <button class="seg-btn" data-val="graphite" data-i18n="theme_graphite">Графит</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-label" data-i18n="set_ui_lang">Язык интерфейса</div>
+      <div class="seg-row" data-setting="uiLang">
+        <button class="seg-btn" data-val="ru">Русский</button>
+        <button class="seg-btn" data-val="uk">Українська</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-label" data-i18n="set_ai_lang">Язык ответов ИИ</div>
+      <div class="seg-row" data-setting="aiLang">
+        <button class="seg-btn" data-val="auto" data-i18n="lang_auto">Авто (как вопрос)</button>
+        <button class="seg-btn" data-val="ru">Русский</button>
+        <button class="seg-btn" data-val="uk">Українська</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-label" data-i18n="set_style">Стиль ответов ИИ</div>
+      <div class="seg-row" data-setting="aiStyle">
+        <button class="seg-btn" data-val="open" data-i18n="style_open">Открытый (подробно)</button>
+        <button class="seg-btn" data-val="short" data-i18n="style_short">Короткий (в бою)</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-label" data-i18n="set_size">Размер окна и шрифта</div>
+      <div class="seg-row" data-setting="winSize">
+        <button class="seg-btn" data-val="480,640" data-i18n="size_sm">Компакт</button>
+        <button class="seg-btn" data-val="560,740" data-i18n="size_md">Стандарт</button>
+        <button class="seg-btn" data-val="680,820" data-i18n="size_lg">Широкий</button>
+      </div>
+      <div class="seg-row" data-setting="fontSize" style="margin-top:4px">
+        <button class="seg-btn" data-val="12.5">Шрифт S</button>
+        <button class="seg-btn" data-val="13.5">Шрифт M</button>
+        <button class="seg-btn" data-val="15">Шрифт L</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-label" data-i18n="set_key">Персональный API-ключ Gemini</div>
+      <div class="setting-hint" data-i18n="set_key_hint">Офлайн-поиск работает без ключа. Ключ нужен только для кнопки «✨ ИИ» (у каждого свой бесплатный лимит).</div>
+      <button id="open-browser-btn" class="btn-outline" data-i18n="open_studio">🌐 Открыть Google AI Studio в браузере</button>
+      <input id="api-key-input" type="password" placeholder="AIzaSy... / AQ...." />
+    </div>
+
+    <div class="setting-group">
+      <div class="about-row">
+        <div class="setting-label"><span data-i18n="set_about">Версия и исходный код</span> (<span id="modal-version">v1.0.0</span>)</div>
+        <span id="update-status" class="update-status"></span>
+      </div>
+      <div class="seg-row">
+        <button id="check-update-btn" class="btn-outline" style="flex:1" data-i18n="btn_check_upd">🔄 Проверить обновления</button>
+        <button id="open-github-btn" class="btn-outline" style="flex:1" data-i18n="btn_github">💻 Исходный код (GitHub)</button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button id="save-settings-btn" class="btn-primary" data-i18n="btn_done">Готово</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const I18N = {
+  ru: {
+    settings_btn: "Настройки",
+    settings_title: "Настройки NG Helper",
+    placeholder: "Поиск или вопрос (напр: какую статью дать за стрельбу)...",
+    ask_ai: "✨ ИИ",
+    cat_all: "Все",
+    cat_rules: "Правила",
+    cat_laws: "Законы",
+    cat_sbu: "СБУ",
+    cat_npu: "НПУ",
+    cat_crime: "Крайм",
+    top_faq: "⚡ Топ частых вопросов NG",
+    copy: "📋 Копировать",
+    copy_report: "📋 Для репорта",
+    copied: "✓ Скопировано",
+    found_prefix: "Найдено в правилах:",
+    found_hint: "(Enter — ответ ИИ)",
+    no_matches: "Точных совпадений не найдено. Нажми <b>✨ ИИ</b> — он сам найдёт нужный кодекс или раздел правил.",
+    read_full: "ИИ прочитал целиком:",
+    checked_frags: "Проверено фрагментов:",
+    st_routing: "⏳ Выбираю нужные кодексы и правила...",
+    st_reading: "⏳ Читаю документы и готовлю ответ...",
+    st_switch: "⏳ Перегружено, пробую",
+    st_done: "✨ Ответ ИИ",
+    st_err: "⚠ Ошибка API",
+    set_color: "Основной цвет",
+    set_custom_color: "Свой",
+    set_theme: "Фон окна",
+    theme_dark: "Тёмный NG",
+    theme_oled: "OLED Чёрный",
+    theme_graphite: "Графит",
+    set_ui_lang: "Язык интерфейса",
+    set_ai_lang: "Язык ответов ИИ",
+    lang_auto: "Авто (как вопрос)",
+    set_style: "Стиль ответов ИИ",
+    style_open: "Открытый (подробно)",
+    style_short: "Короткий (в бою)",
+    set_size: "Размер окна и шрифта",
+    size_sm: "Компакт",
+    size_md: "Стандарт",
+    size_lg: "Широкий",
+    set_key: "Персональный API-ключ Gemini",
+    set_key_hint: "Офлайн-поиск работает без ключа. Ключ нужен только для кнопки «✨ ИИ» (у каждого свой бесплатный лимит).",
+    open_studio: "🌐 Открыть Google AI Studio в браузере",
+    set_about: "Версия и исходный код",
+    btn_check_upd: "🔄 Проверить обновления",
+    btn_github: "💻 Исходный код (GitHub)",
+    upd_available: "Доступно обновление",
+    upd_now: "Обновить",
+    upd_downloading: "⏳ Скачиваю...",
+    upd_release: "GitHub",
+    upd_checking: "Проверяю...",
+    upd_latest: "Установлена последняя версия",
+    upd_none: "Релизов на GitHub пока нет",
+    upd_err: "Ошибка проверки",
+    btn_done: "Готово",
+    pin_title: "Поверх всех окон",
+    hide_title: "Скрыть в трей (Alt+Q)"
+  },
+  uk: {
+    settings_btn: "Налаштування",
+    settings_title: "Налаштування NG Helper",
+    placeholder: "Пошук або питання (напр: яку статтю дати за стрілянину)...",
+    ask_ai: "✨ ШІ",
+    cat_all: "Усі",
+    cat_rules: "Правила",
+    cat_laws: "Закони",
+    cat_sbu: "СБУ",
+    cat_npu: "НПУ",
+    cat_crime: "Крайм",
+    top_faq: "⚡ Топ частих питань NG",
+    copy: "📋 Копіювати",
+    copy_report: "📋 Для репорту",
+    copied: "✓ Скопійовано",
+    found_prefix: "Знайдено у правилах:",
+    found_hint: "(Enter — відповідь ШІ)",
+    no_matches: "Точних збігів не знайдено. Натисни <b>✨ ШІ</b> — він сам знайде потрібний кодекс або розділ правил.",
+    read_full: "ШІ прочитав повністю:",
+    checked_frags: "Перевірено фрагментів:",
+    st_routing: "⏳ Підбираю потрібні кодекси та правила...",
+    st_reading: "⏳ Читаю документи та формую відповідь...",
+    st_switch: "⏳ Перевантажено, пробую",
+    st_done: "✨ Відповідь ШІ",
+    st_err: "⚠ Помилка API",
+    set_color: "Основний колір",
+    set_custom_color: "Свій",
+    set_theme: "Фон вікна",
+    theme_dark: "Темний NG",
+    theme_oled: "OLED Чорний",
+    theme_graphite: "Графіт",
+    set_ui_lang: "Мова інтерфейсу",
+    set_ai_lang: "Мова відповідей ШІ",
+    lang_auto: "Авто (як питання)",
+    set_style: "Стиль відповідей ШІ",
+    style_open: "Відкритий (детально)",
+    style_short: "Короткий (у бою)",
+    set_size: "Розмір вікна та шрифту",
+    size_sm: "Компакт",
+    size_md: "Стандарт",
+    size_lg: "Широкий",
+    set_key: "Персональний API-ключ Gemini",
+    set_key_hint: "Офлайн-пошук працює без ключа. Ключ потрібен лише для кнопки «✨ ШІ» (у кожного свій безкоштовний ліміт).",
+    open_studio: "🌐 Відкрити Google AI Studio у браузері",
+    set_about: "Версія та вихідний код",
+    btn_check_upd: "🔄 Перевірити оновлення",
+    btn_github: "💻 Вихідний код (GitHub)",
+    upd_available: "Доступне оновлення",
+    upd_now: "Оновити",
+    upd_downloading: "⏳ Завантажую...",
+    upd_release: "GitHub",
+    upd_checking: "Перевіряю...",
+    upd_latest: "Встановлена остання версія",
+    upd_none: "Релізів на GitHub поки немає",
+    upd_err: "Помилка перевірки",
+    btn_done: "Готово",
+    pin_title: "Поверх усіх вікон",
+    hide_title: "Сховати в трей (Alt+Q)"
+  }
+};
+
+const TOP_FAQ = {
+  ru: [
+    {
+      q: "Может ли СБУ / НПУ устроить засаду возле угонки?",
+      a: "Нет. Силовикам запрещено устраивать засады, дежурить или кемпить возле точек спавна угонок, домов под взлом и точек сдачи в радиусе 150 метров (п. 1.29 Загальних правил державних організацій).",
+      punish: "Наказание: Деморган 30–60 мин / Warn"
+    },
+    {
+      q: "Сколько нужно хранить откат (видеозапись)?",
+      a: "Обычные игроки, жалобы, капты и похищения — минимум 72 часа (п. 15 ОПП). Силовые госструктуры для процессуальных действий — 48 часов (п. 3.7 Загальних правил держорганізацій).",
+      punish: "Отсутствие отката у силовика при жалобе: Деморган 60–180 мин / Warn"
+    },
+    {
+      q: "Сколько грабителей нужно на 1 жертву?",
+      a: "Минимум 2 грабителя на 1 жертву (1 авто + 2 чел.). В Гетто можно 1 на 1 при наличии огнестрела. На дальнобойщика — минимум 4 грабителя на 2 авто (п. 8.3 Загальних правил крайму).",
+      punish: "Наказание: Demorgan 30–360 мин"
+    },
+    {
+      q: "Сколько человек нужно СБУ / НПУ для патруля в Гетто?",
+      a: "НПУ / НГУ / ДБР — минимум 3 вооружённых сотрудника в авто (п. 3.5). СБУ — минимум 2 сотрудника в авто (п. 3.5.1 Загальних правил держорганізацій).",
+      punish: "Наказание: Деморган 30–60 мин"
+    },
+    {
+      q: "Скольким нападающим может сопротивляться силовик (PG)?",
+      a: "Сотрудник в полном экипировании имеет право оказывать сопротивление максимум двоим нападающим (п. 1.13 Загальних правил держорганізацій).",
+      punish: "Наказание: Деморган 30–60 мин (PG)"
+    }
+  ],
+  uk: [
+    {
+      q: "Чи може СБУ / НПУ влаштувати засідку біля угонки?",
+      a: "Ні. Силовикам заборонено влаштовувати засідки, чергувати чи кемпити біля точок спавну угонок, будинків під злам та точок здачі у радіусі 150 метрів (п. 1.29 Загальних правил державних організацій).",
+      punish: "Покарання: Деморган 30–60 хв / Warn"
+    },
+    {
+      q: "Скільки потрібно зберігати відкат (відеозапис)?",
+      a: "Звичайні гравці, скарги, капти та викрадення — мінімум 72 години (п. 15 ОПП). Силові держструктури для процесуальних дій — 48 годин (п. 3.7 Загальних правил держорганізацій).",
+      punish: "Відсутність відкату у силовика при скарзі: Деморган 60–180 хв / Warn"
+    },
+    {
+      q: "Скільки грабіжників потрібно на 1 жертву?",
+      a: "Мінімум 2 грабіжники на 1 жертву (1 авто + 2 особи). У Гетто можна 1 на 1 за наявності вогнепальної зброї. На далекобійника — мінімум 4 грабіжники на 2 авто (п. 8.3 Загальних правил крайму).",
+      punish: "Покарання: Demorgan 30–360 хв"
+    },
+    {
+      q: "Скільки людей потрібно СБУ / НПУ для патруля у Гетто?",
+      a: "НПУ / НГУ / ДБР — мінімум 3 озброєних співробітники в авто (п. 3.5). СБУ — мінімум 2 співробітники в авто (п. 3.5.1 Загальних правил держорганізацій).",
+      punish: "Покарання: Деморган 30–60 хв"
+    },
+    {
+      q: "Скільком нападникам може чинити опір силовик (PG)?",
+      a: "Співробітник у повному екіпіруванні має право чинити опір максимум двом нападникам (п. 1.13 Загальних правил держорганізацій).",
+      punish: "Покарання: Деморган 30–60 хв (PG)"
+    }
+  ]
+};
+
+const STOP_WORDS = new Set([
+  "чи", "як", "що", "це", "та", "або", "але", "для", "при", "про", "під", "над", "між", "без", "після",
+  "біля", "коло", "якщо", "коли", "можна", "може", "можуть", "треба", "потрібно", "скільки", "який", "яка", "які",
+  "ли", "или", "как", "что", "это", "под", "между", "после", "возле", "около", "если", "когда",
+  "можно", "может", "могут", "могу", "нужно", "надо", "сколько", "какой", "какая", "какие", "какую", "устроить",
+  "делать", "сделать", "быть", "есть", "будет", "него", "нее", "них", "мне", "меня", "тебя", "потом", "человека",
+  "который", "ему", "дать", "отвез", "отвёз"
+]);
+
+const SHORT_ALLOW = new Set([
+  "зз", "гз", "дм", "дб", "пг", "тк", "ск", "рп", "фз", "кп", "мг", "вс", "гс", "ук", "кк", "ак", "дк",
+  "dm", "db", "pg", "tk", "sk", "rk", "mg", "rp", "gz"
+]);
+
+const SYNONYMS = {
+  "угонк": ["угон", "викраден", "викраденого", "автовикрад", "здач", "спавн"],
+  "засад": ["засад", "засідк", "чергуван", "чатува", "кемп", "піджида", "150"],
+  "кемп": ["засідк", "чергуван", "чатува", "кемп", "150"],
+  "сбит": ["db", "driveby", "наїзд", "таран", "транспортн", "nonrp"],
+  "сбива": ["db", "driveby", "наїзд", "таран", "транспортн", "nonrp"],
+  "дави": ["db", "driveby", "наїзд", "таран", "транспортн"],
+  "таран": ["db", "driveby", "nrd", "таран", "наїзд"],
+  "машин": ["db", "driveby", "транспорт", "авто", "наїзд"],
+  "расстрел": ["dm", "deathmatch", "вбивств", "шкод", "вогонь", "збро", "посяган"],
+  "растрел": ["dm", "deathmatch", "вбивств", "шкод", "вогонь", "збро", "посяган"],
+  "уби": ["dm", "deathmatch", "вбив", "шкод", "посяган"],
+  "стрел": ["стріл", "вогонь", "збро", "посяган", "напад", "тілесн", "dm"],
+  "стать": ["стаття", "кримінальн", "кодекс", "покаран"],
+  "сбу": ["сбу", "державн", "силов", "держорганізац", "держструктур"],
+  "нпу": ["нпу", "поліц", "державн", "силов", "держорганізац", "держструктур"],
+  "коп": ["нпу", "поліц", "силов", "державн", "правоохорон"],
+  "мент": ["нпу", "поліц", "силов", "державн", "правоохорон"],
+  "гос": ["державн", "силов", "держструктур", "держорганізац", "службов"],
+  "зз": ["зелен", "green", "zone", "gz"],
+  "гз": ["зелен", "green", "zone", "gz"],
+  "откат": ["відеозапис", "відкат", "фіксац", "бодікамер", "годин"],
+  "відео": ["відеозапис", "відкат", "фіксац"],
+  "граб": ["пограбуван", "грабіжн", "жертв", "розбій"],
+  "похит": ["викраден", "заручник", "викуп"],
+  "похищ": ["викраден", "заручник", "викуп"],
+  "обыск": ["обшук", "багажник", "інвентар"],
+  "задерж": ["затриман", "кайданк", "кпз", "міранд"],
+  "арест": ["затриман", "кпз", "арешт"],
+  "капт": ["капт", "територ", "війн"],
+  "взх": ["взх", "хамер"],
+  "фз": ["форт", "занкудо", "нгу"],
+  "взятк": ["хабар"],
+  "уход": ["уникнен", "вихід", "leave"],
+  "оск": ["образ", "родич"],
+  "родн": ["родич", "сім"],
+  "банворд": ["банворд"],
+  "респ": ["титульн", "спавн", "респавн"],
+  "титул": ["титульн", "спавн", "пуш"],
+  "допрос": ["допит", "силов", "вербальн"],
+  "адвокат": ["адвокат", "кпз", "правов"],
+  "штраф": ["штраф", "евакуац", "паркуван"],
+  "медик": ["емд", "лікарн", "реанімац"],
+  "гетто": ["гетто", "ghetto", "бідн", "небезпечн"]
+};
+
+const MODELS = [
+  "gemini-3.5-flash-lite",
+  "gemini-3.1-flash-lite",
+  "gemini-4-hydrogen",
+  "gemini-3.6-flash",
+  "gemini-3.8-flash"
+];
+
+const MAX_CONTEXT_CHARS = 115000;
+
+const DEFAULT_SETTINGS = {
+  accent: "#26ffae",
+  theme: "dark",
+  uiLang: "ru",
+  aiLang: "auto",
+  aiStyle: "open",
+  winSize: "560,740",
+  fontSize: "13.5",
+  aot: true
+};
+
+let APP_INFO = { version: "1.0.0", repo: "Frezze98/ng-helper" };
+let LATEST_RELEASE = null;
+
+let SETTINGS = loadSettings();
+let RULES = [];
+let DOC_CATALOG = [];
+let activeCat = "all";
+let lastAiRaw = "";
+
+const $query = document.getElementById("query");
+const $results = document.getElementById("results");
+const $label = document.getElementById("results-label");
+const $aiBox = document.getElementById("ai-box");
+const $aiStatus = document.getElementById("ai-status");
+const $aiContent = document.getElementById("ai-content");
+const $askBtn = document.getElementById("ask-ai-btn");
+const $settingsBtn = document.getElementById("settings-btn");
+const $settingsBtnText = document.getElementById("settings-btn-text");
+const $keyDot = document.getElementById("key-dot");
+const $pinBtn = document.getElementById("pin-btn");
+const $hideBtn = document.getElementById("hide-btn");
+const $modalBg = document.getElementById("modal-bg");
+const $apiKeyInput = document.getElementById("api-key-input");
+const $customColor = document.getElementById("custom-color");
+const $copyAiBtn = document.getElementById("copy-ai-btn");
+const $appVersion = document.getElementById("app-version");
+const $modalVersion = document.getElementById("modal-version");
+const $updateBar = document.getElementById("update-bar");
+const $updateBarText = document.getElementById("update-bar-text");
+const $updateNowBtn = document.getElementById("update-now-btn");
+const $updateNotesBtn = document.getElementById("update-notes-btn");
+const $updateStatus = document.getElementById("update-status");
+
+function ipcSend(msg) {
+  if (window.ipc) window.ipc.postMessage(msg);
+}
+
+function loadSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("ng_settings_v1") || "{}");
+    return { ...DEFAULT_SETTINGS, ...saved };
+  } catch {
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
+function saveSettings() {
+  localStorage.setItem("ng_settings_v1", JSON.stringify(SETTINGS));
+}
+
+function t(key) {
+  const dict = I18N[SETTINGS.uiLang] || I18N.ru;
+  return dict[key] || I18N.ru[key] || key;
+}
+
+function hexToRgb(hex) {
+  const clean = hex.replace("#", "").trim();
+  if (clean.length !== 6) return { r: 38, g: 255, b: 174 };
+  return {
+    r: parseInt(clean.slice(0, 2), 16),
+    g: parseInt(clean.slice(2, 4), 16),
+    b: parseInt(clean.slice(4, 6), 16)
+  };
+}
+
+function applyAccent(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+  const fg = lum > 145 ? "#041610" : "#ffffff";
+
+  const root = document.documentElement;
+  root.style.setProperty("--accent", hex);
+  root.style.setProperty("--accent-rgb", `${r}, ${g}, ${b}`);
+  root.style.setProperty("--accent-fg", fg);
+
+  $customColor.value = hex;
+  document.querySelectorAll(".swatch").forEach(sw => {
+    sw.classList.toggle("active", sw.dataset.color.toLowerCase() === hex.toLowerCase());
+  });
+}
+
+function applySettings(sendWindowIpc = false) {
+  applyAccent(SETTINGS.accent);
+
+  document.body.classList.remove("theme-oled", "theme-graphite");
+  if (SETTINGS.theme === "oled") document.body.classList.add("theme-oled");
+  if (SETTINGS.theme === "graphite") document.body.classList.add("theme-graphite");
+
+  document.documentElement.style.setProperty("--base-font", `${SETTINGS.fontSize}px`);
+
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  $settingsBtnText.textContent = t("settings_btn");
+  $query.placeholder = t("placeholder");
+  $askBtn.textContent = t("ask_ai");
+  $copyAiBtn.textContent = t("copy");
+  $pinBtn.title = t("pin_title");
+  $hideBtn.title = t("hide_title");
+  $pinBtn.classList.toggle("active", !!SETTINGS.aot);
+
+  if (LATEST_RELEASE) {
+    $updateBarText.textContent = `✨ ${t("upd_available")}: ${LATEST_RELEASE.tag}`;
+  }
+
+  document.querySelectorAll(".seg-row").forEach(row => {
+    const key = row.dataset.setting;
+    const val = String(SETTINGS[key]);
+    row.querySelectorAll(".seg-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.val === val);
+    });
+  });
+
+  if (sendWindowIpc) {
+    ipcSend("aot:" + (SETTINGS.aot ? "true" : "false"));
+    ipcSend("resize:" + SETTINGS.winSize);
+  }
+
+  if (!$query.value.trim()) renderFaq();
+}
+
+function isNewerVersion(remoteTag, localVer) {
+  const parse = s =>
+    String(s || "")
+      .replace(/^v/i, "")
+      .split(".")
+      .map(n => parseInt(n, 10) || 0);
+  const r = parse(remoteTag);
+  const l = parse(localVer);
+  const len = Math.max(r.length, l.length);
+  for (let i = 0; i < len; i++) {
+    const rv = r[i] || 0;
+    const lv = l[i] || 0;
+    if (rv > lv) return true;
+    if (rv < lv) return false;
+  }
+  return false;
+}
+
+async function checkUpdates(manual = false) {
+  if (manual) {
+    $updateStatus.className = "update-status";
+    $updateStatus.textContent = t("upd_checking");
+  }
+  try {
+    const url = `https://api.github.com/repos/${APP_INFO.repo}/releases/latest`;
+    const resp = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
+    if (resp.status === 404) {
+      if (manual) {
+        $updateStatus.className = "update-status";
+        $updateStatus.textContent = t("upd_none");
+      }
+      return;
+    }
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+    const rel = await resp.json();
+    const tag = rel.tag_name || "";
+    const exeAsset = (rel.assets || []).find(a =>
+      String(a.name || "").toLowerCase().endsWith(".exe")
+    );
+
+    if (tag && isNewerVersion(tag, APP_INFO.version)) {
+      LATEST_RELEASE = {
+        tag,
+        htmlUrl: rel.html_url || `https://github.com/${APP_INFO.repo}/releases`,
+        exeUrl: exeAsset ? exeAsset.browser_download_url : ""
+      };
+      $updateBarText.textContent = `✨ ${t("upd_available")}: ${tag}`;
+      $updateNowBtn.style.display = LATEST_RELEASE.exeUrl ? "inline-block" : "none";
+      $updateBar.classList.add("visible");
+      $updateStatus.className = "update-status ok";
+      $updateStatus.textContent = `${t("upd_available")}: ${tag}`;
+    } else if (manual) {
+      $updateStatus.className = "update-status ok";
+      $updateStatus.textContent = `✓ ${t("upd_latest")}`;
+    }
+  } catch (e) {
+    if (manual) {
+      $updateStatus.className = "update-status err";
+      $updateStatus.textContent = `${t("upd_err")}: ${e.message}`;
+    }
+  }
+}
+
+window.onUpdateError = function (msg) {
+  $updateNowBtn.disabled = false;
+  $updateNowBtn.textContent = t("upd_now");
+  $updateBarText.textContent = `⚠ ${msg}`;
+};
+
+function getApiKey() {
+  return (localStorage.getItem("ng_gemini_key") || "").trim();
+}
+
+function updateKeyBadge() {
+  $keyDot.classList.toggle("ok", !!getApiKey());
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function renderMarkdownLite(text) {
+  return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+}
+
+function makeTermMatcher(term) {
+  const tStr = term.toLowerCase().trim();
+  if (!tStr) return null;
+  if (tStr.length <= 3) {
+    const esc = tStr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(`(^|[^a-zа-яіїєґ0-9])${esc}(?=$|[^a-zа-яіїєґ0-9])`, "i");
+    return str => re.test(str);
+  }
+  return str => str.includes(tStr);
+}
+
+function buildConcepts(rawQuery) {
+  const words = rawQuery
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\.]+/gu, " ")
+    .split(/\s+/)
+    .filter(w => (w.length >= 3 || SHORT_ALLOW.has(w)) && !STOP_WORDS.has(w));
+
+  const concepts = [];
+  const allTerms = new Set();
+
+  for (const w of words) {
+    const variants = new Set([w]);
+    if (w.length >= 5) variants.add(w.slice(0, w.length - 2));
+    for (const [k, vals] of Object.entries(SYNONYMS)) {
+      if (w.includes(k)) vals.forEach(v => variants.add(v));
+    }
+    const list = Array.from(variants);
+    concepts.push(list);
+    list.forEach(v => allTerms.add(v));
+  }
+  return { concepts, all: Array.from(allTerms) };
+}
+
+function searchRules(q, limit = 15, ignoreCategory = false) {
+  const { concepts, all } = buildConcepts(q);
+  if (!concepts.length) return [];
+
+  const matchers = {};
+  const df = {};
+  for (const term of all) {
+    matchers[term] = makeTermMatcher(term);
+    df[term] = 0;
+  }
+
+  for (let i = 0; i < RULES.length; i++) {
+    const full = RULES[i]._full;
+    for (const term of all) {
+      if (matchers[term] && matchers[term](full)) df[term]++;
+    }
+  }
+
+  const totalDocs = RULES.length || 1;
+  const weightOf = term => Math.log(1 + totalDocs / (1 + (df[term] || 0)));
+
+  const scored = [];
+  for (let i = 0; i < RULES.length; i++) {
+    const item = RULES[i];
+    if (!ignoreCategory && activeCat !== "all" && item.c !== activeCat) continue;
+
+    let score = 0;
+    let matchedConcepts = 0;
+
+    for (const variants of concepts) {
+      let bestConceptScore = 0;
+      for (const term of variants) {
+        const fn = matchers[term];
+        if (!fn) continue;
+        const inHead = fn(item._head);
+        const inText = fn(item._low);
+        if (inHead || inText) {
+          const w = weightOf(term);
+          const s = (inHead ? w * 1.4 : 0) + (inText ? w : 0);
+          if (s > bestConceptScore) bestConceptScore = s;
+        }
+      }
+      if (bestConceptScore > 0) {
+        matchedConcepts++;
+        score += bestConceptScore;
+      }
+    }
+
+    if (matchedConcepts > 0) {
+      const coverage = matchedConcepts / concepts.length;
+      score *= (1 + coverage * 3);
+      scored.push({ item, score });
+    }
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, limit).map(x => x.item);
+}
+
+function searchCardsForRoute(q, route, limit = 10) {
+  const local = buildConcepts(q);
+  const aiTerms = (route?.terms || [])
+    .map(v => String(v).toLowerCase().trim())
+    .filter(v => v.length >= 2);
+  const allTerms = Array.from(new Set([...aiTerms, ...local.all]));
+  const docSet = new Set(route?.docList || []);
+
+  const matchers = {};
+  const df = {};
+  for (const term of allTerms) {
+    matchers[term] = makeTermMatcher(term);
+    df[term] = 0;
+  }
+
+  for (let i = 0; i < RULES.length; i++) {
+    const full = RULES[i]._full;
+    for (const term of allTerms) {
+      if (matchers[term] && matchers[term](full)) df[term]++;
+    }
+  }
+
+  const totalDocs = RULES.length || 1;
+  const weightOf = term => Math.log(1 + totalDocs / (1 + (df[term] || 0)));
+
+  const scored = [];
+  for (let i = 0; i < RULES.length; i++) {
+    const item = RULES[i];
+    const inSelectedDoc = docSet.has(item.d);
+    let score = 0;
+
+    for (const term of aiTerms) {
+      const fn = matchers[term];
+      if (!fn) continue;
+      if (fn(item._head)) score += weightOf(term) * 2.0;
+      if (fn(item._low)) score += weightOf(term) * 1.5;
+    }
+    for (const term of local.all) {
+      if (aiTerms.includes(term)) continue;
+      const fn = matchers[term];
+      if (fn && fn(item._full)) score += weightOf(term) * 0.6;
+    }
+
+    if (inSelectedDoc) {
+      score = score > 0 ? score * 3.5 + 2 : 0.2;
+    }
+    if (score > 0) scored.push({ item, score });
+  }
+
+  scored.sort((a, b) => b.score - a.score);
+  return { items: scored.slice(0, limit).map(x => x.item), terms: allTerms };
+}
+
+function buildFullDocContext(route, q) {
+  const parts = [];
+  const readDocs = [];
+  let usedChars = 0;
+
+  const docList = route?.docList || [];
+  for (const docName of docList) {
+    const docChunks = RULES.filter(r => r.d === docName);
+    if (!docChunks.length) continue;
+
+    let docText = `=== ДОКУМЕНТ: ${docName} ===\n`;
+    let lastSec = "";
+    for (const ch of docChunks) {
+      if (ch.s !== lastSec) {
+        docText += `\n## ${ch.s}\n`;
+        lastSec = ch.s;
+      }
+      docText += `${ch.t}\n`;
+    }
+
+    if (usedChars + docText.length <= MAX_CONTEXT_CHARS) {
+      parts.push(docText);
+      readDocs.push(docName);
+      usedChars += docText.length;
+    } else if (usedChars < MAX_CONTEXT_CHARS - 6000) {
+      const sub = searchCardsForRoute(q, { docList: [docName], terms: route.terms }, 12).items;
+      let partial = `=== ФРАГМЕНТИ ДОКУМЕНТА: ${docName} ===\n` +
+        sub.map(m => `## ${m.s}\n${m.t}`).join("\n\n");
+      const room = MAX_CONTEXT_CHARS - usedChars;
+      if (partial.length > room) partial = partial.slice(0, room);
+      parts.push(partial);
+      readDocs.push(docName + " (фрагм.)");
+      usedChars += partial.length;
+    }
+  }
+
+  return { text: parts.join("\n\n"), readDocs };
+}
+
+function renderFaq() {
+  const list = TOP_FAQ[SETTINGS.uiLang] || TOP_FAQ.ru;
+  $label.textContent = t("top_faq");
+  $results.innerHTML = list.map((f, idx) => `
+    <div class="card faq-card" data-faq="${idx}">
+      <div class="card-top">
+        <div class="faq-q">${escapeHtml(f.q)}</div>
+        <button class="copy-btn" data-copy="${escapeHtml(f.a + ' ' + f.punish)}">📋</button>
+      </div>
+      <div class="faq-a">${escapeHtml(f.a)}</div>
+      <div class="faq-punish">${escapeHtml(f.punish)}</div>
+    </div>
+  `).join("");
+}
+
+function highlight(text, terms) {
+  let html = escapeHtml(text);
+  const safeTerms = terms.filter(v => v.length >= 2).slice(0, 12);
+  for (const term of safeTerms) {
+    const esc = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = term.length <= 3
+      ? new RegExp(`(^|[^a-zа-яіїєґ0-9])(${esc})(?=$|[^a-zа-яіїєґ0-9])`, "gi")
+      : new RegExp(`()(${esc})`, "gi");
+    html = html.replace(re, "$1<mark>$2</mark>");
+  }
+  return html;
+}
+
+function renderCards(matches, terms, labelText) {
+  $label.textContent = labelText;
+  if (!matches.length) {
+    $results.innerHTML = `<div class="card"><div class="card-body">${t("no_matches")}</div></div>`;
+    return;
+  }
+
+  $results.innerHTML = matches.map(m => {
+    const copyText = `${m.d} (${m.s}):\n${m.t}`;
+    return `
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-title">${escapeHtml(m.d)}</div>
+            <div class="card-sec">${escapeHtml(m.s)}</div>
+          </div>
+          <button class="copy-btn" data-copy="${escapeHtml(copyText)}">${t("copy_report")}</button>
+        </div>
+        <div class="card-body">${highlight(m.t, terms)}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderSearch() {
+  const q = $query.value.trim();
+  if (!q) {
+    $aiBox.classList.remove("visible");
+    renderFaq();
+    return;
+  }
+
+  const matches = searchRules(q, 12, false);
+  const { all } = buildConcepts(q);
+  renderCards(matches, all, `${t("found_prefix")} ${matches.length} ${t("found_hint")}`);
+}
+
+async function callGemini(key, payload, onModelSwitch) {
+  const errors = [];
+  for (let i = 0; i < MODELS.length; i++) {
+    const model = MODELS[i];
+    if (i > 0 && onModelSwitch) onModelSwitch(model);
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const rawText = await resp.text();
+    let data = {};
+    try { data = JSON.parse(rawText); } catch {}
+
+    if (resp.ok) {
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      if (text.trim()) {
+        return { text: text.trim(), model };
+      }
+    }
+
+    const errMsg = data?.error?.message || `HTTP ${resp.status}`;
+    errors.push(`${model}: ${errMsg}`);
+    if (/API key not valid|API_KEY_INVALID/i.test(errMsg)) break;
+  }
+  throw new Error(errors.join("\n"));
+}
+
+async function routeQueryWithAI(key, q) {
+  const catalogText = DOC_CATALOG.map(x => `[${x.id}] ${x.d} (${x.c})`).join("\n");
+  const routerPrompt =
+    "Ти — маршрутизатор бази правил і законів GTA 5 RP NG.\n" +
+    "Вибери 2–4 НАЙВАЖЛИВІШІ документи у порядку пріоритету:\n" +
+    "1. Якщо питають ЯКУ СТАТТЮ ДАТИ / ПОСАДИТИ / ШТРАФ (стрілянина, напад, втеча, зброя, наркотики, ДТП, шахрайство) -> бери Кримінальний кодекс, КУпАП / Адміністративний / Дорожній кодекс, Закон про зброю. Якщо в тому ж питанні є OOC-порушення (образа рідних, вихід з гри, DM, DB) — ОБОВ'ЯЗКОВО додай Офіційні правила проєкту!\n" +
+    "2. Якщо питання стосується дій співробітників СБУ, НПУ, НГУ, ДБР, держструктур (PG силовика, патруль, засади, форма, службовий транспорт, респа, затримання, бедкоп) — ОБОВ'ЯЗКОВО включай Загальні правила державних організацій (поряд з ОПП або Процесуальним кодексом).\n" +
+    "3. Якщо питання про крайм, пограбування, викрадення, капт, поставки, ВЗХ, AirDrop -> відповідні OOC-правила.\n\n" +
+    "Поверни ВИКЛЮЧНО JSON: {\"doc_ids\":[номер1,номер2,номер3],\"terms\":[\"6-10 слів українською\"]}\n\n" +
+    `Документи:\n${catalogText}\n\nПитання: ${q}`;
+
+  const { text } = await callGemini(key, {
+    contents: [{ parts: [{ text: routerPrompt }] }],
+    generationConfig: { temperature: 0, responseMimeType: "application/json" }
+  });
+
+  const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+  const parsed = JSON.parse(cleaned);
+
+  const docList = [];
+  if (Array.isArray(parsed.doc_ids)) {
+    for (const id of parsed.doc_ids) {
+      const found = DOC_CATALOG[Number(id)];
+      if (found && !docList.includes(found.d)) docList.push(found.d);
+    }
+  }
+  const terms = Array.isArray(parsed.terms) ? parsed.terms : [];
+  return { docList: docList.slice(0, 4), terms };
+}
+
+function buildSystemPrompt() {
+  const langRule =
+    SETTINGS.aiLang === "ru"
+      ? "Отвечай строго на русском языке (названия кодексов и номера статей оставляй точными)."
+      : SETTINGS.aiLang === "uk"
+      ? "Відповідай строго українською мовою."
+      : "Отвечай на том же языке, на котором задан вопрос (если вопрос на русском — отвечай по-русски, если на украинском — по-украински).";
+
+  if (SETTINGS.aiStyle === "short") {
+    return (
+      "Ты — быстрый игровой справочник правил и законов GTA 5 RP проекта NG.\n" +
+      langRule + "\n" +
+      "Опирайся ТОЛЬКО на переданные документы, не выдумывай номера статей. Без воды и без фраз вроде «в предоставленных фрагментах».\n" +
+      "ВАЖНО: перед тем как писать «Да» или «Нет», убедись, что ответ совпадает с смыслом вопроса (если действие запрещено — пиши «Нет, нельзя», а не «Да»).\n" +
+      "Формат: короткий прямой ответ + список статей/пунктов (номер, суть, наказание)."
+    );
+  }
+
+  return (
+    "Ты — понятный и живой помощник по правилам и законам GTA 5 RP сервера NG.\n" +
+    langRule + "\n" +
+    "ГЛАВНЫЕ ПРАВИЛА:\n" +
+    "1. Опирайся ТОЛЬКО на переданный текст документов NG, никогда не выдумывай статьи.\n" +
+    "2. Отвечай открыто, по-человечески и сразу по делу — без канцелярщины, без вступлений и без фраз «в предоставленных фрагментах». Пиши так, чтобы игрок сразу понял, что делать в ситуации.\n" +
+    "3. Внимательно следи за «Да / Нет»: если игрок спрашивает «можно ли так делать?», а правило это запрещает — пиши «Нет, так делать нельзя», а не «Да».\n" +
+    "4. Если в вопросе смешаны IC-нарушения (законы, статьи КПЗ) и OOC-нарушения (правила сервера, Деморган/Бан) — раздели ответ на два понятных блока: **IC (статьи)** и **OOC (правила сервера)**.\n\n" +
+    "КАК ОФОРМЛЯТЬ:\n" +
+    "- Если спрашивают **какую статью дать / за что сажать**: начни с прямого ответа («В этой ситуации ему можно вменить следующие статьи:»), а ниже перечисли каждую статью с **жирным номером**, коротко объясни в 1 предложение, **за какое именно действие** она даётся, и укажи точный срок / штраф / конфискацию.\n" +
+    "- Если спрашивают **можно ли / законно ли / какое наказание**: начни с чёткого вердикта и краткого пояснения почему, затем перечисли конкретные **пункты правил** с их сутью, важными исключениями и точным **наказанием**."
+  );
+}
+
+async function askAI() {
+  const q = $query.value.trim();
+  if (!q) return;
+
+  const key = getApiKey();
+  if (!key) {
+    openSettings();
+    return;
+  }
+
+  $aiBox.classList.add("visible");
+  $aiStatus.textContent = t("st_routing");
+  $aiContent.innerHTML = "";
+  lastAiRaw = "";
+  $askBtn.disabled = true;
+
+  try {
+    let contextText = "";
+    let readDocs = [];
+    let cards = [];
+    let highlightTerms = [];
+
+    try {
+      const route = await routeQueryWithAI(key, q);
+      const fullCtx = buildFullDocContext(route, q);
+      contextText = fullCtx.text;
+      readDocs = fullCtx.readDocs;
+
+      const cardRes = searchCardsForRoute(q, route, 10);
+      cards = cardRes.items;
+      highlightTerms = cardRes.terms;
+    } catch {
+      cards = searchRules(q, 18, true);
+      highlightTerms = buildConcepts(q).all;
+      contextText = cards.map(m => `[${m.d} | ${m.s}]\n${m.t}`).join("\n\n");
+    }
+
+    if (!contextText.trim()) {
+      cards = searchRules(q, 18, true);
+      highlightTerms = buildConcepts(q).all;
+      contextText = cards.map(m => `[${m.d} | ${m.s}]\n${m.t}`).join("\n\n");
+    }
+
+    const labelStr = readDocs.length
+      ? `${t("read_full")} ${readDocs.join(", ")}`
+      : `${t("checked_frags")} ${cards.length}`;
+    renderCards(cards, highlightTerms, labelStr);
+
+    $aiStatus.textContent = t("st_reading");
+
+    const { text, model } = await callGemini(
+      key,
+      {
+        system_instruction: { parts: [{ text: buildSystemPrompt() }] },
+        contents: [{ parts: [{ text: `Вопрос игрока: ${q}\n\nДокументы NG:\n${contextText}` }] }],
+        generationConfig: { temperature: 0.15 }
+      },
+      m => { $aiStatus.textContent = `${t("st_switch")} ${m}...`; }
+    );
+
+    lastAiRaw = text;
+    $aiStatus.textContent = `${t("st_done")} (${model})`;
+    $aiContent.innerHTML = renderMarkdownLite(text);
+  } catch (err) {
+    lastAiRaw = err.message;
+    $aiStatus.textContent = t("st_err");
+    $aiContent.textContent = err.message;
+  } finally {
+    $askBtn.disabled = false;
+  }
+}
+
+function openSettings() {
+  $apiKeyInput.value = getApiKey();
+  applySettings(false);
+  $modalBg.classList.add("open");
+}
+
+function closeSettings() {
+  const newKey = $apiKeyInput.value.trim();
+  localStorage.setItem("ng_gemini_key", newKey);
+  updateKeyBadge();
+  saveSettings();
+  $modalBg.classList.remove("open");
+}
+
+document.getElementById("drag-header").addEventListener("mousedown", e => {
+  if (e.button !== 0) return;
+  if (e.target.closest("button")) return;
+  ipcSend("drag");
+});
+
+$pinBtn.addEventListener("click", () => {
+  SETTINGS.aot = !SETTINGS.aot;
+  $pinBtn.classList.toggle("active", SETTINGS.aot);
+  saveSettings();
+  ipcSend("aot:" + (SETTINGS.aot ? "true" : "false"));
+});
+
+$hideBtn.addEventListener("click", () => ipcSend("hide"));
+$settingsBtn.addEventListener("click", openSettings);
+document.getElementById("close-modal-x").addEventListener("click", closeSettings);
+document.getElementById("save-settings-btn").addEventListener("click", closeSettings);
+$modalBg.addEventListener("click", e => {
+  if (e.target === $modalBg) closeSettings();
+});
+document.getElementById("open-browser-btn").addEventListener("click", () => ipcSend("open_key_url"));
+
+document.getElementById("open-github-btn").addEventListener("click", () => {
+  ipcSend(`open_url:https://github.com/${APP_INFO.repo}`);
+});
+
+document.getElementById("check-update-btn").addEventListener("click", () => checkUpdates(true));
+
+$updateNotesBtn.addEventListener("click", () => {
+  const target = LATEST_RELEASE?.htmlUrl || `https://github.com/${APP_INFO.repo}/releases`;
+  ipcSend(`open_url:${target}`);
+});
+
+$updateNowBtn.addEventListener("click", () => {
+  if (!LATEST_RELEASE?.exeUrl) return;
+  $updateNowBtn.disabled = true;
+  $updateNowBtn.textContent = t("upd_downloading");
+  ipcSend(`update:${LATEST_RELEASE.exeUrl}`);
+});
+
+document.getElementById("swatches").addEventListener("click", e => {
+  const sw = e.target.closest(".swatch");
+  if (!sw) return;
+  SETTINGS.accent = sw.dataset.color;
+  applyAccent(SETTINGS.accent);
+  saveSettings();
+});
+
+$customColor.addEventListener("input", e => {
+  SETTINGS.accent = e.target.value;
+  applyAccent(SETTINGS.accent);
+  saveSettings();
+});
+
+document.querySelectorAll(".seg-row").forEach(row => {
+  row.addEventListener("click", e => {
+    const btn = e.target.closest(".seg-btn");
+    if (!btn) return;
+    const key = row.dataset.setting;
+    SETTINGS[key] = btn.dataset.val;
+    saveSettings();
+    applySettings(key === "winSize");
+  });
+});
+
+$query.addEventListener("input", renderSearch);
+$query.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    askAI();
+  }
+});
+$askBtn.addEventListener("click", askAI);
+
+document.getElementById("filters").addEventListener("click", e => {
+  const btn = e.target.closest(".chip");
+  if (!btn) return;
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+  btn.classList.add("active");
+  activeCat = btn.dataset.cat;
+  renderSearch();
+});
+
+$results.addEventListener("click", e => {
+  const copyBtn = e.target.closest(".copy-btn");
+  if (copyBtn) {
+    e.stopPropagation();
+    navigator.clipboard.writeText(copyBtn.dataset.copy || "");
+    const orig = copyBtn.textContent;
+    copyBtn.textContent = t("copied");
+    setTimeout(() => (copyBtn.textContent = orig), 1200);
+    return;
+  }
+  const faq = e.target.closest(".faq-card");
+  if (faq) {
+    const list = TOP_FAQ[SETTINGS.uiLang] || TOP_FAQ.ru;
+    const item = list[Number(faq.dataset.faq)];
+    if (item) {
+      $query.value = item.q;
+      renderSearch();
+    }
+  }
+});
+
+$copyAiBtn.addEventListener("click", e => {
+  navigator.clipboard.writeText(lastAiRaw || $aiContent.textContent || "");
+  e.target.textContent = t("copied");
+  setTimeout(() => (e.target.textContent = t("copy")), 1200);
+});
+
+(async function init() {
+  updateKeyBadge();
+  applySettings(true);
+
+  try {
+    const infoRes = await fetch("/app_info.json");
+    if (infoRes.ok) {
+      APP_INFO = await infoRes.json();
+      const vLabel = `v${APP_INFO.version}`;
+      $appVersion.textContent = vLabel;
+      $modalVersion.textContent = vLabel;
+    }
+  } catch {}
+
+  try {
+    const res = await fetch("/rules_index.json");
+    const raw = await res.json();
+    RULES = raw.map(r => ({
+      ...r,
+      _head: (r.d + " " + r.s).toLowerCase(),
+      _low: r.t.toLowerCase(),
+      _full: (r.d + " " + r.s + " " + r.t).toLowerCase()
+    }));
+
+    const seen = new Map();
+    for (const r of RULES) {
+      if (!seen.has(r.d)) {
+        seen.set(r.d, { id: seen.size, d: r.d, c: r.c });
+      }
+    }
+    DOC_CATALOG = Array.from(seen.values());
+  } catch (e) {
+    $label.textContent = "Ошибка загрузки базы правил: " + e.message;
+  }
+
+  checkUpdates(false);
+  $query.focus();
+})();
+</script>
+</body>
+</html>

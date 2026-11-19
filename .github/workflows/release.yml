@@ -1,0 +1,29 @@
+﻿name: Build & Release NG Helper
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release exe
+        working-directory: overlay
+        run: cargo build --release
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: overlay/target/release/ng-helper.exe
+          generate_release_notes: true
