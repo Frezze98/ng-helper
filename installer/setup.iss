@@ -18,7 +18,7 @@ SolidCompression=yes
 PrivilegesRequired=lowest
 WizardStyle=modern
 CloseApplications=force
-UninstallDisplayIcon={app}\ng-helper.exe
+UninstallDisplayIcon={app}\icon.ico
 
 [Languages]
 Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl"
@@ -38,14 +38,17 @@ Name: "autostart"; Description: "{cm:AutoStartApp}"; GroupDescription: "{cm:Addi
 
 [Files]
 Source: "..\overlay\target\release\ng-helper.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\NG Helper"; Filename: "{app}\ng-helper.exe"; IconFilename: "{app}\ng-helper.exe"
+Name: "{group}\NG Helper"; Filename: "{app}\ng-helper.exe"; IconFilename: "{app}\icon.ico"
 Name: "{group}\Видалити NG Helper"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\NG Helper"; Filename: "{app}\ng-helper.exe"; Tasks: desktopicon; IconFilename: "{app}\ng-helper.exe"
+Name: "{autodesktop}\NG Helper"; Filename: "{app}\ng-helper.exe"; Tasks: desktopicon; IconFilename: "{app}\icon.ico"
 
 [Registry]
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "NG Helper"; ValueData: """{app}\ng-helper.exe"""; Flags: uninsdeletevalue; Tasks: autostart
 
 [Run]
 Filename: "{app}\ng-helper.exe"; Description: "{cm:LaunchApp}"; Flags: nowait postinstall skipifsilent
+; после тихого автообновления приложение должно запуститься снова
+Filename: "{app}\ng-helper.exe"; Flags: nowait; Check: WizardSilent

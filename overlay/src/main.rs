@@ -2,6 +2,8 @@
 
 use std::borrow::Cow;
 use std::fs;
+use std::io::{Read, Write};
+use std::net::{TcpListener, TcpStream};
 use std::os::windows::process::CommandExt;
 use std::path::PathBuf;
 use std::process::Command;
@@ -31,9 +33,12 @@ const UI_HTML: &[u8] = include_bytes!("../assets/ui.html");
 const RULES_JSON: &[u8] = include_bytes!("../assets/rules_index.json");
 const AI_STUDIO_URL: &str = "https://aistudio.google.com/apikey";
 const CREATE_NO_WINDOW: u32 = 0x08000000;
+// Порт для проверки «уже запущено»: второй экземпляр просто будит первый.
+const SINGLE_INSTANCE_ADDR: &str = "127.0.0.1:47631";
 
 enum UserEvent {
     ToggleOverlay,
+    ShowOverlay,
     HideOverlay,
     DragWindow,
     SetAlwaysOnTop(bool),
@@ -44,10 +49,42 @@ enum UserEvent {
 }
 
 fn webview_data_dir() -> PathBuf {
+    app_data_dir().join("webview")
+}
+
+fn app_data_dir() -> PathBuf {
     let base = std::env::var("LOCALAPPDATA")
         .map(PathBuf::from)
         .unwrap_or_else(|_| std::env::temp_dir());
-    base.join("NGHelper").join("webview")
+    base.join("NGHelper")
+}
+
+/// Пишет сообщение в %LOCALAPPDATA%\NGHelper\error.log
+fn log_error(msg: &str) {
+    let dir = app_data_dir();
+    let _ = fs::create_dir_all(&dir);
+    let ts = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    if let Ok(mut f) = fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(dir.join("error.log"))
+    {
+        let _ = writeln!(f, "[{ts}] v{APP_VERSION}: {msg}");
+    }
+}
+
+fn install_panic_log() {
+    std::panic::set_hook(Box::new(|info| {
+        log_error(&format!("PANIC: {info}"));
+    }));
+}
+
+fn load_tray_icon() -> Icon {
+    // 1 — ординал иконки, вшитой через build.rs (winresource)
+    Icon::from_resource(1, Some((32, 32))).unwrap_or_else(|_| make_tray_icon())
 }
 
 fn make_tray_icon() -> Icon {
@@ -148,7 +185,36 @@ fn run_self_update(url: String, proxy: EventLoopProxy<UserEvent>) {
 }
 
 fn main() {
+    install_panic_log();
+
+    // Единственный экземпляр: если приложение уже запущено (например, свёрнуто
+    // в трей), будим его и выходим. Раньше второй запуск молча падал на
+    // регистрации Alt+Q, и казалось, что программа «не запускается».
+    let single_listener = match TcpListener::bind(SINGLE_INSTANCE_ADDR) {
+        Ok(l) => Some(l),
+        Err(_) => {
+            if let Ok(mut s) = TcpStream::connect(SINGLE_INSTANCE_ADDR) {
+                let _ = s.write_all(b"show");
+                return;
+            }
+            None
+        }
+    };
+
     let event_loop = EventLoopBuilder::<UserEvent>::with_user_event().build();
+
+    if let Some(listener) = single_listener {
+        let proxy_single = event_loop.create_proxy();
+        thread::spawn(move || {
+            for stream in listener.incoming() {
+                if let Ok(mut s) = stream {
+                    let mut buf = [0u8; 8];
+                    let _ = s.read(&mut buf);
+                    let _ = proxy_single.send_event(UserEvent::ShowOverlay);
+                }
+            }
+        });
+    }
 
     let window = WindowBuilder::new()
         .with_title("NG Helper")
@@ -223,9 +289,10 @@ fn main() {
     let hotkey_manager = GlobalHotKeyManager::new().expect("failed to init hotkey manager");
     let toggle_hotkey = HotKey::new(Some(Modifiers::ALT), Code::KeyQ);
     let quit_hotkey = HotKey::new(Some(Modifiers::ALT | Modifiers::SHIFT), Code::KeyQ);
-    hotkey_manager
-        .register(toggle_hotkey)
-        .expect("failed to register Alt+Q hotkey");
+    // Если Alt+Q занят другой программой — не падаем, работаем через трей.
+    if let Err(e) = hotkey_manager.register(toggle_hotkey) {
+        log_error(&format!("Alt+Q register failed: {e}"));
+    }
     let _ = hotkey_manager.register(quit_hotkey);
 
     let proxy_hk = event_loop.create_proxy();
@@ -252,7 +319,7 @@ fn main() {
     let _tray_icon = TrayIconBuilder::new()
         .with_menu(Box::new(tray_menu))
         .with_tooltip(format!("NG Helper v{} (Alt+Q)", APP_VERSION))
-        .with_icon(make_tray_icon())
+        .with_icon(load_tray_icon())
         .with_menu_on_left_click(false)
         .build()
         .expect("failed to build tray icon");
@@ -305,6 +372,14 @@ fn main() {
                     let _ = window.set_focus();
                     window.request_redraw();
                 }
+            }
+            Event::UserEvent(UserEvent::ShowOverlay) => {
+                is_visible = true;
+                window.set_visible(true);
+                window.set_always_on_top(false);
+                window.set_always_on_top(always_on_top);
+                let _ = window.set_focus();
+                window.request_redraw();
             }
             Event::UserEvent(UserEvent::HideOverlay) => {
                 window.set_visible(false);
