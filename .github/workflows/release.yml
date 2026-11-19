@@ -1,4 +1,4 @@
-﻿name: Build & Release NG Helper
+name: Build & Release NG Helper
 
 on:
   push:
@@ -17,6 +17,14 @@ jobs:
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Sync Cargo version with tag
+        shell: pwsh
+        working-directory: overlay
+        run: |
+          $ver = "${{ github.ref_name }}".TrimStart("v")
+          (Get-Content Cargo.toml) -replace '^version = ".*"', "version = `"$ver`"" | Set-Content Cargo.toml
+          Select-String -Path Cargo.toml -Pattern '^version'
 
       - name: Build release exe
         working-directory: overlay

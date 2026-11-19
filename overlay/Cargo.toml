@@ -9,6 +9,9 @@ wry = "0.57"
 global-hotkey = "0.10"
 tray-icon = "0.26"
 
+[build-dependencies]
+winresource = "0.1"
+
 [profile.release]
 opt-level = "s"
 lto = true
