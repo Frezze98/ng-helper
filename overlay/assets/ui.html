@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
 <meta charset="UTF-8" />
@@ -6,133 +6,161 @@
 <title>NG Helper</title>
 <style>
   :root {
-    --bg: #09100e;
-    --header-bg: #0c1512;
-    --panel: #101b17;
-    --panel-hover: #14241f;
     --accent: #26ffae;
     --accent-rgb: 38, 255, 174;
-    --accent-fg: #041610;
-    --border: rgba(var(--accent-rgb), 0.24);
-    --accent-dim: rgba(var(--accent-rgb), 0.12);
-    --text: #e9f5f0;
-    --muted: #84a096;
+    --bg-win: #0b1012;
+    --bg-modal: #0d1416;
+    --bg-sheet: #0d1517;
+    --surface: rgba(255, 255, 255, 0.038);
+    --surface-hover: rgba(255, 255, 255, 0.075);
+    --border: rgba(255, 255, 255, 0.085);
+    --text: #eef4f2;
+    --text-soft: #b8c6c1;
+    --muted: #8a9b95;
     --warn: #ffb84d;
-    --danger: #ff6b6b;
-    --base-font: 13.5px;
+    --cyan: #4cd8ff;
+    --danger: #ff6b81;
+    --discord: #7c89ff;
+    --font-size: 13.5px;
+    --radius: 14px;
   }
-
   body.theme-oled {
-    --bg: #000000;
-    --header-bg: #060908;
-    --panel: #0b0f0e;
-    --panel-hover: #111816;
+    --bg-win: #050607;
+    --bg-modal: #080a0c;
+    --bg-sheet: #090c0e;
+    --surface: rgba(255, 255, 255, 0.032);
+    --border: rgba(255, 255, 255, 0.075);
   }
   body.theme-graphite {
-    --bg: #131618;
-    --header-bg: #181c1f;
-    --panel: #1e2327;
-    --panel-hover: #252b30;
+    --bg-win: #15191d;
+    --bg-modal: #181d22;
+    --bg-sheet: #191f25;
+    --surface: rgba(255, 255, 255, 0.048);
+    --border: rgba(255, 255, 255, 0.1);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg-win);
     color: var(--text);
-    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-    font-size: var(--base-font);
-    line-height: 1.5;
-    height: 100vh;
+    font-family: "Segoe UI Variable", "Segoe UI", Inter, system-ui, sans-serif;
+    font-size: var(--font-size);
+    user-select: none;
+  }
+
+  .overlay {
+    width: 100%;
+    height: 100%;
+    background: var(--bg-win);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid rgba(var(--accent-rgb), 0.38);
-    will-change: transform;
-    backface-visibility: hidden;
+    position: relative;
+  }
+  .overlay::before {
+    content: "";
+    position: absolute;
+    top: -90px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 380px;
+    height: 150px;
+    background: radial-gradient(ellipse, rgba(var(--accent-rgb), 0.2), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
   }
 
   header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 9px 12px;
-    background: var(--header-bg);
+    padding: 12px 14px 10px;
     border-bottom: 1px solid var(--border);
-    user-select: none;
+    position: relative;
+    z-index: 2;
     cursor: grab;
   }
   header:active { cursor: grabbing; }
-
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    font-weight: 700;
-    letter-spacing: 0.7px;
-    pointer-events: none;
-  }
-  .brand-badge {
-    background: var(--accent-dim);
+  .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.22), rgba(var(--accent-rgb), 0.05));
+    border: 1px solid rgba(var(--accent-rgb), 0.55);
     color: var(--accent);
-    border: 1px solid var(--accent);
-    padding: 1px 7px;
-    border-radius: 6px;
-    font-size: 12px;
-    box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.28);
+    font-weight: 800;
+    font-size: 13px;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.22);
+    flex-shrink: 0;
   }
-  .ver-badge {
-    color: var(--accent);
-    font-size: 11px;
+  .brand-title { font-weight: 750; font-size: 14.5px; letter-spacing: 0.4px; }
+  .brand-meta { display: flex; align-items: center; gap: 6px; margin-top: 1px; }
+  .pill-ver {
+    font-size: 10.5px;
     font-weight: 600;
-    opacity: 0.85;
+    color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.12);
+    padding: 1px 6px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: none;
+    transition: 0.18s;
   }
-  .hotkey-hint {
+  .pill-ver:hover { background: rgba(var(--accent-rgb), 0.24); }
+  .pill-hk {
+    font-size: 10.5px;
     color: var(--muted);
-    font-size: 11px;
-    background: rgba(255,255,255,0.05);
-    padding: 2px 6px;
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-family: ui-monospace, Consolas, monospace;
   }
 
-  .header-controls {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
+  .controls { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
   .icon-btn {
-    background: var(--panel);
-    color: var(--text);
+    height: 31px;
+    padding: 0 10px;
+    border-radius: 10px;
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 4px 9px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    color: var(--muted);
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 12.2px;
+    font-weight: 500;
+    transition: 0.18s;
   }
-  .icon-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
-  .icon-btn.active {
-    background: var(--accent-dim);
-    border-color: var(--accent);
+  .icon-btn:hover { background: var(--surface-hover); color: var(--text); border-color: rgba(255, 255, 255, 0.16); }
+  .icon-btn.pin.active {
     color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.12);
+    border-color: rgba(var(--accent-rgb), 0.4);
   }
-  .close-btn:hover {
-    border-color: var(--danger);
+  .icon-btn.close:hover {
+    background: rgba(255, 107, 129, 0.16);
+    border-color: rgba(255, 107, 129, 0.45);
     color: var(--danger);
-    background: rgba(255, 107, 107, 0.12);
   }
-  .key-dot {
+  .status-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--warn);
-    display: inline-block;
+    background: var(--danger);
+    transition: 0.2s;
   }
-  .key-dot.ok {
+  .status-dot.ready {
     background: var(--accent);
-    box-shadow: 0 0 6px var(--accent);
+    box-shadow: 0 0 8px var(--accent);
   }
 
   .update-bar {
@@ -140,859 +168,1563 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    padding: 7px 14px;
-    background: rgba(var(--accent-rgb), 0.14);
-    border-bottom: 1px solid var(--accent);
+    padding: 8px 14px;
+    background: rgba(76, 216, 255, 0.1);
+    border-bottom: 1px solid rgba(76, 216, 255, 0.28);
     font-size: 12px;
-    animation: slideDown 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    z-index: 2;
   }
-  .update-bar.visible { display: flex; }
-  .update-bar-text { color: var(--text); font-weight: 600; }
+  .update-bar.show { display: flex; }
+  .update-bar-text { color: #d8f6ff; display: inline-flex; align-items: center; gap: 6px; }
+  .update-bar-text svg { color: var(--cyan); flex-shrink: 0; }
   .update-bar-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .btn-xs {
-    background: var(--accent);
-    color: var(--accent-fg);
+    background: var(--cyan);
+    color: #03151c;
     border: none;
-    border-radius: 6px;
+    border-radius: 7px;
     padding: 4px 10px;
     font-size: 11.5px;
     font-weight: 700;
     cursor: pointer;
-    transition: filter 0.15s;
   }
-  .btn-xs:hover { filter: brightness(1.1); }
-  .btn-xs:disabled { opacity: 0.6; cursor: wait; }
   .btn-xs-ghost {
-    background: transparent;
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    border-radius: 6px;
-    padding: 3px 8px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 4px 9px;
     font-size: 11.5px;
     cursor: pointer;
-    transition: background 0.15s;
   }
-  .btn-xs-ghost:hover { background: var(--accent-dim); }
 
-  .search-wrap {
-    padding: 11px 14px 9px;
-    background: var(--header-bg);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-  .input-row { display: flex; gap: 8px; }
-  #query {
-    flex: 1;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 12px;
-    color: var(--text);
-    font-size: 1em;
-    outline: none;
-    transition: all 0.2s;
-  }
-  #query:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.18);
-  }
-  #ask-ai-btn {
-    background: var(--accent);
-    color: var(--accent-fg);
-    border: none;
-    border-radius: 8px;
-    padding: 0 15px;
-    font-weight: 700;
-    font-size: 0.96em;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.25);
-  }
-  #ask-ai-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
-  #ask-ai-btn:active { transform: translateY(0); }
-  #ask-ai-btn:disabled { opacity: 0.5; cursor: wait; }
-
-  .filters {
+  .search-zone {
+    padding: 11px 14px 10px;
     display: flex;
+    flex-direction: column;
+    gap: 9px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+    position: relative;
+    z-index: 2;
+  }
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.36);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 4px 5px 4px 12px;
+    transition: 0.2s;
+  }
+  .search-box:focus-within {
+    border-color: rgba(var(--accent-rgb), 0.65);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
+  }
+  .search-box:focus-within .search-ico { color: var(--accent); }
+  .search-ico { color: var(--muted); display: flex; flex-shrink: 0; transition: 0.2s; }
+  .search-box input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: var(--font-size);
+    min-width: 0;
+  }
+  .search-box input::placeholder { color: #677772; }
+  .clear-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    display: none;
+    padding: 4px;
+    border-radius: 6px;
+  }
+  .clear-btn.show { display: flex; }
+  .clear-btn:hover { color: var(--text); background: rgba(255, 255, 255, 0.06); }
+  .ai-btn {
+    background: linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.78));
+    color: #04150f;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 13px;
+    font-weight: 750;
+    font-size: 12.8px;
+    display: inline-flex;
+    align-items: center;
     gap: 6px;
-    margin-top: 8px;
-    flex-wrap: wrap;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.28);
+    transition: 0.18s;
+    flex-shrink: 0;
+  }
+  .ai-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.06); }
+  .ai-btn:disabled { opacity: 0.6; cursor: wait; }
+
+  .chips-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .chips-row { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .chips-sub-lbl {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #63756f;
+    margin-right: 2px;
   }
   .chip {
-    background: transparent;
+    background: var(--surface);
+    border: 1px solid var(--border);
     color: var(--muted);
-    border: 1px solid rgba(255,255,255,0.1);
+    padding: 4px 10px;
     border-radius: 999px;
-    padding: 3px 10px;
-    font-size: 11.5px;
+    font-size: 11.6px;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: 0.16s;
   }
-  .chip:hover { color: var(--text); border-color: var(--border); }
+  .chip:hover { color: var(--text); background: var(--surface-hover); }
   .chip.active {
-    background: var(--accent-dim);
     color: var(--accent);
-    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.13);
+    border-color: rgba(var(--accent-rgb), 0.45);
+    font-weight: 600;
   }
+  .chip.faction { font-size: 11px; padding: 3px 8.5px; }
 
   main {
     flex: 1;
     overflow-y: auto;
-    padding: 12px 14px 18px;
+    padding: 10px 14px 16px;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    scroll-behavior: smooth;
+    position: relative;
+    z-index: 1;
+    user-select: text;
   }
-  main::-webkit-scrollbar { width: 6px; }
-  main::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), 0.28); border-radius: 3px; }
+  main::-webkit-scrollbar,
+  .modal-body::-webkit-scrollbar,
+  .cl-scroll::-webkit-scrollbar { width: 5px; }
+  main::-webkit-scrollbar-thumb,
+  .modal-body::-webkit-scrollbar-thumb,
+  .cl-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.13); border-radius: 99px; }
 
-  .section-label {
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
     font-size: 11px;
-    text-transform: uppercase;
+    font-weight: 700;
     letter-spacing: 0.8px;
+    text-transform: uppercase;
     color: var(--muted);
-    margin-top: 2px;
+    padding: 2px;
+  }
+  .section-title { display: inline-flex; align-items: center; gap: 6px; }
+  .section-title svg { color: var(--accent); }
+  .sync-pill {
+    font-size: 10.5px;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--accent);
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
   }
 
-  .ai-box {
-    display: none;
-    background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.11), rgba(16, 27, 23, 0.92));
-    border: 1px solid var(--accent);
-    border-radius: 10px;
+  .results-list { display: flex; flex-direction: column; gap: 9px; }
+  .card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     padding: 12px 13px;
-    box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.08);
-    will-change: opacity, transform;
-    animation: slideInUp 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    transition: 0.18s;
   }
-  .ai-box.visible { display: block; }
-  .ai-box.warn-mode {
-    border-color: var(--warn);
-    background: linear-gradient(180deg, rgba(255, 184, 77, 0.14), rgba(16, 27, 23, 0.94));
+  .card:hover {
+    border-color: rgba(var(--accent-rgb), 0.35);
+    background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.055), rgba(255, 255, 255, 0.025));
   }
-  .ai-box.warn-mode .ai-head { color: var(--warn); }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .card-tag { font-size: 10.6px; font-weight: 600; color: var(--accent); margin-bottom: 2px; }
+  .card-title { font-size: calc(var(--font-size) + 0.5px); font-weight: 650; line-height: 1.35; }
+  .card-body {
+    font-size: calc(var(--font-size) - 0.5px);
+    color: var(--text-soft);
+    line-height: 1.5;
+    white-space: pre-line;
+    word-break: break-word;
+  }
+  .card-body mark {
+    background: rgba(var(--accent-rgb), 0.22);
+    color: var(--text);
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+  .punish-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 184, 77, 0.1);
+    border: 1px solid rgba(255, 184, 77, 0.26);
+    color: var(--warn);
+    font-size: 11.8px;
+    font-weight: 500;
+    padding: 4px 9px;
+    border-radius: 8px;
+    width: fit-content;
+  }
+  .copy-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 8px;
+    padding: 5px 8px;
+    font-size: 11.3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: 0.16s;
+  }
+  .copy-btn:hover, .copy-btn.copied {
+    color: var(--accent);
+    border-color: rgba(var(--accent-rgb), 0.45);
+    background: rgba(var(--accent-rgb), 0.1);
+  }
+  .empty-state {
+    text-align: center;
+    padding: 26px 14px;
+    color: var(--muted);
+    font-size: 13px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+  }
+
+  .ai-card {
+    display: none;
+    background: linear-gradient(165deg, rgba(var(--accent-rgb), 0.095), rgba(11, 18, 20, 0.94) 32%);
+    border: 1px solid rgba(var(--accent-rgb), 0.42);
+    border-radius: 16px;
+    padding: 14px;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.45);
+  }
+  .ai-card.visible { display: flex; }
+  .ai-card.error { border-color: rgba(255, 107, 129, 0.5); background: rgba(255, 107, 129, 0.07); }
   .ai-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    gap: 8px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.18);
+  }
+  .ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
     color: var(--accent);
     font-weight: 700;
-    font-size: 12.5px;
+    font-size: 12.8px;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+  .ai-model {
+    font-size: 10.8px;
+    color: var(--muted);
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-family: ui-monospace, Consolas, monospace;
   }
   .ai-content {
-    white-space: pre-wrap;
-    font-size: 1em;
-    color: var(--text);
-    line-height: 1.55;
-  }
-  .ai-content strong { color: var(--accent); font-weight: 700; }
-  .no-key-notice {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: 9px;
-    white-space: normal;
+    font-size: var(--font-size);
+    line-height: 1.52;
+    color: #d7e3df;
   }
+  .route-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .route-card {
+    border-radius: 11px;
+    padding: 9px 10px;
+    font-size: 12px;
+    line-height: 1.44;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .route-card.forum { background: rgba(255, 107, 129, 0.09); border: 1px solid rgba(255, 107, 129, 0.34); color: #ffd4dc; }
+  .route-card.ic { background: rgba(76, 216, 255, 0.08); border: 1px solid rgba(76, 216, 255, 0.32); color: #d1f3ff; }
+  .route-tag {
+    font-size: 10.4px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+  }
+  .route-tag-left { display: inline-flex; align-items: center; gap: 5px; }
+  .route-card.forum .route-tag { color: var(--danger); }
+  .route-card.ic .route-tag { color: var(--cyan); }
+  .route-status {
+    font-size: 9.8px;
+    padding: 1px 6px;
+    border-radius: 99px;
+    font-weight: 700;
+  }
+  .route-status.yes { background: rgba(var(--accent-rgb), 0.2); color: var(--accent); }
+  .route-status.no { background: rgba(255, 255, 255, 0.09); color: var(--muted); }
+  .ai-sec {
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 9px 11px;
+    font-size: calc(var(--font-size) - 0.5px);
+    line-height: 1.5;
+  }
+  .ai-sec-h {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.6px;
+    font-weight: 700;
+    letter-spacing: 0.55px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    padding: 2px 8px;
+    border-radius: 5px;
+    background: rgba(var(--accent-rgb), 0.14);
+    color: var(--accent);
+  }
+  .ai-sec-h.ic { background: rgba(76, 216, 255, 0.14); color: var(--cyan); }
+  .ai-sec ul { padding-left: 16px; display: flex; flex-direction: column; gap: 3px; margin-top: 3px; }
+  .ai-loading { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; padding: 4px 0; }
+  .ai-loading svg { color: var(--accent); }
 
-  .card {
-    background: var(--panel);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 9px;
-    padding: 10px 12px;
-    transition: all 0.2s ease-out;
-    will-change: opacity, transform;
-  }
-  .card:hover { border-color: var(--border); background: var(--panel-hover); transform: translateX(1px); }
-  .card-top {
+  footer {
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.28);
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-  .card-title { color: var(--accent); font-weight: 600; font-size: 0.94em; }
-  .card-sec { color: var(--muted); font-size: 11px; }
-  .card-body {
-    white-space: pre-wrap;
-    font-size: 0.95em;
-    color: #d6e6e0;
-    max-height: 220px;
-    overflow-y: auto;
-  }
-  .copy-btn {
-    background: rgba(255,255,255,0.05);
+    align-items: center;
+    font-size: 11.2px;
     color: var(--muted);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 6px;
-    padding: 3px 8px;
-    font-size: 11px;
+    position: relative;
+    z-index: 2;
+  }
+  .foot-meta { display: inline-flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .foot-hk {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 10.3px;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.06);
+    padding: 1px 6px;
+    border-radius: 5px;
+  }
+  .footer-discord {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #c7ceff;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 7px;
+    background: rgba(88, 101, 242, 0.14);
+    border: 1px solid rgba(88, 101, 242, 0.35);
+    transition: 0.18s;
     cursor: pointer;
-    flex-shrink: 0;
-    transition: all 0.15s;
   }
-  .copy-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
-
-  .faq-card { cursor: pointer; border-left: 3px solid var(--accent); }
-  .faq-q { font-weight: 600; color: var(--text); margin-bottom: 4px; }
-  .faq-a { color: #c7dcd5; font-size: 0.93em; }
-  .faq-punish { color: var(--warn); font-size: 11.5px; margin-top: 4px; }
-
-  mark {
-    background: rgba(var(--accent-rgb), 0.28);
-    color: #fff;
-    border-radius: 2px;
-    padding: 0 2px;
-  }
+  .footer-discord svg:first-child { color: var(--discord); }
+  .footer-discord:hover { background: rgba(88, 101, 242, 0.28); color: #fff; }
 
   .modal-bg {
-    display: none;
-    position: fixed;
+    position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.76);
+    background: rgba(4, 7, 9, 0.82);
+    backdrop-filter: blur(10px);
+    display: none;
     align-items: center;
     justify-content: center;
     padding: 14px;
-    z-index: 99;
-    will-change: opacity;
-    animation: fadeIn 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 30;
   }
   .modal-bg.open { display: flex; }
   .modal {
-    background: var(--header-bg);
-    border: 1px solid var(--accent);
-    border-radius: 12px;
-    padding: 16px;
     width: 100%;
-    max-width: 460px;
-    max-height: 90vh;
+    height: 100%;
+    background: var(--bg-modal);
+    border: 1px solid rgba(var(--accent-rgb), 0.32);
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.78);
+    position: relative;
+  }
+  .modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-head h3 {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .modal-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 7px 13px 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 5;
+    background: var(--bg-modal);
+  }
+  .mtab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    padding: 7px 11px 9px;
+    font-size: 12.2px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.18s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .mtab:hover { color: var(--text); }
+  .mtab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .modal-stage {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal-body {
+    padding: 14px 15px;
     overflow-y: auto;
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 13px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
-    will-change: transform, opacity;
-    animation: slideInUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.26s ease;
   }
-  .modal::-webkit-scrollbar { width: 5px; }
-  .modal::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), 0.3); border-radius: 3px; }
-  .modal-head { display: flex; justify-content: space-between; align-items: center; }
-  .modal h3 { color: var(--accent); font-size: 15px; }
+  .modal-stage.cl-open .modal-body {
+    transform: translateX(-18px) scale(0.985);
+    opacity: 0.22;
+    pointer-events: none;
+  }
 
-  .setting-group {
+  .cl-sheet {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-sheet);
+    border-left: 1px solid rgba(var(--accent-rgb), 0.28);
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    transform: translateX(102%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+    z-index: 4;
   }
-  .setting-group:last-of-type { border-bottom: none; padding-bottom: 0; }
-  .setting-label { font-size: 12px; font-weight: 600; color: var(--text); }
-  .setting-hint { font-size: 11.5px; color: var(--muted); }
-
-  .mini-guide {
-    background: var(--panel);
+  .modal-stage.cl-open .cl-sheet {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .cl-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(var(--accent-rgb), 0.04);
+  }
+  .cl-back-btn {
+    background: var(--surface);
     border: 1px solid var(--border);
+    color: var(--text);
     border-radius: 8px;
-    padding: 8px 10px 8px 24px;
-    font-size: 11.5px;
-    color: #c7dcd5;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-  .mini-guide b { color: var(--accent); }
-
-  .hotkeys-info {
-    font-size: 11.5px;
-    color: var(--muted);
-    background: var(--panel);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 7px;
-    padding: 7px 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-  .hotkeys-info kbd {
-    background: rgba(var(--accent-rgb), 0.14);
-    color: var(--accent);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1px 5px;
-    font-family: inherit;
-    font-size: 11px;
+    padding: 5px 10px;
+    font-size: 12px;
     font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.18s;
+  }
+  .cl-back-btn:hover { border-color: rgba(var(--accent-rgb), 0.45); color: var(--accent); }
+  .cl-sheet-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cl-sheet-title svg { color: var(--accent); }
+  .cl-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 13px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    user-select: text;
   }
 
-  .swatch-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .tab-pane { display: none; flex-direction: column; gap: 13px; }
+  .tab-pane.active { display: flex; }
+  .s-label {
+    font-size: 12px;
+    font-weight: 650;
+    color: #cddad5;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .s-hint { font-size: 11.4px; color: var(--muted); line-height: 1.44; margin-bottom: 7px; }
+
+  .swatches { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .swatch {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     border: 2px solid transparent;
     cursor: pointer;
-    transition: all 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: 0.18s;
   }
-  .swatch:hover { transform: scale(1.15); }
-  .swatch.active { border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.45); }
+  .swatch.active { border-color: #fff; box-shadow: 0 0 12px currentColor; transform: scale(1.1); }
   .color-picker-wrap {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: var(--panel);
+    background: var(--surface);
     border: 1px solid var(--border);
+    padding: 3px 10px 3px 6px;
     border-radius: 999px;
-    padding: 2px 9px 2px 4px;
-    font-size: 11.5px;
-    color: var(--muted);
+    font-size: 11.6px;
+    font-weight: 600;
+    color: var(--text);
     cursor: pointer;
+    transition: 0.18s;
   }
-  #custom-color { width: 20px; height: 20px; border: none; background: none; cursor: pointer; padding: 0; }
+  .color-picker-wrap:hover, .color-picker-wrap.active {
+    border-color: rgba(var(--accent-rgb), 0.6);
+    background: rgba(var(--accent-rgb), 0.1);
+  }
+  .color-picker-wrap input[type="color"] {
+    width: 18px;
+    height: 18px;
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+  .color-picker-wrap input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  .color-picker-wrap input[type="color"]::-webkit-color-swatch { border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 50%; }
 
-  .seg-row { display: flex; gap: 6px; flex-wrap: wrap; }
-  .seg-btn {
-    flex: 1;
-    min-width: 78px;
-    background: var(--panel);
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .seg.two { grid-template-columns: repeat(2, 1fr); }
+  .seg button {
+    background: var(--surface);
+    border: 1px solid var(--border);
     color: var(--muted);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 7px;
-    padding: 6px 8px;
+    padding: 7px 8px;
+    border-radius: 10px;
     font-size: 12px;
     cursor: pointer;
-    text-align: center;
-    transition: all 0.15s;
+    transition: 0.18s;
   }
-  .seg-btn:hover { color: var(--text); border-color: var(--border); }
-  .seg-btn.active {
-    background: var(--accent-dim);
+  .seg button.active {
+    background: rgba(var(--accent-rgb), 0.14);
+    border-color: rgba(var(--accent-rgb), 0.55);
     color: var(--accent);
-    border-color: var(--accent);
     font-weight: 600;
   }
 
-  .modal input[type="password"] {
-    background: var(--bg);
+  .hk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .hk-card {
+    background: rgba(0, 0, 0, 0.3);
     border: 1px solid var(--border);
-    border-radius: 7px;
+    border-radius: 12px;
+    padding: 9px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .hk-card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .hk-card-title.quit svg { color: var(--danger); }
+  .hk-card-title.toggle svg { color: var(--accent); }
+  .hk-row { display: flex; gap: 5px; }
+  .hk-recorder {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 7px 6px;
+    color: var(--text);
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 11.8px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.18s;
+  }
+  .hk-recorder.recording {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.12);
+    box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.22);
+  }
+  .hk-reset {
+    width: 30px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 8px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: 0.18s;
+  }
+  .hk-reset:hover { color: var(--text); border-color: rgba(255, 255, 255, 0.22); }
+  .hk-status { font-size: 11.3px; min-height: 16px; color: var(--accent); margin-top: 5px; }
+  .hk-status.err { color: var(--danger); }
+
+  .add-key-box {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .key-input-row { display: flex; gap: 6px; }
+  .key-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--border);
+    border-radius: 9px;
     padding: 8px 10px;
     color: var(--text);
-    font-size: 13px;
+    font-size: 12.2px;
     outline: none;
+    font-family: ui-monospace, Consolas, monospace;
+    min-width: 0;
+  }
+  .key-input:focus { border-color: var(--accent); }
+  .detect-bar { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11.2px; }
+  .detect-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--muted);
+  }
+  .detect-badge.ok { background: rgba(var(--accent-rgb), 0.15); color: var(--accent); }
+  .provider-select {
+    background: #10191c;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 4px 7px;
+    font-size: 11.2px;
+    outline: none;
+  }
+  .btn-add {
+    background: var(--accent);
+    color: #04150f;
+    border: none;
+    border-radius: 9px;
+    padding: 0 12px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .quick-keys { display: flex; gap: 6px; flex-wrap: wrap; }
+  .qkey-btn {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 4px 9px;
+    border-radius: 7px;
+    font-size: 11px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: 0.16s;
+  }
+  .qkey-btn:hover { color: var(--accent); border-color: rgba(var(--accent-rgb), 0.45); }
+
+  .provider-list { display: flex; flex-direction: column; gap: 6px; }
+  .prov-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .prov-item.disabled { opacity: 0.46; }
+  .prov-left { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .prov-rank {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: rgba(var(--accent-rgb), 0.14);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .prov-name { font-size: 12.5px; font-weight: 650; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .prov-mask { font-size: 10.8px; color: var(--muted); font-weight: 400; font-family: ui-monospace, Consolas, monospace; }
+  .prov-model { font-size: 10.8px; color: var(--muted); font-family: ui-monospace, Consolas, monospace; }
+  .prov-acts { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .mini-btn {
+    width: 25px;
+    height: 25px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: 0.15s;
+  }
+  .mini-btn:hover { color: var(--text); border-color: rgba(255, 255, 255, 0.22); }
+  .mini-btn.on { color: var(--accent); border-color: rgba(var(--accent-rgb), 0.35); }
+  .mini-btn.del:hover { color: var(--danger); border-color: rgba(255, 107, 129, 0.5); }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .info-tile {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 9px 11px;
+  }
+  .info-tile .k { font-size: 11px; color: var(--muted); }
+  .info-tile .v { font-size: 13.5px; font-weight: 700; margin-top: 3px; color: var(--text); }
+  .info-tile .v.acc { color: var(--accent); }
+
+  .sync-log-card {
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .sync-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.8px;
+  }
+  .sync-row-k { color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+  .sync-row-v { color: var(--text); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .mode-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 99px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .mode-badge.auto { background: rgba(var(--accent-rgb), 0.16); color: var(--accent); }
+  .mode-badge.manual { background: rgba(76, 216, 255, 0.16); color: var(--cyan); }
+  .mode-badge.embedded { background: rgba(255, 255, 255, 0.08); color: var(--muted); }
+
+  .status-line {
+    font-size: 11.6px;
+    min-height: 18px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-line.err { color: var(--danger); }
+
+  .btn-outline {
     width: 100%;
-  }
-  .modal input[type="password"]:focus { border-color: var(--accent); }
-
-  .about-row {
-    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 11px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    flex-wrap: wrap;
+    justify-content: center;
+    gap: 7px;
+    text-decoration: none;
+    transition: 0.18s;
   }
-  .update-status { font-size: 11.5px; color: var(--muted); }
-  .update-status.ok { color: var(--accent); }
-  .update-status.err { color: var(--danger); }
+  .btn-outline:hover { border-color: rgba(var(--accent-rgb), 0.5); background: rgba(var(--accent-rgb), 0.08); }
+  .btn-outline.rules-btn svg { color: var(--accent); }
+  .btn-outline.upd-btn svg { color: var(--cyan); }
+  .btn-discord {
+    background: linear-gradient(135deg, rgba(88, 101, 242, 0.2), rgba(88, 101, 242, 0.09));
+    border-color: rgba(88, 101, 242, 0.48);
+    color: #dbe0ff;
+  }
+  .btn-discord svg:first-child { color: var(--discord); }
+  .btn-discord:hover { background: rgba(88, 101, 242, 0.32); border-color: var(--discord); color: #fff; }
 
-  .modal-actions {
+  .cl-item {
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 11px 13px;
+  }
+  .cl-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .cl-ver { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .cl-date { font-size: 11px; color: var(--muted); }
+  .cl-body { font-size: 12px; color: #c4d2cd; line-height: 1.55; }
+  .cl-body ul { padding-left: 16px; display: flex; flex-direction: column; gap: 3px; }
+
+  .modal-foot {
+    padding: 10px 15px;
+    border-top: 1px solid var(--border);
     display: flex;
-    gap: 8px;
     justify-content: space-between;
     align-items: center;
-    margin-top: 2px;
+    background: var(--bg-modal);
+    z-index: 5;
   }
+  .btn-danger {
+    background: rgba(255, 107, 129, 0.08);
+    border: 1px solid rgba(255, 107, 129, 0.35);
+    color: var(--danger);
+    padding: 7px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-danger.confirm { background: rgba(255, 107, 129, 0.22); border-color: var(--danger); color: #fff; }
   .btn-primary {
     background: var(--accent);
-    color: var(--accent-fg);
+    color: #04150f;
     border: none;
-    border-radius: 7px;
-    padding: 7px 16px;
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-size: 12.8px;
     font-weight: 700;
     cursor: pointer;
-    transition: transform 0.15s;
-  }
-  .btn-primary:hover { transform: translateY(-1px); }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-outline {
-    background: transparent;
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    border-radius: 7px;
-    padding: 6px 11px;
-    cursor: pointer;
-    font-size: 12px;
-    text-align: center;
-    transition: all 0.15s ease-out;
-  }
-  .btn-outline:hover { background: var(--accent-dim); transform: translateY(-1px); }
-  .btn-danger-outline {
-    background: transparent;
-    color: var(--danger);
-    border: 1px solid rgba(255, 107, 107, 0.45);
-    border-radius: 7px;
-    padding: 6px 11px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: all 0.15s ease-out;
-  }
-  .btn-danger-outline:hover {
-    border-color: var(--danger);
-    background: rgba(255, 107, 107, 0.12);
-    transform: translateY(-1px);
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  @keyframes slideDown {
-    from { transform: translateY(-100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-  @keyframes slideInUp {
-    from { transform: translateY(12px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinning { animation: spin 0.9s linear infinite; }
 </style>
 </head>
 <body>
 
-<header id="drag-header">
-  <div class="brand">
-    <span class="brand-badge">NG</span>
-    <span>HELPER</span>
-    <span id="app-version" class="ver-badge">v1.0.2</span>
-    <span class="hotkey-hint">Alt+Q</span>
-  </div>
-  <div class="header-controls">
-    <button id="pin-btn" class="icon-btn active" title="Поверх усіх вікон">📌</button>
-    <button id="settings-btn" class="icon-btn">
-      <span id="key-dot" class="key-dot"></span>
-      <span id="settings-btn-text">Налаштування</span>
-    </button>
-    <button id="hide-btn" class="icon-btn close-btn" title="Сховати в трей (Alt+Q)">✕</button>
-  </div>
-</header>
-
-<div id="update-bar" class="update-bar">
-  <span id="update-bar-text" class="update-bar-text"></span>
-  <div class="update-bar-actions">
-    <button id="update-notes-btn" class="btn-xs-ghost" data-i18n="upd_release">GitHub</button>
-    <button id="update-now-btn" class="btn-xs" data-i18n="upd_now">Оновити</button>
-  </div>
-</div>
-
-<div class="search-wrap">
-  <div class="input-row">
-    <input id="query" type="text" placeholder="Пошук або питання по правилах NG..." autocomplete="off" />
-    <button id="ask-ai-btn" title="Розібрати ситуацію через ШІ (Enter)">✨ ШІ</button>
-  </div>
-  <div class="filters" id="filters">
-    <button class="chip active" data-cat="all" data-i18n="cat_all">Усі</button>
-    <button class="chip" data-cat="rules" data-i18n="cat_rules">Правила</button>
-    <button class="chip" data-cat="laws" data-i18n="cat_laws">Закони</button>
-    <button class="chip" data-cat="sbu" data-i18n="cat_sbu">СБУ</button>
-    <button class="chip" data-cat="npu" data-i18n="cat_npu">НПУ</button>
-    <button class="chip" data-cat="crime" data-i18n="cat_crime">Крайм</button>
-  </div>
-</div>
-
-<main id="main">
-  <div id="ai-box" class="ai-box">
-    <div class="ai-head">
-      <span id="ai-status">✨ Відповідь ШІ</span>
-      <button id="copy-ai-btn" class="copy-btn">📋 Копіювати</button>
+<div class="overlay">
+  <header id="drag-header">
+    <div class="brand">
+      <div class="brand-logo">NG</div>
+      <div>
+        <div class="brand-title">NG HELPER</div>
+        <div class="brand-meta">
+          <button class="pill-ver" id="app-version" type="button" title="Історія змін">v1.0.6</button>
+          <span class="pill-hk" id="hdr-hk">Alt+Q</span>
+        </div>
+      </div>
     </div>
-    <div id="ai-content" class="ai-content"></div>
+    <div class="controls">
+      <button id="pin-btn" class="icon-btn pin active" type="button" title="Поверх усіх вікон"></button>
+      <button id="settings-btn" class="icon-btn" type="button">
+        <span id="key-dot" class="status-dot"></span>
+        <span id="cfg-ico"></span>
+        <span data-i18n="settings">Налаштування</span>
+      </button>
+      <button id="hide-btn" class="icon-btn close" type="button" title="Сховати в трей"></button>
+    </div>
+  </header>
+
+  <div id="update-bar" class="update-bar">
+    <span id="update-bar-text" class="update-bar-text"></span>
+    <div class="update-bar-actions">
+      <button id="update-notes-btn" class="btn-xs-ghost" type="button">GitHub</button>
+      <button id="update-now-btn" class="btn-xs" type="button" data-i18n="upd_now">Оновити</button>
+    </div>
   </div>
 
-  <div id="results-label" class="section-label">⚡ Топ частих питань NG</div>
-  <div id="results"></div>
-</main>
-
-<div id="modal-bg" class="modal-bg">
-  <div class="modal">
-    <div class="modal-head">
-      <h3 data-i18n="settings_title">Налаштування NG Helper</h3>
-      <button id="close-modal-x" class="icon-btn close-btn">✕</button>
+  <div class="search-zone">
+    <div class="search-box">
+      <span class="search-ico" id="search-ico"></span>
+      <input id="query" type="text" autocomplete="off" placeholder="Пошук по 86 документах або питання для ШІ..." />
+      <button id="clear-btn" class="clear-btn" type="button" title="Очистити"></button>
+      <button id="ask-ai-btn" class="ai-btn" type="button"></button>
     </div>
-
-    <div class="setting-group">
-      <div class="setting-label" data-i18n="set_color">Основний колір</div>
-      <div class="swatch-row" id="swatches">
-        <button class="swatch" data-color="#26ffae" style="background:#26ffae" title="NG Mint"></button>
-        <button class="swatch" data-color="#00d4ff" style="background:#00d4ff" title="Cyan"></button>
-        <button class="swatch" data-color="#a855f7" style="background:#a855f7" title="Purple"></button>
-        <button class="swatch" data-color="#ff4d6d" style="background:#ff4d6d" title="Crimson"></button>
-        <button class="swatch" data-color="#ffb84d" style="background:#ffb84d" title="Gold"></button>
-        <button class="swatch" data-color="#e2e8f0" style="background:#e2e8f0" title="Silver"></button>
-        <label class="color-picker-wrap">
-          <input type="color" id="custom-color" value="#26ffae" />
-          <span data-i18n="set_custom_color">Свій</span>
-        </label>
+    <div class="chips-wrap" id="filters">
+      <div class="chips-row">
+        <button class="chip active" data-cat="all" data-i18n="cat_all" type="button">Усі</button>
+        <button class="chip" data-cat="rules" data-i18n="cat_rules" type="button">Правила</button>
+        <button class="chip" data-cat="laws" data-i18n="cat_laws" type="button">Закони</button>
+        <button class="chip" data-cat="codes" data-i18n="cat_codes" type="button">Кодекси</button>
+        <button class="chip" data-cat="state" data-i18n="cat_state" type="button">Держ</button>
+        <button class="chip" data-cat="crime" data-i18n="cat_crime" type="button">Крайм</button>
+      </div>
+      <div class="chips-row">
+        <span class="chips-sub-lbl" data-i18n="factions">Фракції</span>
+        <button class="chip faction" data-cat="npu" type="button">НПУ</button>
+        <button class="chip faction" data-cat="sbu" type="button">СБУ</button>
+        <button class="chip faction" data-cat="ngu" type="button">НГУ</button>
+        <button class="chip faction" data-cat="dbr" type="button">ДБР</button>
+        <button class="chip faction" data-cat="dvk" type="button">ДВК</button>
+        <button class="chip faction" data-cat="emd" type="button">ЕМД</button>
+        <button class="chip faction" data-cat="tsn" type="button">ТСН</button>
+        <button class="chip faction" data-cat="dvv" type="button">ДВВ</button>
       </div>
     </div>
+  </div>
 
-    <div class="setting-group">
-      <div class="setting-label" data-i18n="set_theme">Фон вікна</div>
-      <div class="seg-row" data-setting="theme">
-        <button class="seg-btn" data-val="dark" data-i18n="theme_dark">Темний NG</button>
-        <button class="seg-btn" data-val="oled" data-i18n="theme_oled">OLED Чорний</button>
-        <button class="seg-btn" data-val="graphite" data-i18n="theme_graphite">Графіт</button>
+  <main id="main">
+    <div id="ai-box" class="ai-card">
+      <div class="ai-head">
+        <div class="ai-badge">
+          <span id="ai-head-ico"></span>
+          <span id="ai-status">Відповідь ШІ</span>
+          <span id="ai-model-badge" class="ai-model"></span>
+        </div>
+        <button id="copy-ai-btn" class="copy-btn" type="button"></button>
       </div>
+      <div id="ai-content" class="ai-content"></div>
     </div>
 
-    <div class="setting-group">
-      <div class="setting-label" data-i18n="set_ui_lang">Мова інтерфейсу</div>
-      <div class="seg-row" data-setting="uiLang">
-        <button class="seg-btn" data-val="uk">Українська</button>
-        <button class="seg-btn" data-val="ru">Русский</button>
-      </div>
+    <div class="section-head">
+      <span class="section-title" id="results-label"></span>
+      <span class="sync-pill" id="main-sync-pill"><span class="live-dot"></span><span id="main-sync-text">Завантаження...</span></span>
     </div>
+    <div id="results" class="results-list"></div>
+  </main>
 
-    <div class="setting-group">
-      <div class="setting-label" data-i18n="set_ai_lang">Мова відповідей ШІ</div>
-      <div class="seg-row" data-setting="aiLang">
-        <button class="seg-btn" data-val="auto" data-i18n="lang_auto">Авто (як питання)</button>
-        <button class="seg-btn" data-val="uk">Українська</button>
-        <button class="seg-btn" data-val="ru">Русский</button>
-      </div>
+  <footer>
+    <div class="foot-meta">
+      <span id="foot-count">0 пунктів</span>
+      <span class="foot-hk" id="foot-hk">Alt+Q</span>
+      <span class="foot-hk" id="foot-quit-hk">Alt+Shift+Q</span>
     </div>
+    <button class="footer-discord" id="footer-discord-btn" type="button"></button>
+  </footer>
 
-    <div class="setting-group">
-      <div class="setting-label" data-i18n="set_style">Стиль відповідей ШІ</div>
-      <div class="seg-row" data-setting="aiStyle">
-        <button class="seg-btn" data-val="open" data-i18n="style_open">Детальний</button>
-        <button class="seg-btn" data-val="short" data-i18n="style_short">Короткий</button>
+  <div id="modal-bg" class="modal-bg">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="modal-title"></h3>
+        <button id="close-modal-x" class="icon-btn close" type="button"></button>
       </div>
-    </div>
 
-    <div class="setting-group">
-      <div class="setting-label" data-i18n="set_size">Розмір вікна та шрифту</div>
-      <div class="seg-row" data-setting="winSize">
-        <button class="seg-btn" data-val="480,640" data-i18n="size_sm">Компакт</button>
-        <button class="seg-btn" data-val="560,740" data-i18n="size_md">Стандарт</button>
-        <button class="seg-btn" data-val="680,820" data-i18n="size_lg">Широкий</button>
+      <div class="modal-tabs">
+        <button class="mtab active" data-tab="look" id="tab-btn-look" type="button"></button>
+        <button class="mtab" data-tab="ai" id="tab-btn-ai" type="button"></button>
+        <button class="mtab" data-tab="app" id="tab-btn-app" type="button"></button>
       </div>
-      <div class="seg-row" data-setting="fontSize" style="margin-top:4px">
-        <button class="seg-btn" data-val="12.5">S</button>
-        <button class="seg-btn" data-val="13.5">M</button>
-        <button class="seg-btn" data-val="15">L</button>
-      </div>
-    </div>
 
-    <div class="setting-group" id="api-key-section">
-      <div class="setting-label" data-i18n="set_key">Персональний API-ключ Gemini</div>
-      <div class="setting-hint" data-i18n="set_key_hint">Офлайн-пошук працює без ключа. Ключ безкоштовний і потрібен лише для кнопки ШІ (у кожного свій ліміт).</div>
-      <ol class="mini-guide" id="api-guide"></ol>
-      <button id="open-browser-btn" class="btn-outline" data-i18n="open_studio">🌐 Відкрити Google AI Studio у браузері</button>
-      <input id="api-key-input" type="password" placeholder="AIzaSy... / AQ...." />
-    </div>
+      <div class="modal-stage" id="modal-stage">
+        <div class="modal-body">
+          <div class="tab-pane active" id="tab-look">
+            <div>
+              <div class="s-label" data-i18n="set_hotkeys">Гарячі клавіші</div>
+              <div class="s-hint" data-i18n="set_hotkeys_hint">Натисни на поле та затисни потрібну клавішу або комбінацію.</div>
+              <div class="hk-grid">
+                <div class="hk-card">
+                  <div class="hk-card-title toggle" id="hk-toggle-lbl"></div>
+                  <div class="hk-row">
+                    <button class="hk-recorder" id="hk-toggle-rec" type="button">Alt + Q</button>
+                    <button class="hk-reset" id="hk-toggle-reset" type="button" title="Скинути"></button>
+                  </div>
+                </div>
+                <div class="hk-card">
+                  <div class="hk-card-title quit" id="hk-quit-lbl"></div>
+                  <div class="hk-row">
+                    <button class="hk-recorder" id="hk-quit-rec" type="button">Alt + Shift + Q</button>
+                    <button class="hk-reset" id="hk-quit-reset" type="button" title="Скинути"></button>
+                  </div>
+                </div>
+              </div>
+              <div class="hk-status" id="hk-status"></div>
+            </div>
 
-    <div class="setting-group">
-      <div class="setting-label" data-i18n="set_hotkeys">Гарячі клавіші</div>
-      <div class="hotkeys-info">
-        <div><kbd>Alt + Q</kbd> — <span data-i18n="hk_toggle">Відкрити / сховати оверлей</span></div>
-        <div><kbd>Alt + Shift + Q</kbd> — <span data-i18n="hk_quit">Повністю закрити програму</span></div>
-      </div>
-    </div>
+            <div>
+              <div class="s-label" data-i18n="set_color">Акцентний колір</div>
+              <div class="swatches" id="swatches">
+                <button class="swatch" data-color="#26ffae" style="background:#26ffae;color:#26ffae" type="button"></button>
+                <button class="swatch" data-color="#00d4ff" style="background:#00d4ff;color:#00d4ff" type="button"></button>
+                <button class="swatch" data-color="#a855f7" style="background:#a855f7;color:#a855f7" type="button"></button>
+                <button class="swatch" data-color="#ff4d6d" style="background:#ff4d6d;color:#ff4d6d" type="button"></button>
+                <button class="swatch" data-color="#ffb84d" style="background:#ffb84d;color:#ffb84d" type="button"></button>
+                <button class="swatch" data-color="#e2e8f0" style="background:#e2e8f0;color:#e2e8f0" type="button"></button>
+                <label class="color-picker-wrap" id="custom-color-wrap">
+                  <input type="color" id="custom-color" value="#26ffae" />
+                  <span data-i18n="set_custom_color">Свій</span>
+                </label>
+              </div>
+            </div>
 
-    <div class="setting-group">
-      <div class="about-row">
-        <div class="setting-label"><span data-i18n="set_about">Версія, оновлення та зв'язок</span> (<span id="modal-version">v1.0.2</span>)</div>
-        <span id="update-status" class="update-status"></span>
-      </div>
-      <div class="seg-row">
-        <button id="check-update-btn" class="btn-outline" style="flex:1" data-i18n="btn_check_upd">🔄 Перевірити оновлення</button>
-        <button id="open-github-btn" class="btn-outline" style="flex:1" data-i18n="btn_github">💻 Код на GitHub</button>
-      </div>
-      <button id="copy-discord-btn" class="btn-outline">💬 Discord автора: @Frezze98</button>
-    </div>
+            <div>
+              <div class="s-label" data-i18n="set_theme">Фон вікна</div>
+              <div class="seg" data-setting="theme">
+                <button data-val="dark" data-i18n="theme_dark" type="button">Темний NG</button>
+                <button data-val="oled" data-i18n="theme_oled" type="button">OLED Чорний</button>
+                <button data-val="graphite" data-i18n="theme_graphite" type="button">Графіт</button>
+              </div>
+            </div>
 
-    <div class="modal-actions">
-      <button id="uninstall-btn" class="btn-danger-outline" data-i18n="btn_uninstall">Видалити повністю</button>
-      <button id="save-settings-btn" class="btn-primary" data-i18n="btn_done">Готово</button>
+            <div>
+              <div class="s-label" data-i18n="set_ui_lang">Мова інтерфейсу</div>
+              <div class="seg two" data-setting="uiLang">
+                <button data-val="uk" type="button">Українська</button>
+                <button data-val="ru" type="button">Русский</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="s-label" data-i18n="set_size">Розмір вікна та шрифту</div>
+              <div class="seg" data-setting="winSize">
+                <button data-val="480,660" data-i18n="size_sm" type="button">Компакт</button>
+                <button data-val="590,770" data-i18n="size_md" type="button">Стандарт</button>
+                <button data-val="700,840" data-i18n="size_lg" type="button">Широкий</button>
+              </div>
+              <div class="seg" data-setting="fontSize" style="margin-top:6px">
+                <button data-val="12.5" type="button">S</button>
+                <button data-val="13.5" type="button">M</button>
+                <button data-val="15" type="button">L</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane" id="tab-ai">
+            <div>
+              <div class="s-label">
+                <span data-i18n="ai_add_title">Додати API-ключ нейромережі</span>
+                <span style="font-weight:500;color:var(--muted);font-size:11px;" data-i18n="ai_autodetect">Автовизначення</span>
+              </div>
+              <div class="s-hint" data-i18n="ai_add_hint">Підтримуються ключі Gemini, Groq, OpenRouter, OpenAI, Claude, DeepSeek та xAI. Офлайн-пошук працює без ключа.</div>
+              <div class="add-key-box">
+                <div class="key-input-row">
+                  <input class="key-input" id="new-key-input" type="password" placeholder="AIza... / gsk_... / sk-or-... / sk-ant-... / sk-..." />
+                  <button class="btn-add" id="add-key-btn" type="button"></button>
+                </div>
+                <div class="detect-bar">
+                  <span class="detect-badge" id="detect-badge" data-i18n="ai_wait_key">Очікування ключа...</span>
+                  <select class="provider-select" id="provider-override">
+                    <option value="auto">Автовизначення</option>
+                    <option value="gemini">Google Gemini</option>
+                    <option value="groq">Groq (Llama 3.3)</option>
+                    <option value="openrouter">OpenRouter</option>
+                    <option value="openai">OpenAI (GPT-4o-mini)</option>
+                    <option value="anthropic">Anthropic Claude</option>
+                    <option value="deepseek">DeepSeek</option>
+                    <option value="xai">xAI Grok</option>
+                  </select>
+                </div>
+                <div class="quick-keys">
+                  <button class="qkey-btn" type="button" data-open="https://aistudio.google.com/apikey">Google AI Studio</button>
+                  <button class="qkey-btn" type="button" data-open="https://console.groq.com/keys">Groq Console</button>
+                  <button class="qkey-btn" type="button" data-open="https://openrouter.ai/keys">OpenRouter</button>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="s-label">
+                <span data-i18n="ai_priority">Пріоритет моделей</span>
+                <span style="font-size:11px;color:var(--accent);font-weight:500;" data-i18n="ai_fallback">Авто-резерв</span>
+              </div>
+              <div class="s-hint" data-i18n="ai_priority_hint">Якщо #1 не відповість або перевищить ліміт — запит автоматично перейде до наступного.</div>
+              <div class="provider-list" id="provider-list"></div>
+            </div>
+
+            <div>
+              <div class="s-label" data-i18n="set_ai_lang">Мова відповідей ШІ</div>
+              <div class="seg" data-setting="aiLang">
+                <button data-val="auto" data-i18n="lang_auto" type="button">Авто</button>
+                <button data-val="uk" type="button">Українська</button>
+                <button data-val="ru" type="button">Русский</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="s-label" data-i18n="set_style">Стиль відповідей ШІ</div>
+              <div class="seg two" data-setting="aiStyle">
+                <button data-val="open" data-i18n="style_open" type="button">Детальний</button>
+                <button data-val="short" data-i18n="style_short" type="button">Короткий</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane" id="tab-app">
+            <div class="info-grid">
+              <div class="info-tile">
+                <div class="k" data-i18n="app_ver_lbl">Версія програми</div>
+                <div class="v acc" id="modal-version">v1.0.6</div>
+              </div>
+              <div class="info-tile">
+                <div class="k" data-i18n="db_ver_lbl">База правил NG</div>
+                <div class="v" id="rules-info-val">—</div>
+              </div>
+            </div>
+
+            <div class="sync-log-card">
+              <div class="sync-row">
+                <span class="sync-row-k" id="sync-last-lbl"></span>
+                <span class="sync-row-v" id="sync-last-val">—</span>
+              </div>
+              <div class="sync-row">
+                <span class="sync-row-k" id="sync-auto-lbl"></span>
+                <span class="sync-row-v" id="sync-auto-val">—</span>
+              </div>
+              <div class="sync-row">
+                <span class="sync-row-k" id="sync-manual-lbl"></span>
+                <span class="sync-row-v" id="sync-manual-val">—</span>
+              </div>
+              <div class="sync-row">
+                <span class="sync-row-k" id="sync-db-lbl"></span>
+                <span class="sync-row-v" id="sync-db-val">—</span>
+              </div>
+            </div>
+
+            <div class="seg two">
+              <button class="btn-outline rules-btn" id="sync-rules-btn" type="button"></button>
+              <button class="btn-outline upd-btn" id="check-update-btn" type="button"></button>
+            </div>
+            <div class="status-line" id="update-status"></div>
+
+            <div class="seg two">
+              <button class="btn-outline" id="open-cl-btn" type="button"></button>
+              <button class="btn-outline" id="open-github-btn" type="button"></button>
+            </div>
+
+            <button class="btn-outline btn-discord" id="modal-discord-btn" type="button"></button>
+          </div>
+        </div>
+
+        <div class="cl-sheet" id="cl-sheet">
+          <div class="cl-sheet-head">
+            <span class="cl-sheet-title" id="cl-sheet-title"></span>
+            <button class="cl-back-btn" id="cl-back-btn" type="button"></button>
+          </div>
+          <div class="cl-scroll" id="cl-list"></div>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button id="uninstall-btn" class="btn-danger" type="button"></button>
+        <button id="save-settings-btn" class="btn-primary" type="button" data-i18n="btn_done">Готово</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
+const DISCORD_URL = "https://discord.com/users/495938558692032522";
+const GITHUB_URL = "https://github.com/Frezze98/ng-helper";
+
+const ICONS = {
+  pin: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>`,
+  sliders: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>`,
+  close: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  search: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+  sparkle: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/></svg>`,
+  copy: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
+  check: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  bolt: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  warn: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  shield: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  scale: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7h14"/><path d="M5 7l-3 7h6l-3-7z"/><path d="M19 7l-3 7h6l-3-7z"/></svg>`,
+  refresh: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>`,
+  arrowUp: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="16 12 12 8 8 12"/><line x1="12" y1="16" x2="12" y2="8"/></svg>`,
+  history: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><polyline points="12 7 12 12 15 14"/></svg>`,
+  arrowLeft: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`,
+  github: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>`,
+  discord: `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`,
+  ext: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
+  trash: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>`,
+  power: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>`,
+  eye: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  rotate: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>`,
+  plus: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  chevUp: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`,
+  chevDown: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`,
+  cpu: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/></svg>`,
+  box: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
+  clock: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  db: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`
+};
+
 const I18N = {
   uk: {
-    settings_btn: "Налаштування",
+    settings: "Налаштування",
     settings_title: "Налаштування NG Helper",
-    placeholder: "Пошук або питання (напр: яку статтю дати за стрілянину)...",
-    ask_ai: "✨ ШІ",
+    tab_look: "Вигляд і Хоткеї",
+    tab_ai: "ШІ та Ключі",
+    tab_app: "Програма",
+    search_ph: "Пошук по 86 документах або питання для ШІ...",
+    ai_btn: "ШІ",
     cat_all: "Усі",
     cat_rules: "Правила",
     cat_laws: "Закони",
-    cat_sbu: "СБУ",
-    cat_npu: "НПУ",
+    cat_codes: "Кодекси",
+    cat_state: "Держ",
     cat_crime: "Крайм",
-    top_faq: "⚡ Топ частих питань NG",
-    copy: "📋 Копіювати",
-    copy_report: "📋 Для репорту",
-    copied: "✓ Скопійовано",
-    found_prefix: "Знайдено у правилах:",
-    found_hint: "(Enter — відповідь ШІ)",
-    no_matches: "Точних збігів не знайдено. Натисни <b>✨ ШІ</b> — він сам знайде потрібний кодекс або розділ правил.",
-    read_full: "ШІ прочитав повністю:",
-    checked_frags: "Перевірено фрагментів:",
-    st_routing: "⏳ Підбираю потрібні кодекси та правила...",
-    st_reading: "⏳ Читаю документи та формую відповідь...",
-    st_switch: "⏳ Перевантажено, пробую",
-    st_done: "✨ Відповідь ШІ",
-    st_err: "⚠ Помилка API",
-    no_key_title: "⚠ Потрібен API-ключ",
-    no_key_msg: "Щоб користуватися ШІ, потрібно додати безкоштовний Gemini API-ключ у налаштуваннях. Офлайн-пошук по правилах нижче працює і без ключа.",
-    no_key_btn: "⚙ Додати ключ у налаштуваннях",
-    set_color: "Основний колір",
+    factions: "Фракції",
+    top_faq: "Топ частих питань NG",
+    search_results: "Знайдено в базі",
+    nothing_found: "Нічого не знайдено. Натисни кнопку ШІ або Enter для розбору ситуації.",
+    copy: "Копіювати",
+    copied: "Скопійовано",
+    punish_prefix: "Покарання",
+    ai_title: "Відповідь ШІ",
+    ai_thinking: "Аналізую правила NG...",
+    ai_need_key: "Додай хоча б один API-ключ у вкладці «ШІ та Ключі».",
+    ai_all_failed: "Жодна з підключених моделей не відповіла",
+    forum_title: "Форум (Адміни / OOC)",
+    ic_org_title: "ДБР / Суд (IC)",
+    badge_yes: "МОЖНА",
+    badge_no: "НІ",
+    set_hotkeys: "Гарячі клавіші",
+    set_hotkeys_hint: "Натисни на поле та затисни потрібну клавішу або комбінацію.",
+    hk_toggle: "Сховати / показати",
+    hk_quit: "Закрити програму",
+    hk_press: "Натисніть...",
+    hk_saved: "Гарячі клавіші збережено.",
+    set_color: "Акцентний колір",
     set_custom_color: "Свій",
     set_theme: "Фон вікна",
     theme_dark: "Темний NG",
     theme_oled: "OLED Чорний",
     theme_graphite: "Графіт",
     set_ui_lang: "Мова інтерфейсу",
-    set_ai_lang: "Мова відповідей ШІ",
-    lang_auto: "Авто (як питання)",
-    set_style: "Стиль відповідей ШІ",
-    style_open: "Детальний",
-    style_short: "Короткий",
     set_size: "Розмір вікна та шрифту",
     size_sm: "Компакт",
     size_md: "Стандарт",
     size_lg: "Широкий",
-    set_key: "Персональний API-ключ Gemini",
-    set_key_hint: "Офлайн-пошук працює без ключа. Ключ безкоштовний і потрібен лише для кнопки ШІ (у кожного свій ліміт).",
-    api_guide_html:
-      "<li>Натисни кнопку нижче — відкриється <b>Google AI Studio</b> у твоєму браузері.</li>" +
-      "<li>Увійди у свій Google-акаунт (пароль у програму вводити не потрібно).</li>" +
-      "<li>Натисни <b>Create API key</b> та скопіюй створений ключ.</li>" +
-      "<li>Встав ключ у поле нижче й натисни <b>Готово</b>.</li>",
-    open_studio: "🌐 Відкрити Google AI Studio у браузері",
-    set_hotkeys: "Гарячі клавіші",
-    hk_toggle: "Відкрити / сховати оверлей",
-    hk_quit: "Повністю закрити програму",
-    set_about: "Версія, оновлення та зв'язок",
-    btn_check_upd: "🔄 Перевірити оновлення",
-    btn_github: "💻 Код на GitHub",
-    btn_discord: "💬 Зв'язок у Discord: @Frezze98",
-    discord_copied: "✓ Скопійовано: @Frezze98",
-    upd_available: "Доступне оновлення",
-    upd_now: "Оновити",
-    upd_downloading: "⏳ Завантажую...",
-    upd_release: "GitHub",
-    upd_checking: "Перевіряю...",
-    upd_latest: "Встановлена остання версія",
-    upd_none: "Релізів на GitHub поки немає",
-    upd_err: "Помилка перевірки",
+    ai_add_title: "Додати API-ключ нейромережі",
+    ai_autodetect: "Автовизначення",
+    ai_add_hint: "Підтримуються ключі Gemini, Groq, OpenRouter, OpenAI, Claude, DeepSeek та xAI. Офлайн-пошук працює без ключа.",
+    ai_wait_key: "Очікування ключа...",
+    ai_detected: "Визначено",
+    ai_unknown: "Оберіть провайдера справа",
+    ai_add_btn: "Додати",
+    ai_priority: "Пріоритет моделей",
+    ai_fallback: "Авто-резерв",
+    ai_priority_hint: "Якщо #1 не відповість або перевищить ліміт — запит автоматично перейде до наступного.",
+    ai_empty: "Ключі ще не додано. Встав ключ вище.",
+    set_ai_lang: "Мова відповідей ШІ",
+    lang_auto: "Авто",
+    set_style: "Стиль відповідей ШІ",
+    style_open: "Детальний",
+    style_short: "Короткий",
+    app_ver_lbl: "Версія програми",
+    db_ver_lbl: "База правил NG",
+    sync_last_lbl: "Остання зміна бази",
+    sync_auto_lbl: "Автоперевірка (при старті)",
+    sync_manual_lbl: "Оновлення вручну",
+    sync_db_lbl: "Редакція на GitHub",
+    mode_auto: "Авто",
+    mode_manual: "Вручну",
+    mode_embedded: "Вбудована",
+    never: "ще не виконувалось",
+    btn_sync_rules: "Оновити базу правил",
+    btn_check_upd: "Перевірити оновлення",
+    btn_changelog: "Історія змін",
+    btn_github: "Код на GitHub",
+    btn_discord: "Зв'язок у Discord: @Frezze98",
+    btn_back: "Назад",
     btn_uninstall: "Видалити повністю",
+    btn_uninstall_confirm: "Натисни ще раз для видалення",
     btn_done: "Готово",
-    pin_title: "Поверх усіх вікон",
-    hide_title: "Сховати в трей (Alt+Q)"
+    upd_now: "Оновити",
+    upd_avail: "Доступна нова версія",
+    upd_latest: "Встановлено останню версію",
+    upd_checking: "Перевірка GitHub Releases...",
+    upd_err: "Не вдалося перевірити оновлення.",
+    sync_checking: "Синхронізація бази правил з GitHub...",
+    sync_updated_manual: "Базу правил оновлено вручну",
+    sync_updated_auto: "Базу правил оновлено автоматично",
+    sync_same_manual: "База правил вже актуальна (перевірено вручну).",
+    items_unit: "пунктів",
+    docs_unit: "док."
   },
   ru: {
-    settings_btn: "Настройки",
+    settings: "Настройки",
     settings_title: "Настройки NG Helper",
-    placeholder: "Поиск или вопрос (напр: какую статью дать за стрельбу)...",
-    ask_ai: "✨ ИИ",
+    tab_look: "Вид и Хоткеи",
+    tab_ai: "ИИ и Ключи",
+    tab_app: "Программа",
+    search_ph: "Поиск по 86 документам или вопрос для ИИ...",
+    ai_btn: "ИИ",
     cat_all: "Все",
     cat_rules: "Правила",
     cat_laws: "Законы",
-    cat_sbu: "СБУ",
-    cat_npu: "НПУ",
+    cat_codes: "Кодексы",
+    cat_state: "Гос",
     cat_crime: "Крайм",
-    top_faq: "⚡ Топ частых вопросов NG",
-    copy: "📋 Копировать",
-    copy_report: "📋 Для репорта",
-    copied: "✓ Скопировано",
-    found_prefix: "Найдено в правилах:",
-    found_hint: "(Enter — ответ ИИ)",
-    no_matches: "Точных совпадений не найдено. Нажми <b>✨ ИИ</b> — он сам найдёт нужный кодекс или раздел правил.",
-    read_full: "ИИ прочитал целиком:",
-    checked_frags: "Проверено фрагментов:",
-    st_routing: "⏳ Выбираю нужные кодексы и правила...",
-    st_reading: "⏳ Читаю документы и готовлю ответ...",
-    st_switch: "⏳ Перегружено, пробую",
-    st_done: "✨ Ответ ИИ",
-    st_err: "⚠ Ошибка API",
-    no_key_title: "⚠ Нужен API-ключ",
-    no_key_msg: "Чтобы пользоваться ИИ, нужно добавить бесплатный Gemini API-ключ в настройках. Офлайн-поиск по правилам ниже работает и без ключа.",
-    no_key_btn: "⚙ Добавить ключ в настройках",
-    set_color: "Основной цвет",
+    factions: "Фракции",
+    top_faq: "Топ частых вопросов NG",
+    search_results: "Найдено в базе",
+    nothing_found: "Ничего не найдено. Нажми кнопку ИИ или Enter для разбора ситуации.",
+    copy: "Копировать",
+    copied: "Скопировано",
+    punish_prefix: "Наказание",
+    ai_title: "Ответ ИИ",
+    ai_thinking: "Анализирую правила NG...",
+    ai_need_key: "Добавь хотя бы один API-ключ во вкладке «ИИ и Ключи».",
+    ai_all_failed: "Ни одна из подключённых моделей не ответила",
+    forum_title: "Форум (Админы / OOC)",
+    ic_org_title: "ДБР / Суд (IC)",
+    badge_yes: "МОЖНО",
+    badge_no: "НЕТ",
+    set_hotkeys: "Горячие клавиши",
+    set_hotkeys_hint: "Нажми на поле и зажми нужную клавишу или комбинацию.",
+    hk_toggle: "Скрыть / показать",
+    hk_quit: "Закрыть программу",
+    hk_press: "Нажмите...",
+    hk_saved: "Горячие клавиши сохранены.",
+    set_color: "Акцентный цвет",
     set_custom_color: "Свой",
     set_theme: "Фон окна",
     theme_dark: "Тёмный NG",
     theme_oled: "OLED Чёрный",
     theme_graphite: "Графит",
     set_ui_lang: "Язык интерфейса",
-    set_ai_lang: "Язык ответов ИИ",
-    lang_auto: "Авто (как вопрос)",
-    set_style: "Стиль ответов ИИ",
-    style_open: "Подробный",
-    style_short: "Короткий",
     set_size: "Размер окна и шрифта",
     size_sm: "Компакт",
     size_md: "Стандарт",
     size_lg: "Широкий",
-    set_key: "Персональный API-ключ Gemini",
-    set_key_hint: "Офлайн-поиск работает без ключа. Ключ бесплатный и нужен только для кнопки ИИ (у каждого свой лимит).",
-    api_guide_html:
-      "<li>Нажми кнопку ниже — откроется <b>Google AI Studio</b> в твоём браузере.</li>" +
-      "<li>Войди в свой Google-аккаунт (пароль в программу вводить не нужно).</li>" +
-      "<li>Нажми <b>Create API key</b> и скопируй созданный ключ.</li>" +
-      "<li>Вставь ключ в поле ниже и нажми <b>Готово</b>.</li>",
-    open_studio: "🌐 Открыть Google AI Studio в браузере",
-    set_hotkeys: "Горячие клавиши",
-    hk_toggle: "Открыть / скрыть оверлей",
-    hk_quit: "Полностью закрыть программу",
-    set_about: "Версия, обновления и связь",
-    btn_check_upd: "🔄 Проверить обновления",
-    btn_github: "💻 Код на GitHub",
-    btn_discord: "💬 Связь в Discord: @Frezze98",
-    discord_copied: "✓ Скопировано: @Frezze98",
-    upd_available: "Доступно обновление",
-    upd_now: "Обновить",
-    upd_downloading: "⏳ Скачиваю...",
-    upd_release: "GitHub",
-    upd_checking: "Проверяю...",
-    upd_latest: "Установлена последняя версия",
-    upd_none: "Релизов на GitHub пока нет",
-    upd_err: "Ошибка проверки",
+    ai_add_title: "Добавить API-ключ нейросети",
+    ai_autodetect: "Автоопределение",
+    ai_add_hint: "Поддерживаются ключи Gemini, Groq, OpenRouter, OpenAI, Claude, DeepSeek и xAI. Офлайн-поиск работает без ключа.",
+    ai_wait_key: "Ожидание ключа...",
+    ai_detected: "Определено",
+    ai_unknown: "Выберите провайдера справа",
+    ai_add_btn: "Добавить",
+    ai_priority: "Приоритет моделей",
+    ai_fallback: "Авто-резерв",
+    ai_priority_hint: "Если #1 не ответит или превысит лимит — запрос автоматически перейдёт к следующему.",
+    ai_empty: "Ключи ещё не добавлены. Вставь ключ выше.",
+    set_ai_lang: "Язык ответов ИИ",
+    lang_auto: "Авто",
+    set_style: "Стиль ответов ИИ",
+    style_open: "Подробный",
+    style_short: "Короткий",
+    app_ver_lbl: "Версия программы",
+    db_ver_lbl: "База правил NG",
+    sync_last_lbl: "Последнее изменение базы",
+    sync_auto_lbl: "Автопроверка (при старте)",
+    sync_manual_lbl: "Обновление вручную",
+    sync_db_lbl: "Редакция на GitHub",
+    mode_auto: "Авто",
+    mode_manual: "Вручную",
+    mode_embedded: "Встроенная",
+    never: "ещё не выполнялось",
+    btn_sync_rules: "Обновить базу правил",
+    btn_check_upd: "Проверить обновления",
+    btn_changelog: "История изменений",
+    btn_github: "Код на GitHub",
+    btn_discord: "Связь в Discord: @Frezze98",
+    btn_back: "Назад",
     btn_uninstall: "Удалить полностью",
+    btn_uninstall_confirm: "Нажми ещё раз для удаления",
     btn_done: "Готово",
-    pin_title: "Поверх всех окон",
-    hide_title: "Скрыть в трей (Alt+Q)"
+    upd_now: "Обновить",
+    upd_avail: "Доступна новая версия",
+    upd_latest: "Установлена последняя версия",
+    upd_checking: "Проверка GitHub Releases...",
+    upd_err: "Не удалось проверить обновления.",
+    sync_checking: "Синхронизация базы правил с GitHub...",
+    sync_updated_manual: "База правил обновлена вручную",
+    sync_updated_auto: "База правил обновлена автоматически",
+    sync_same_manual: "База правил уже актуальна (проверено вручную).",
+    items_unit: "пунктов",
+    docs_unit: "док."
   }
 };
 
-const TOP_FAQ = {
-  uk: [
-    {
-      q: "Чи може СБУ / НПУ влаштувати засідку біля угонки?",
-      a: "Ні. Силовикам заборонено влаштовувати засідки, чергувати чи кемпити біля точок спавну угонок, будинків під злам та точок здачі у радіусі 150 метрів (п. 1.29 Загальних правил державних організацій).",
-      punish: "Покарання: Деморган 30–60 хв / Warn"
-    },
-    {
-      q: "Скільки потрібно зберігати відкат (відеозапис)?",
-      a: "Звичайні гравці, скарги, капти та викрадення — мінімум 72 години (п. 15 ОПП). Силові держструктури для процесуальних дій — 48 годин (п. 3.7 Загальних правил держорганізацій).",
-      punish: "Відсутність відкату у силовика при скарзі: Деморган 60–180 хв / Warn"
-    },
-    {
-      q: "Скільки грабіжників потрібно на 1 жертву?",
-      a: "Мінімум 2 грабіжники на 1 жертву (1 авто + 2 особи). У Гетто можна 1 на 1 за наявності вогнепальної зброї. На далекобійника — мінімум 4 грабіжники на 2 авто (п. 8.3 Загальних правил крайму).",
-      punish: "Покарання: Demorgan 30–360 хв"
-    },
-    {
-      q: "Скільки людей потрібно СБУ / НПУ для патруля у Гетто?",
-      a: "НПУ / НГУ / ДБР — мінімум 3 озброєних співробітники в авто (п. 3.5). СБУ — мінімум 2 співробітники в авто (п. 3.5.1 Загальних правил держорганізацій).",
-      punish: "Покарання: Деморган 30–60 хв"
-    },
-    {
-      q: "Скільком нападникам може чинити опір силовик (PG)?",
-      a: "Співробітник у повному екіпіруванні має право чинити опір максимум двом нападникам (п. 1.13 Загальних правил держорганізацій).",
-      punish: "Покарання: Деморган 30–60 хв (PG)"
-    }
-  ],
-  ru: [
-    {
-      q: "Может ли СБУ / НПУ устроить засаду возле угонки?",
-      a: "Нет. Силовикам запрещено устраивать засады, дежурить или кемпить возле точек спавна угонок, домов под взлом и точек сдачи в радиусе 150 метров (п. 1.29 Загальних правил державних організацій).",
-      punish: "Наказание: Деморган 30–60 мин / Warn"
-    },
-    {
-      q: "Сколько нужно хранить откат (видеозапись)?",
-      a: "Обычные игроки, жалобы, капты и похищения — минимум 72 часа (п. 15 ОПП). Силовые госструктуры для процессуальных действий — 48 часов (п. 3.7 Загальних правил держорганізацій).",
-      punish: "Отсутствие отката у силовика при жалобе: Деморган 60–180 мин / Warn"
-    },
-    {
-      q: "Сколько грабителей нужно на 1 жертву?",
-      a: "Минимум 2 грабителя на 1 жертву (1 авто + 2 чел.). В Гетто можно 1 на 1 при наличии огнестрела. На дальнобойщика — минимум 4 грабителя на 2 авто (п. 8.3 Загальних правил крайму).",
-      punish: "Наказание: Demorgan 30–360 мин"
-    },
-    {
-      q: "Сколько человек нужно СБУ / НПУ для патруля в Гетто?",
-      a: "НПУ / НГУ / ДБР — минимум 3 вооружённых сотрудника в авто (п. 3.5). СБУ — минимум 2 сотрудника в авто (п. 3.5.1 Загальних правил держорганізацій).",
-      punish: "Наказание: Деморган 30–60 мин"
-    },
-    {
-      q: "Скольким нападающим может сопротивляться силовик (PG)?",
-      a: "Сотрудник в полном экипировании имеет право оказывать сопротивление максимум двоим нападающим (п. 1.13 Загальних правил держорганізацій).",
-      punish: "Наказание: Деморган 30–60 мин (PG)"
-    }
-  ]
-};
-
-const STOP_WORDS = new Set([
-  "чи", "як", "що", "це", "та", "або", "але", "для", "при", "про", "під", "над", "між", "без", "після",
-  "біля", "коло", "якщо", "коли", "можна", "може", "можуть", "треба", "потрібно", "скільки", "який", "яка", "які",
-  "ли", "или", "как", "что", "это", "под", "между", "после", "возле", "около", "если", "когда",
-  "можно", "может", "могут", "могу", "нужно", "надо", "сколько", "какой", "какая", "какие", "какую", "устроить",
-  "делать", "сделать", "быть", "есть", "будет", "него", "нее", "них", "мне", "меня", "тебя", "потом", "человека",
-  "который", "ему", "дать", "отвез", "отвёз"
-]);
-
-const SHORT_ALLOW = new Set([
-  "зз", "гз", "дм", "дб", "пг", "тк", "ск", "рп", "фз", "кп", "мг", "вс", "гс", "ук", "кк", "ак", "дк",
-  "dm", "db", "pg", "tk", "sk", "rk", "mg", "rp", "gz"
-]);
-
-const SYNONYMS = {
-  "угонк": ["угон", "викраден", "викраденого", "автовикрад", "здач", "спавн"],
-  "засад": ["засад", "засідк", "чергуван", "чатува", "кемп", "піджида", "150"],
-  "кемп": ["засідк", "чергуван", "чатува", "кемп", "150"],
-  "сбит": ["db", "driveby", "наїзд", "таран", "транспортн", "nonrp"],
-  "сбива": ["db", "driveby", "наїзд", "таран", "транспортн", "nonrp"],
-  "дави": ["db", "driveby", "наїзд", "таран", "транспортн"],
-  "таран": ["db", "driveby", "nrd", "таран", "наїзд"],
-  "машин": ["db", "driveby", "транспорт", "авто", "наїзд"],
-  "расстрел": ["dm", "deathmatch", "вбивств", "шкод", "вогонь", "збро", "посяган"],
-  "растрел": ["dm", "deathmatch", "вбивств", "шкод", "вогонь", "збро", "посяган"],
-  "уби": ["dm", "deathmatch", "вбив", "шкод", "посяган"],
-  "стрел": ["стріл", "вогонь", "збро", "посяган", "напад", "тілесн", "dm"],
-  "стать": ["стаття", "кримінальн", "кодекс", "покаран"],
-  "сбу": ["сбу", "державн", "силов", "держорганізац", "держструктур"],
-  "нпу": ["нпу", "поліц", "державн", "силов", "держорганізац", "держструктур"],
-  "коп": ["нпу", "поліц", "силов", "державн", "правоохорон"],
-  "мент": ["нпу", "поліц", "силов", "державн", "правоохорон"],
-  "гос": ["державн", "силов", "держструктур", "держорганізац", "службов"],
-  "зз": ["зелен", "green", "zone", "gz"],
-  "гз": ["зелен", "green", "zone", "gz"],
-  "откат": ["відеозапис", "відкат", "фіксац", "бодікамер", "годин"],
-  "відео": ["відеозапис", "відкат", "фіксац"],
-  "граб": ["пограбуван", "грабіжн", "жертв", "розбій"],
-  "похит": ["викраден", "заручник", "викуп"],
-  "похищ": ["викраден", "заручник", "викуп"],
-  "обыск": ["обшук", "багажник", "інвентар"],
-  "задерж": ["затриман", "кайданк", "кпз", "міранд"],
-  "арест": ["затриман", "кпз", "арешт"],
-  "капт": ["капт", "територ", "війн"],
-  "взх": ["взх", "хамер"],
-  "фз": ["форт", "занкудо", "нгу"],
-  "взятк": ["хабар"],
-  "уход": ["уникнен", "вихід", "leave"],
-  "оск": ["образ", "родич"],
-  "родн": ["родич", "сім"],
-  "банворд": ["банворд"],
-  "респ": ["титульн", "спавн", "респавн"],
-  "титул": ["титульн", "спавн", "пуш"],
-  "допрос": ["допит", "силов", "вербальн"],
-  "адвокат": ["адвокат", "кпз", "правов"],
-  "штраф": ["штраф", "евакуац", "паркуван"],
-  "медик": ["емд", "лікарн", "реанімац"],
-  "гетто": ["гетто", "ghetto", "бідн", "небезпечн"]
-};
-
-const MODELS = [
-  "gemini-3.5-flash-lite",
-  "gemini-3.1-flash-lite",
-  "gemini-4-hydrogen",
-  "gemini-3.6-flash",
-  "gemini-3.8-flash"
+const FAQ_ITEMS = [
+  {
+    cats: ["state", "npu", "sbu"],
+    tag: "Загальні правила держорганізацій • п. 1.29",
+    q: "Чи може СБУ / НПУ влаштувати засідку біля угонки?",
+    a: "Ні. Силовикам заборонено влаштовувати засідки, чергувати чи кемпити біля точок спавну угонок, будинків під злам та точок здачі у радіусі 150 метрів.",
+    punish: "Деморган 30–60 хв / Warn"
+  },
+  {
+    cats: ["rules", "state"],
+    tag: "ОПП • п. 15 / Держорганізації • п. 3.7",
+    q: "Скільки потрібно зберігати відкат (відеозапис)?",
+    a: "Звичайні гравці, скарги, капти та викрадення — мінімум 72 години (відкат має бути від 60 секунд). Силові держструктури для процесуальних дій — 48 годин.",
+    punish: "Відсутність відкату у силовика при скарзі: Деморган 60–180 хв / Warn"
+  },
+  {
+    cats: ["crime", "rules"],
+    tag: "Загальні правила крайму • п. 8.3",
+    q: "Скільки грабіжників потрібно на 1 жертву?",
+    a: "Мінімум 2 грабіжники на 1 жертву (1 авто + 2 особи). У Гетто можна 1 на 1 за наявності вогнепальної зброї. На далекобійника — мінімум 4 грабіжники на 2 авто.",
+    punish: "Деморган 30–360 хв"
+  },
+  {
+    cats: ["state", "npu", "sbu", "ngu", "dbr"],
+    tag: "Загальні правила держорганізацій • п. 3.5 / 3.5.1",
+    q: "Скільки людей потрібно СБУ / НПУ для патруля у Гетто?",
+    a: "НПУ / НГУ / ДБР — мінімум 3 озброєних співробітники в авто. СБУ — мінімум 2 співробітники в авто.",
+    punish: "Деморган 30–60 хв"
+  },
+  {
+    cats: ["state", "npu", "sbu", "ngu", "dbr"],
+    tag: "Загальні правила держорганізацій • п. 1.19",
+    q: "Скільком нападникам може чинити опір силовик (PG)?",
+    a: "Співробітник у повному екіпіруванні (бронежилет + зброя) має право чинити опір максимум двом озброєним нападникам (1 в 2). Проти 3+ — це PG.",
+    punish: "Деморган 30–120 хв"
+  },
+  {
+    cats: ["laws", "codes", "state", "npu", "dbr"],
+    tag: "Процесуальний кодекс • ст. 19 / Держ • п. 3.2.1",
+    q: "Чи має право НПУ / СБУ обшукати багажник без ордера?",
+    a: "При звичайній перевірці документів — ні. Обшук дозволений лише за судовим ордером («ОРД-ОБШУК»), при орієнтуванні/розшуку/погоні або прямій загрозі життю.",
+    punish: "Деморган 60–120 хв (OOC) + скарга в ДБР / Прокуратуру (IC)"
+  },
+  {
+    cats: ["rules"],
+    tag: "ОПП • п. 6.1 / 5.5",
+    q: "Яке покарання за вихід з гри під час RP та DM у GZ?",
+    a: "Вихід з гри під час активного RP (п. 6.1) — Деморган 120–480 хв + GunBan 60–360 хв. DM у Зеленій Зоні (п. 5.5, включно з роботами та риболовлею) — GunBan 60–540 хв / Деморган 60–360 хв.",
+    punish: "Деморган до 480 хв + GunBan"
+  }
 ];
 
-const MAX_CONTEXT_CHARS = 115000;
+const SYNONYMS = {
+  "дм": ["dm", "deathmatch", "вбивство", "убивство", "шкода"],
+  "дб": ["db", "наїзд", "транспорт", "збив"],
+  "пг": ["pg", "powergaming", "страх", "опір", "1в2"],
+  "мг": ["mg", "metagaming", "діскорд", "discord", "стрім"],
+  "рк": ["rk", "revenge", "повернення", "помста", "15 хвилин"],
+  "тк": ["tk", "teamkill", "союзник", "напарник"],
+  "ск": ["sk", "spawn", "відродження"],
+  "зз": ["gz", "green", "зелена", "зона", "риболовля", "далекобійник"],
+  "нрд": ["nrd", "нереалістичн", "пробит", "колес"],
+  "відкат": ["відеозапис", "відеофіксац", "фрапс", "72", "48"],
+  "багажник": ["обшук", "ордер", "транспортн", "3.2.1", "19"],
+  "міранда": ["міранди", "затриман", "адвокат", "права"],
+  "угонка": ["угон", "засідк", "150", "кемп"],
+  "гетто": ["патруль", "грабіж", "3.5"],
+  "фз": ["нгу", "напад", "форт"],
+  "поставка": ["перекритт", "колона", "поставок"],
+  "взх": ["хамер"],
+  "форум": ["скарг", "адмін", "ooc", "оос"],
+  "дбр": ["прокуратур", "суд", "статут", "ic"]
+};
+
+const PROVIDERS = {
+  gemini:     { name: "Google Gemini", model: "gemini-2.5-flash",        fallbackModels: ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.5-flash-lite"], keyUrl: "https://aistudio.google.com/apikey" },
+  groq:       { name: "Groq",          model: "llama-3.3-70b-versatile", endpoint: "https://api.groq.com/openai/v1/chat/completions", keyUrl: "https://console.groq.com/keys" },
+  openrouter: { name: "OpenRouter",    model: "google/gemini-2.5-flash", endpoint: "https://openrouter.ai/api/v1/chat/completions", keyUrl: "https://openrouter.ai/keys" },
+  openai:     { name: "OpenAI",        model: "gpt-4o-mini",             endpoint: "https://api.openai.com/v1/chat/completions", keyUrl: "https://platform.openai.com/api-keys" },
+  anthropic:  { name: "Claude",        model: "claude-3-5-haiku-latest", endpoint: "https://api.anthropic.com/v1/messages", keyUrl: "https://console.anthropic.com/settings/keys" },
+  deepseek:   { name: "DeepSeek",      model: "deepseek-chat",           endpoint: "https://api.deepseek.com/chat/completions", keyUrl: "https://platform.deepseek.com/api_keys" },
+  xai:        { name: "xAI Grok",      model: "grok-3-mini",             endpoint: "https://api.x.ai/v1/chat/completions", keyUrl: "https://console.x.ai/" }
+};
+
+const BUILTIN_CHANGELOG = [
+  {
+    tag: "v1.0.6",
+    date: "2026-11-23",
+    items: [
+      "Новий дизайн Neo-Glass HUD із векторними іконками замість емодзі.",
+      "Мульти-ШІ: підтримка Gemini, Groq, OpenRouter, OpenAI, Claude, DeepSeek та xAI з автовизначенням ключів і резервною ієрархією.",
+      "Автосинхронізація бази правил (86 документів NG) із відображенням часу оновлення (Авто / Вручну).",
+      "Окрема зміна гарячих клавіш на приховування та повне закриття програми.",
+      "Розширені фільтри по всіх 8 фракціях, кодексах та законах.",
+      "Підказки ШІ, коли подавати скаргу на форум адміністрації (OOC), а коли — у ДБР / Прокуратуру / Суд (IC)."
+    ]
+  },
+  {
+    tag: "v1.0.5",
+    date: "2026-11-19",
+    items: [
+      "Збільшено та оптимізовано іконку програми для Windows.",
+      "Виправлено синтаксичну помилку інтерфейсу та додано кнопку повного видалення.",
+      "Подано реліз на перевірку Microsoft Security Intelligence."
+    ]
+  },
+  {
+    tag: "v1.0.4",
+    date: "2026-11-15",
+    items: [
+      "Додано вибір акцентного кольору, тем фону та розміру вікна.",
+      "Покращено офлайн-пошук та блок частих питань NG."
+    ]
+  }
+];
 
 const DEFAULT_SETTINGS = {
   accent: "#26ffae",
@@ -1000,62 +1732,42 @@ const DEFAULT_SETTINGS = {
   uiLang: "uk",
   aiLang: "auto",
   aiStyle: "open",
-  winSize: "560,740",
+  winSize: "590,770",
   fontSize: "13.5",
-  aot: true
+  alwaysOnTop: true,
+  toggleHotkey: "Alt+Q",
+  quitHotkey: "Alt+Shift+Q",
+  providers: []
 };
 
-let APP_INFO = { version: "1.0.2", repo: "Frezze98/ng-helper" };
-let LATEST_RELEASE = null;
-
 let SETTINGS = loadSettings();
+let APP_INFO = { version: "1.0.6", repo: "Frezze98/ng-helper", toggleHotkey: SETTINGS.toggleHotkey, quitHotkey: SETTINGS.quitHotkey };
 let RULES = [];
-let DOC_CATALOG = [];
-let activeCat = "all";
+let RULES_META = null;
+let curCat = "all";
 let lastAiRaw = "";
-
-const $query = document.getElementById("query");
-const $results = document.getElementById("results");
-const $label = document.getElementById("results-label");
-const $aiBox = document.getElementById("ai-box");
-const $aiStatus = document.getElementById("ai-status");
-const $aiContent = document.getElementById("ai-content");
-const $askBtn = document.getElementById("ask-ai-btn");
-const $settingsBtn = document.getElementById("settings-btn");
-const $settingsBtnText = document.getElementById("settings-btn-text");
-const $keyDot = document.getElementById("key-dot");
-const $pinBtn = document.getElementById("pin-btn");
-const $hideBtn = document.getElementById("hide-btn");
-const $modalBg = document.getElementById("modal-bg");
-const $apiKeyInput = document.getElementById("api-key-input");
-const $apiKeySection = document.getElementById("api-key-section");
-const $apiGuide = document.getElementById("api-guide");
-const $customColor = document.getElementById("custom-color");
-const $copyAiBtn = document.getElementById("copy-ai-btn");
-const $copyDiscordBtn = document.getElementById("copy-discord-btn");
-const $appVersion = document.getElementById("app-version");
-const $modalVersion = document.getElementById("modal-version");
-const $updateBar = document.getElementById("update-bar");
-const $updateBarText = document.getElementById("update-bar-text");
-const $updateNowBtn = document.getElementById("update-now-btn");
-const $updateNotesBtn = document.getElementById("update-notes-btn");
-const $updateStatus = document.getElementById("update-status");
-
-function ipcSend(msg) {
-  if (window.ipc) window.ipc.postMessage(msg);
-}
+let latestReleaseInfo = null;
+let uninstallArmed = false;
+let activeRecorder = null;
+let changelogLoaded = false;
 
 function loadSettings() {
-  try {
-    const saved = JSON.parse(localStorage.getItem("ng_settings_v1") || "{}");
-    return { ...DEFAULT_SETTINGS, ...saved };
-  } catch {
-    return { ...DEFAULT_SETTINGS };
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem("ng_helper_settings_v2") || "{}"); } catch {}
+  const merged = { ...DEFAULT_SETTINGS, ...saved };
+  if (!Array.isArray(merged.providers)) merged.providers = [];
+
+  if (merged.providers.length === 0) {
+    const legacyKey = localStorage.getItem("ng_gemini_key") || localStorage.getItem("gemini_api_key") || "";
+    if (legacyKey.trim()) {
+      merged.providers.push({ provider: detectProviderByKey(legacyKey) || "gemini", key: legacyKey.trim(), enabled: true });
+    }
   }
+  return merged;
 }
 
 function saveSettings() {
-  localStorage.setItem("ng_settings_v1", JSON.stringify(SETTINGS));
+  localStorage.setItem("ng_helper_settings_v2", JSON.stringify(SETTINGS));
 }
 
 function t(key) {
@@ -1063,767 +1775,1143 @@ function t(key) {
   return dict[key] || I18N.uk[key] || key;
 }
 
-function hexToRgb(hex) {
-  const clean = hex.replace("#", "").trim();
-  if (clean.length !== 6) return { r: 38, g: 255, b: 174 };
-  return {
-    r: parseInt(clean.slice(0, 2), 16),
-    g: parseInt(clean.slice(2, 4), 16),
-    b: parseInt(clean.slice(4, 6), 16)
-  };
+function postIpc(msg) {
+  if (window.ipc && typeof window.ipc.postMessage === "function") {
+    window.ipc.postMessage(msg);
+  }
 }
 
-function applyAccent(hex) {
-  const { r, g, b } = hexToRgb(hex);
-  const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-  const fg = lum > 145 ? "#041610" : "#ffffff";
+function openExternal(url) {
+  if (window.ipc && typeof window.ipc.postMessage === "function") {
+    window.ipc.postMessage("open_url:" + url);
+  } else {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+}
 
-  const root = document.documentElement;
-  root.style.setProperty("--accent", hex);
-  root.style.setProperty("--accent-rgb", `${r}, ${g}, ${b}`);
-  root.style.setProperty("--accent-fg", fg);
+function escHtml(s) {
+  return String(s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
 
-  $customColor.value = hex;
-  document.querySelectorAll(".swatch").forEach(sw => {
-    sw.classList.toggle("active", sw.dataset.color.toLowerCase() === hex.toLowerCase());
+function hexToRgbStr(hex) {
+  const h = (hex || "#26ffae").replace("#", "");
+  const n = parseInt(h.length === 3 ? h.split("").map(x => x + x).join("") : h, 16);
+  if (Number.isNaN(n)) return "38, 255, 174";
+  return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
+}
+
+function formatDateTime(tsOrIso) {
+  if (!tsOrIso) return null;
+  let d = null;
+  if (typeof tsOrIso === "number") {
+    if (tsOrIso <= 0) return null;
+    d = new Date(tsOrIso * 1000);
+  } else {
+    d = new Date(tsOrIso);
+  }
+  if (!d || Number.isNaN(d.getTime())) return null;
+  const pad = n => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}.${pad(d.getMonth() + 1)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function formatHkPretty(hk) {
+  return (hk || "Alt+Q").split("+").map(s => s.trim()).filter(Boolean).join(" + ");
+}
+
+function formatHkCompact(hk) {
+  return (hk || "Alt+Q").replace(/\s+/g, "");
+}
+
+function detectProviderByKey(raw) {
+  const k = (raw || "").trim();
+  if (!k) return null;
+  if (/^(AIza|AQ\.)/.test(k)) return "gemini";
+  if (k.startsWith("gsk_")) return "groq";
+  if (k.startsWith("sk-or-")) return "openrouter";
+  if (k.startsWith("sk-ant-")) return "anthropic";
+  if (k.startsWith("xai-")) return "xai";
+  if (k.startsWith("sk-proj-")) return "openai";
+  if (/^sk-[a-f0-9]{32}$/i.test(k)) return "deepseek";
+  if (k.startsWith("sk-")) return "openai";
+  return null;
+}
+
+function maskKey(k) {
+  const s = (k || "").trim();
+  if (s.length <= 10) return "••••••";
+  return s.slice(0, 6) + "••••" + s.slice(-3);
+}
+
+const $query = document.getElementById("query");
+const $clearBtn = document.getElementById("clear-btn");
+const $askAiBtn = document.getElementById("ask-ai-btn");
+const $aiBox = document.getElementById("ai-box");
+const $aiStatus = document.getElementById("ai-status");
+const $aiModelBadge = document.getElementById("ai-model-badge");
+const $aiContent = document.getElementById("ai-content");
+const $copyAiBtn = document.getElementById("copy-ai-btn");
+const $results = document.getElementById("results");
+const $resultsLabel = document.getElementById("results-label");
+const $modalBg = document.getElementById("modal-bg");
+const $modalStage = document.getElementById("modal-stage");
+const $keyDot = document.getElementById("key-dot");
+const $updateStatus = document.getElementById("update-status");
+const $hkStatus = document.getElementById("hk-status");
+
+function injectIcons() {
+  document.getElementById("pin-btn").innerHTML = ICONS.pin;
+  document.getElementById("cfg-ico").innerHTML = ICONS.sliders;
+  document.getElementById("hide-btn").innerHTML = ICONS.close;
+  document.getElementById("close-modal-x").innerHTML = ICONS.close;
+  document.getElementById("search-ico").innerHTML = ICONS.search;
+  $clearBtn.innerHTML = ICONS.close;
+  document.getElementById("ai-head-ico").innerHTML = ICONS.sparkle;
+  document.getElementById("hk-toggle-reset").innerHTML = ICONS.rotate;
+  document.getElementById("hk-quit-reset").innerHTML = ICONS.rotate;
+  document.getElementById("footer-discord-btn").innerHTML = ICONS.discord + "<span>@Frezze98</span>" + ICONS.ext;
+}
+
+function applyTranslations() {
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const k = el.getAttribute("data-i18n");
+    if (k) el.textContent = t(k);
   });
+  $query.placeholder = t("search_ph");
+  $askAiBtn.innerHTML = ICONS.sparkle + `<span>${t("ai_btn")}</span>`;
+  $copyAiBtn.innerHTML = ICONS.copy + `<span>${t("copy")}</span>`;
+  document.getElementById("modal-title").innerHTML = ICONS.sliders + `<span>${t("settings_title")}</span>`;
+  document.getElementById("tab-btn-look").innerHTML = ICONS.sliders + `<span>${t("tab_look")}</span>`;
+  document.getElementById("tab-btn-ai").innerHTML = ICONS.cpu + `<span>${t("tab_ai")}</span>`;
+  document.getElementById("tab-btn-app").innerHTML = ICONS.box + `<span>${t("tab_app")}</span>`;
+  document.getElementById("hk-toggle-lbl").innerHTML = ICONS.eye + `<span>${t("hk_toggle")}</span>`;
+  document.getElementById("hk-quit-lbl").innerHTML = ICONS.power + `<span>${t("hk_quit")}</span>`;
+  document.getElementById("add-key-btn").innerHTML = ICONS.plus + `<span>${t("ai_add_btn")}</span>`;
+  document.getElementById("sync-rules-btn").innerHTML = ICONS.refresh + `<span>${t("btn_sync_rules")}</span>`;
+  document.getElementById("check-update-btn").innerHTML = ICONS.arrowUp + `<span>${t("btn_check_upd")}</span>`;
+  document.getElementById("open-cl-btn").innerHTML = ICONS.history + `<span>${t("btn_changelog")}</span>`;
+  document.getElementById("open-github-btn").innerHTML = ICONS.github + `<span>${t("btn_github")}</span>`;
+  document.getElementById("modal-discord-btn").innerHTML = ICONS.discord + `<span>${t("btn_discord")}</span>` + ICONS.ext;
+  document.getElementById("cl-sheet-title").innerHTML = ICONS.history + `<span>${t("btn_changelog")}</span>`;
+  document.getElementById("cl-back-btn").innerHTML = ICONS.arrowLeft + `<span>${t("btn_back")}</span>`;
+  document.getElementById("uninstall-btn").innerHTML = ICONS.trash + `<span>${t("btn_uninstall")}</span>`;
+  document.getElementById("sync-last-lbl").innerHTML = ICONS.clock + `<span>${t("sync_last_lbl")}</span>`;
+  document.getElementById("sync-auto-lbl").innerHTML = ICONS.refresh + `<span>${t("sync_auto_lbl")}</span>`;
+  document.getElementById("sync-manual-lbl").innerHTML = ICONS.sliders + `<span>${t("sync_manual_lbl")}</span>`;
+  document.getElementById("sync-db-lbl").innerHTML = ICONS.db + `<span>${t("sync_db_lbl")}</span>`;
+
+  renderProviderList();
+  renderRulesMetaUI();
+  renderSearch();
 }
 
-function applySettings(sendWindowIpc = false) {
-  applyAccent(SETTINGS.accent);
+function updateKeyDot() {
+  const hasActive = SETTINGS.providers.some(p => p.enabled && p.key);
+  $keyDot.classList.toggle("ready", hasActive);
+}
+
+function updateHotkeyDisplays() {
+  const tPretty = formatHkPretty(SETTINGS.toggleHotkey);
+  const qPretty = formatHkPretty(SETTINGS.quitHotkey);
+  document.getElementById("hk-toggle-rec").textContent = tPretty;
+  document.getElementById("hk-quit-rec").textContent = qPretty;
+  document.getElementById("hdr-hk").textContent = formatHkCompact(SETTINGS.toggleHotkey);
+  document.getElementById("foot-hk").textContent = formatHkCompact(SETTINGS.toggleHotkey);
+  document.getElementById("foot-quit-hk").textContent = formatHkCompact(SETTINGS.quitHotkey);
+}
+
+function applySettings(isInit) {
+  document.documentElement.style.setProperty("--accent", SETTINGS.accent);
+  document.documentElement.style.setProperty("--accent-rgb", hexToRgbStr(SETTINGS.accent));
+  document.documentElement.style.setProperty("--font-size", SETTINGS.fontSize + "px");
 
   document.body.classList.remove("theme-oled", "theme-graphite");
   if (SETTINGS.theme === "oled") document.body.classList.add("theme-oled");
   if (SETTINGS.theme === "graphite") document.body.classList.add("theme-graphite");
 
-  document.documentElement.style.setProperty("--base-font", `${SETTINGS.fontSize}px`);
-
-  document.querySelectorAll("[data-i18n]").forEach(el => {
-    el.textContent = t(el.dataset.i18n);
+  const presetColors = Array.from(document.querySelectorAll("#swatches .swatch")).map(b => b.dataset.color.toLowerCase());
+  const curHex = SETTINGS.accent.toLowerCase();
+  document.querySelectorAll("#swatches .swatch").forEach(b => {
+    b.classList.toggle("active", b.dataset.color.toLowerCase() === curHex);
   });
-  $settingsBtnText.textContent = t("settings_btn");
-  $query.placeholder = t("placeholder");
-  $askBtn.textContent = t("ask_ai");
-  $copyAiBtn.textContent = t("copy");
-  $copyDiscordBtn.textContent = t("btn_discord");
-  $apiGuide.innerHTML = t("api_guide_html");
-  $pinBtn.title = t("pin_title");
-  $hideBtn.title = t("hide_title");
-  $pinBtn.classList.toggle("active", !!SETTINGS.aot);
+  document.getElementById("custom-color").value = SETTINGS.accent;
+  document.getElementById("custom-color-wrap").classList.toggle("active", !presetColors.includes(curHex));
 
-  if (LATEST_RELEASE) {
-    $updateBarText.textContent = `✨ ${t("upd_available")}: ${LATEST_RELEASE.tag}`;
-  }
-
-  document.querySelectorAll(".seg-row").forEach(row => {
-    const key = row.dataset.setting;
-    const val = String(SETTINGS[key]);
-    row.querySelectorAll(".seg-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.val === val);
+  document.querySelectorAll("[data-setting]").forEach(group => {
+    const key = group.getAttribute("data-setting");
+    group.querySelectorAll("button[data-val]").forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-val") === String(SETTINGS[key]));
     });
   });
 
-  if (sendWindowIpc) {
-    ipcSend("aot:" + (SETTINGS.aot ? "true" : "false"));
-    ipcSend("resize:" + SETTINGS.winSize);
+  document.getElementById("pin-btn").classList.toggle("active", !!SETTINGS.alwaysOnTop);
+  postIpc("aot:" + (SETTINGS.alwaysOnTop ? "true" : "false"));
+  if (!isInit || SETTINGS.winSize !== "590,770") {
+    postIpc("resize:" + SETTINGS.winSize);
   }
 
-  if (!$query.value.trim()) renderFaq();
+  updateKeyDot();
+  updateHotkeyDisplays();
+  applyTranslations();
 }
 
-function isNewerVersion(remoteTag, localVer) {
-  const parse = s =>
-    String(s || "")
-      .replace(/^v/i, "")
-      .split(".")
-      .map(n => parseInt(n, 10) || 0);
-  const r = parse(remoteTag);
-  const l = parse(localVer);
-  const len = Math.max(r.length, l.length);
-  for (let i = 0; i < len; i++) {
-    const rv = r[i] || 0;
-    const lv = l[i] || 0;
-    if (rv > lv) return true;
-    if (rv < lv) return false;
-  }
+function matchesCategory(item, cat) {
+  if (cat === "all") return true;
+  if (item.c === cat) return true;
+  const d = item._docLow || "";
+  if (cat === "codes") return d.includes("кодекс");
+  if (cat === "laws") return item.c === "laws" && !d.includes("кодекс");
+  if (cat === "state") return d.includes("державних організацій") || d.includes("допитів") || d.includes("військового стану") || d.includes("воєнного стану");
+  if (cat === "npu") return d.includes("нпу") || d.includes("поліц");
+  if (cat === "sbu") return d.includes("сбу") || d.includes("безпеки");
+  if (cat === "ngu") return d.includes("нгу") || d.includes("гвард");
+  if (cat === "dbr") return d.includes("дбр") || d.includes("розслідув");
+  if (cat === "dvk") return d.includes("двк");
+  if (cat === "emd") return d.includes("емд") || d.includes("охорон");
+  if (cat === "tsn") return d.includes("тсн") || d.includes("медіа");
+  if (cat === "dvv") return d.includes("двв");
   return false;
 }
 
-async function checkUpdates(manual = false) {
-  if (manual) {
-    $updateStatus.className = "update-status";
-    $updateStatus.textContent = t("upd_checking");
-  }
-  try {
-    const url = `https://api.github.com/repos/${APP_INFO.repo}/releases/latest`;
-    const resp = await fetch(url, {
-      cache: "no-store",
-      headers: { Accept: "application/vnd.github+json" }
-    });
-    if (resp.status === 404) {
-      if (manual) {
-        $updateStatus.className = "update-status";
-        $updateStatus.textContent = t("upd_none");
-      }
-      return;
-    }
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-
-    const rel = await resp.json();
-    const tag = rel.tag_name || "";
-    const assets = rel.assets || [];
-    const setupAsset = assets.find(a => {
-      const n = String(a.name || "").toLowerCase();
-      return n.includes("setup") && n.endsWith(".exe");
-    });
-
-    if (tag && isNewerVersion(tag, APP_INFO.version)) {
-      LATEST_RELEASE = {
-        tag,
-        htmlUrl: rel.html_url || `https://github.com/${APP_INFO.repo}/releases`,
-        exeUrl: setupAsset ? setupAsset.browser_download_url : ""
-      };
-      $updateBarText.textContent = `✨ ${t("upd_available")}: ${tag}`;
-      $updateNowBtn.style.display = LATEST_RELEASE.exeUrl ? "inline-block" : "none";
-      $updateBar.classList.add("visible");
-      $updateStatus.className = "update-status ok";
-      $updateStatus.textContent = `${t("upd_available")}: ${tag}`;
-    } else if (manual) {
-      $updateStatus.className = "update-status ok";
-      $updateStatus.textContent = `✓ ${t("upd_latest")}`;
-    }
-  } catch (e) {
-    if (manual) {
-      $updateStatus.className = "update-status err";
-      $updateStatus.textContent = `${t("upd_err")}: ${e.message}`;
+function expandQueryTokens(q) {
+  const base = q.toLowerCase().replace(/[^\p{L}\p{N}.]+/gu, " ").trim().split(/\s+/).filter(Boolean);
+  const out = new Set(base);
+  for (const tok of base) {
+    if (SYNONYMS[tok]) {
+      for (const s of SYNONYMS[tok]) out.add(s);
     }
   }
+  return { base, expanded: Array.from(out) };
 }
 
-window.onUpdateError = function (msg) {
-  $updateNowBtn.disabled = false;
-  $updateNowBtn.textContent = t("upd_now");
-  $updateBarText.textContent = `⚠ ${msg}`;
-};
-
-function getApiKey() {
-  return (localStorage.getItem("ng_gemini_key") || "").trim();
-}
-
-function updateKeyBadge() {
-  $keyDot.classList.toggle("ok", !!getApiKey());
-}
-
-function escapeHtml(s) {
-  return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-}
-
-function renderMarkdownLite(text) {
-  return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-}
-
-function makeTermMatcher(term) {
-  const tStr = term.toLowerCase().trim();
-  if (!tStr) return null;
-  if (tStr.length <= 3) {
-    const esc = tStr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const re = new RegExp(`(^|[^a-zа-яіїєґ0-9])${esc}(?=$|[^a-zа-яіїєґ0-9])`, "i");
-    return str => re.test(str);
-  }
-  return str => str.includes(tStr);
-}
-
-function buildConcepts(rawQuery) {
-  const words = rawQuery
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\.]+/gu, " ")
-    .split(/\s+/)
-    .filter(w => (w.length >= 3 || SHORT_ALLOW.has(w)) && !STOP_WORDS.has(w));
-
-  const concepts = [];
-  const allTerms = new Set();
-
-  for (const w of words) {
-    const variants = new Set([w]);
-    if (w.length >= 5) variants.add(w.slice(0, w.length - 2));
-    for (const [k, vals] of Object.entries(SYNONYMS)) {
-      if (w.includes(k)) vals.forEach(v => variants.add(v));
-    }
-    const list = Array.from(variants);
-    concepts.push(list);
-    list.forEach(v => allTerms.add(v));
-  }
-  return { concepts, all: Array.from(allTerms) };
-}
-
-function searchRules(q, limit = 15, ignoreCategory = false) {
-  const { concepts, all } = buildConcepts(q);
-  if (!concepts.length) return [];
-
-  const matchers = {};
-  const df = {};
-  for (const term of all) {
-    matchers[term] = makeTermMatcher(term);
-    df[term] = 0;
-  }
-
-  for (let i = 0; i < RULES.length; i++) {
-    const full = RULES[i]._full;
-    for (const term of all) {
-      if (matchers[term] && matchers[term](full)) df[term]++;
-    }
-  }
-
-  const totalDocs = RULES.length || 1;
-  const weightOf = term => Math.log(1 + totalDocs / (1 + (df[term] || 0)));
-
+function searchRules(q, cat, limit = 24) {
+  const { base, expanded } = expandQueryTokens(q);
+  if (base.length === 0) return [];
+  const exactCode = q.match(/(?:ст\.?\s*\d+|п\.?\s*\d+(?:\.\d+)+|\d+\.\d+(?:\.\d+)?)/i);
   const scored = [];
-  for (let i = 0; i < RULES.length; i++) {
-    const item = RULES[i];
-    if (!ignoreCategory && activeCat !== "all" && item.c !== activeCat) continue;
 
+  for (const r of RULES) {
+    if (!matchesCategory(r, cat)) continue;
     let score = 0;
-    let matchedConcepts = 0;
-
-    for (const variants of concepts) {
-      let bestConceptScore = 0;
-      for (const term of variants) {
-        const fn = matchers[term];
-        if (!fn) continue;
-        const inHead = fn(item._head);
-        const inText = fn(item._low);
-        if (inHead || inText) {
-          const w = weightOf(term);
-          const s = (inHead ? w * 1.4 : 0) + (inText ? w : 0);
-          if (s > bestConceptScore) bestConceptScore = s;
-        }
-      }
-      if (bestConceptScore > 0) {
-        matchedConcepts++;
-        score += bestConceptScore;
-      }
+    if (exactCode && r._full.includes(exactCode[0].toLowerCase().replace(/\s+/g, " "))) score += 45;
+    if (r._full.includes(q.toLowerCase())) score += 30;
+    let baseHits = 0;
+    for (const tok of base) {
+      if (tok.length < 2 && !/^\d+$/.test(tok)) continue;
+      if (r._head.includes(tok)) { score += 12; baseHits++; }
+      else if (r._low.includes(tok)) { score += 6; baseHits++; }
     }
-
-    if (matchedConcepts > 0) {
-      const coverage = matchedConcepts / concepts.length;
-      score *= (1 + coverage * 3);
-      scored.push({ item, score });
+    for (const tok of expanded) {
+      if (base.includes(tok)) continue;
+      if (r._head.includes(tok)) score += 6;
+      else if (r._low.includes(tok)) score += 3;
     }
+    if (base.length > 1 && baseHits === base.length) score += 18;
+    if (score > 0) scored.push({ r, score });
   }
-
   scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, limit).map(x => x.item);
+  return scored.slice(0, limit).map(x => x.r);
 }
 
-function searchCardsForRoute(q, route, limit = 10) {
-  const local = buildConcepts(q);
-  const aiTerms = (route?.terms || [])
-    .map(v => String(v).toLowerCase().trim())
-    .filter(v => v.length >= 2);
-  const allTerms = Array.from(new Set([...aiTerms, ...local.all]));
-  const docSet = new Set(route?.docList || []);
-
-  const matchers = {};
-  const df = {};
-  for (const term of allTerms) {
-    matchers[term] = makeTermMatcher(term);
-    df[term] = 0;
-  }
-
-  for (let i = 0; i < RULES.length; i++) {
-    const full = RULES[i]._full;
-    for (const term of allTerms) {
-      if (matchers[term] && matchers[term](full)) df[term]++;
-    }
-  }
-
-  const totalDocs = RULES.length || 1;
-  const weightOf = term => Math.log(1 + totalDocs / (1 + (df[term] || 0)));
-
-  const scored = [];
-  for (let i = 0; i < RULES.length; i++) {
-    const item = RULES[i];
-    const inSelectedDoc = docSet.has(item.d);
-    let score = 0;
-
-    for (const term of aiTerms) {
-      const fn = matchers[term];
-      if (!fn) continue;
-      if (fn(item._head)) score += weightOf(term) * 2.0;
-      if (fn(item._low)) score += weightOf(term) * 1.5;
-    }
-    for (const term of local.all) {
-      if (aiTerms.includes(term)) continue;
-      const fn = matchers[term];
-      if (fn && fn(item._full)) score += weightOf(term) * 0.6;
-    }
-
-    if (inSelectedDoc) {
-      score = score > 0 ? score * 3.5 + 2 : 0.2;
-    }
-    if (score > 0) scored.push({ item, score });
-  }
-
-  scored.sort((a, b) => b.score - a.score);
-  return { items: scored.slice(0, limit).map(x => x.item), terms: allTerms };
+function highlightText(text, tokens) {
+  let safe = escHtml(text);
+  const list = tokens.filter(x => x.length >= 3).slice(0, 6);
+  if (!list.length) return safe;
+  const re = new RegExp("(" + list.map(x => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "gi");
+  return safe.replace(re, "<mark>$1</mark>");
 }
 
-function buildFullDocContext(route, q) {
-  const parts = [];
-  const readDocs = [];
-  let usedChars = 0;
-
-  const docList = route?.docList || [];
-  for (const docName of docList) {
-    const docChunks = RULES.filter(r => r.d === docName);
-    if (!docChunks.length) continue;
-
-    let docText = `=== ДОКУМЕНТ: ${docName} ===\n`;
-    let lastSec = "";
-    for (const ch of docChunks) {
-      if (ch.s !== lastSec) {
-        docText += `\n## ${ch.s}\n`;
-        lastSec = ch.s;
-      }
-      docText += `${ch.t}\n`;
-    }
-
-    if (usedChars + docText.length <= MAX_CONTEXT_CHARS) {
-      parts.push(docText);
-      readDocs.push(docName);
-      usedChars += docText.length;
-    } else if (usedChars < MAX_CONTEXT_CHARS - 6000) {
-      const sub = searchCardsForRoute(q, { docList: [docName], terms: route.terms }, 12).items;
-      let partial = `=== ФРАГМЕНТИ ДОКУМЕНТА: ${docName} ===\n` +
-        sub.map(m => `## ${m.s}\n${m.t}`).join("\n\n");
-      const room = MAX_CONTEXT_CHARS - usedChars;
-      if (partial.length > room) partial = partial.slice(0, room);
-      parts.push(partial);
-      readDocs.push(docName + " (фрагм.)");
-      usedChars += partial.length;
-    }
-  }
-
-  return { text: parts.join("\n\n"), readDocs };
-}
-
-function renderFaq() {
-  const list = TOP_FAQ[SETTINGS.uiLang] || TOP_FAQ.uk;
-  $label.textContent = t("top_faq");
-  $results.innerHTML = list.map((f, idx) => `
-    <div class="card faq-card" data-faq="${idx}">
-      <div class="card-top">
-        <div class="faq-q">${escapeHtml(f.q)}</div>
-        <button class="copy-btn" data-copy="${escapeHtml(f.a + ' ' + f.punish)}">📋</button>
-      </div>
-      <div class="faq-a">${escapeHtml(f.a)}</div>
-      <div class="faq-punish">${escapeHtml(f.punish)}</div>
-    </div>
-  `).join("");
-}
-
-function highlight(text, terms) {
-  let html = escapeHtml(text);
-  const safeTerms = terms.filter(v => v.length >= 2).slice(0, 12);
-  for (const term of safeTerms) {
-    const esc = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const re = term.length <= 3
-      ? new RegExp(`(^|[^a-zа-яіїєґ0-9])(${esc})(?=$|[^a-zа-яіїєґ0-9])`, "gi")
-      : new RegExp(`()(${esc})`, "gi");
-    html = html.replace(re, "$1<mark>$2</mark>");
-  }
-  return html;
-}
-
-function renderCards(matches, terms, labelText) {
-  $label.textContent = labelText;
-  if (!matches.length) {
-    $results.innerHTML = `<div class="card"><div class="card-body">${t("no_matches")}</div></div>`;
-    return;
-  }
-
-  $results.innerHTML = matches.map((m, i) => {
-    const copyText = `${m.d} (${m.s}):\n${m.t}`;
-    return `
-      <div class="card" style="animation: slideInUp 0.3s cubic-bezier(0.23, 1, 0.32, 1) ${i * 0.02}s both">
-        <div class="card-top">
-          <div>
-            <div class="card-title">${escapeHtml(m.d)}</div>
-            <div class="card-sec">${escapeHtml(m.s)}</div>
-          </div>
-          <button class="copy-btn" data-copy="${escapeHtml(copyText)}">${t("copy_report")}</button>
-        </div>
-        <div class="card-body">${highlight(m.t, terms)}</div>
-      </div>
-    `;
-  }).join("");
+function copyToClipboard(text, btn, withLabel) {
+  if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+  const old = btn.innerHTML;
+  btn.classList.add("copied");
+  btn.innerHTML = ICONS.check + (withLabel ? `<span>${t("copied")}</span>` : "");
+  setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = old; }, 1200);
 }
 
 function renderSearch() {
   const q = $query.value.trim();
+  $clearBtn.classList.toggle("show", q.length > 0);
+
   if (!q) {
-    $aiBox.classList.remove("visible", "warn-mode");
-    renderFaq();
+    $resultsLabel.innerHTML = ICONS.bolt + `<span>${t("top_faq")}</span>`;
+    const list = FAQ_ITEMS.filter(i => curCat === "all" || i.cats.includes(curCat));
+    if (!list.length) {
+      const sample = RULES.filter(r => matchesCategory(r, curCat)).slice(0, 12);
+      if (sample.length) {
+        $results.innerHTML = sample.map((r, idx) => `
+          <div class="card">
+            <div class="card-top">
+              <div>
+                <div class="card-tag">${escHtml(r.d)}</div>
+                <div class="card-title">${escHtml(r.s)}</div>
+              </div>
+              <button class="copy-btn" data-copy-idx="${idx}" type="button">${ICONS.copy}</button>
+            </div>
+            <div class="card-body">${escHtml(r.t)}</div>
+          </div>
+        `).join("");
+        $results.querySelectorAll("[data-copy-idx]").forEach(btn => {
+          const r = sample[Number(btn.dataset.copyIdx)];
+          btn.onclick = () => copyToClipboard(`${r.d} — ${r.s}\n${r.t}`, btn, false);
+        });
+        return;
+      }
+      $results.innerHTML = `<div class="empty-state">${escHtml(t("nothing_found"))}</div>`;
+      return;
+    }
+    $results.innerHTML = list.map((i, idx) => `
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-tag">${escHtml(i.tag)}</div>
+            <div class="card-title">${escHtml(i.q)}</div>
+          </div>
+          <button class="copy-btn" data-faq-idx="${idx}" type="button">${ICONS.copy}</button>
+        </div>
+        <div class="card-body">${escHtml(i.a)}</div>
+        <div class="punish-row">${ICONS.warn}<span>${escHtml(t("punish_prefix"))}: ${escHtml(i.punish)}</span></div>
+      </div>
+    `).join("");
+    $results.querySelectorAll("[data-faq-idx]").forEach(btn => {
+      const i = list[Number(btn.dataset.faqIdx)];
+      btn.onclick = () => copyToClipboard(`${i.q}\n${i.a}\n${t("punish_prefix")}: ${i.punish}`, btn, false);
+    });
     return;
   }
 
-  const matches = searchRules(q, 12, false);
-  const { all } = buildConcepts(q);
-  renderCards(matches, all, `${t("found_prefix")} ${matches.length} ${t("found_hint")}`);
+  const hits = searchRules(q, curCat, 25);
+  const { base } = expandQueryTokens(q);
+  $resultsLabel.innerHTML = ICONS.search + `<span>${t("search_results")}: ${hits.length}</span>`;
+  if (!hits.length) {
+    $results.innerHTML = `<div class="empty-state">${escHtml(t("nothing_found"))}</div>`;
+    return;
+  }
+  $results.innerHTML = hits.map((r, idx) => `
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="card-tag">${escHtml(r.d)}</div>
+          <div class="card-title">${highlightText(r.s, base)}</div>
+        </div>
+        <button class="copy-btn" data-hit-idx="${idx}" type="button">${ICONS.copy}</button>
+      </div>
+      <div class="card-body">${highlightText(r.t, base)}</div>
+    </div>
+  `).join("");
+  $results.querySelectorAll("[data-hit-idx]").forEach(btn => {
+    const r = hits[Number(btn.dataset.hitIdx)];
+    btn.onclick = () => copyToClipboard(`${r.d} — ${r.s}\n${r.t}`, btn, false);
+  });
 }
 
-async function callGemini(key, payload, onModelSwitch) {
-  const errors = [];
-  for (let i = 0; i < MODELS.length; i++) {
-    const model = MODELS[i];
-    if (i > 0 && onModelSwitch) onModelSwitch(model);
+function buildSystemPrompt(question) {
+  const langRule = SETTINGS.aiLang === "uk"
+    ? "Відповідай виключно українською мовою."
+    : SETTINGS.aiLang === "ru"
+    ? "Отвечай исключительно на русском языке."
+    : "Відповідай тією самою мовою, якою написано питання користувача (українською або російською).";
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+  const styleRule = SETTINGS.aiStyle === "short"
+    ? "Пиши максимально стисло: 1–2 речення на кожен блок, лише конкретні номери статей/пунктів та терміни покарань."
+    : "Пиши чітко, структуровано та по суті, з точними номерами статей, пунктів і термінами покарань.";
+
+  return `Ти — точний юридичний та RP-помічник проєкту GTA 5 RP NG. Відповідай ТІЛЬКИ на основі наданих витягів із правил та законів NG. Не вигадуй неіснуючі статті.
+${langRule}
+${styleRule}
+
+ОБОВ'ЯЗКОВО визначай маршрутизацію скарги за правилом:
+- Якщо є порушення Офіційних правил проєкту (DM, DB, PG, NonRP, MG, RK, GZ, вихід з RP), Загальних правил держорганізацій (наприклад, п. 3.2.1, 1.29, 3.5) або правил крайму/заходів — це OOC-порушення, на нього МОЖНА заливати скаргу на форум адміністрації (потрібен відеовідкат від 60 сек).
+- Якщо порушено ЛИШЕ IC-закони, кодекси (КК, АК, ПК, ДК) чи внутрішній статут фракції (наприклад, не представився, не зачитав Міранду без OOC-порушень, перевищив повноваження) — на форум адмінам НЕ заливають, це вирішується в RP через ДБР, Прокуратуру, Суд або керівництво фракції.
+- Якщо порушено і OOC-правило, і IC-закон — вкажи обидва варіанти.
+
+Формат відповіді (суворо дотримуйся цих маркерів у перших двох рядках):
+[FORUM: ТАК або НІ] Коротко: чи можна заливати на форум адмінам і за який пункт OOC.
+[IC_ORG: ТАК або НІ] Коротко: чи потрібно йти в ДБР / Прокуратуру / Суд / до керівництва фракції і за яку статтю IC.
+
+### IC (Закони та кодекси)
+Точні статті та суть.
+
+### OOC (Правила проєкту)
+Точні пункти та покарання (Деморган / GunBan / Warn / Mute / Ban).
+
+### Що робити
+Короткий покроковий план дій гравця.`;
+}
+
+function buildContextForAi(question) {
+  let hits = searchRules(question, curCat, 14);
+  if (hits.length < 8 && curCat !== "all") {
+    const extra = searchRules(question, "all", 14);
+    const seen = new Set(hits.map(x => x.d + "|" + x.s + "|" + x.t.slice(0, 40)));
+    for (const r of extra) {
+      const k = r.d + "|" + r.s + "|" + r.t.slice(0, 40);
+      if (!seen.has(k)) { hits.push(r); seen.add(k); }
+      if (hits.length >= 16) break;
+    }
+  }
+  let ctx = "";
+  for (const r of hits) {
+    const chunk = `[${r.d} | ${r.s}]\n${r.t}\n\n`;
+    if (ctx.length + chunk.length > 16500) break;
+    ctx += chunk;
+  }
+  return ctx || "Прямих збігів у локальному індексі не знайдено; відповідай обережно, спираючись на загальні норми NG.";
+}
+
+async function callGemini(key, systemPrompt, userPrompt) {
+  const models = PROVIDERS.gemini.fallbackModels;
+  let lastErr = "Gemini error";
+  for (const model of models) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
     const resp = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+        generationConfig: { temperature: 0.25, maxOutputTokens: 1100 }
+      })
     });
+    if (!resp.ok) {
+      lastErr = `Gemini ${resp.status}`;
+      if (resp.status === 401 || resp.status === 403) throw new Error(lastErr);
+      continue;
+    }
+    const data = await resp.json();
+    const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("").trim();
+    if (text) return { text, model };
+  }
+  throw new Error(lastErr);
+}
 
-    const rawText = await resp.text();
-    let data = {};
-    try { data = JSON.parse(rawText); } catch {}
+async function callOpenAICompat(providerKey, key, systemPrompt, userPrompt) {
+  const cfg = PROVIDERS[providerKey];
+  const headers = {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${key}`
+  };
+  if (providerKey === "openrouter") {
+    headers["HTTP-Referer"] = GITHUB_URL;
+    headers["X-Title"] = "NG Helper";
+  }
+  const resp = await fetch(cfg.endpoint, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      model: cfg.model,
+      temperature: 0.25,
+      max_tokens: 1100,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ]
+    })
+  });
+  if (!resp.ok) throw new Error(`${cfg.name} ${resp.status}`);
+  const data = await resp.json();
+  const text = data?.choices?.[0]?.message?.content?.trim();
+  if (!text) throw new Error(`${cfg.name} empty`);
+  return { text, model: cfg.model };
+}
 
-    if (resp.ok) {
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      if (text.trim()) {
-        return { text: text.trim(), model };
+async function callAnthropic(key, systemPrompt, userPrompt) {
+  const cfg = PROVIDERS.anthropic;
+  const resp = await fetch(cfg.endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": key,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify({
+      model: cfg.model,
+      max_tokens: 1100,
+      temperature: 0.25,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userPrompt }]
+    })
+  });
+  if (!resp.ok) throw new Error(`Claude ${resp.status}`);
+  const data = await resp.json();
+  const text = data?.content?.map(b => b.text || "").join("").trim();
+  if (!text) throw new Error("Claude empty");
+  return { text, model: cfg.model };
+}
+
+async function callProvider(entry, systemPrompt, userPrompt) {
+  if (entry.provider === "gemini") return callGemini(entry.key, systemPrompt, userPrompt);
+  if (entry.provider === "anthropic") return callAnthropic(entry.key, systemPrompt, userPrompt);
+  return callOpenAICompat(entry.provider, entry.key, systemPrompt, userPrompt);
+}
+
+function formatInlineMd(s) {
+  return escHtml(s)
+    .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
+}
+
+function renderAiResponse(rawText) {
+  const lines = rawText.replace(/\r/g, "").split("\n");
+  let forumObj = null;
+  let icObj = null;
+  const restLines = [];
+
+  for (const line of lines) {
+    const fm = line.match(/^\s*\[FORUM\s*:\s*([^\]]+)\]\s*(.*)$/i);
+    if (fm && !forumObj) {
+      const flag = fm[1].trim().toUpperCase();
+      forumObj = { yes: /^(ТАК|ДА|YES|МОЖНА|МОЖНО)/i.test(flag), text: fm[2].trim() };
+      continue;
+    }
+    const im = line.match(/^\s*\[IC_ORG\s*:\s*([^\]]+)\]\s*(.*)$/i);
+    if (im && !icObj) {
+      const flag = im[1].trim().toUpperCase();
+      icObj = { yes: /^(ТАК|ДА|YES|МОЖНА|МОЖНО)/i.test(flag), text: im[2].trim() };
+      continue;
+    }
+    restLines.push(line);
+  }
+
+  let html = "";
+  if (forumObj || icObj) {
+    html += `<div class="route-grid">`;
+    if (forumObj) {
+      html += `
+        <div class="route-card forum">
+          <div class="route-tag">
+            <span class="route-tag-left">${ICONS.shield}<span>${escHtml(t("forum_title"))}</span></span>
+            <span class="route-status ${forumObj.yes ? "yes" : "no"}">${escHtml(forumObj.yes ? t("badge_yes") : t("badge_no"))}</span>
+          </div>
+          <div>${formatInlineMd(forumObj.text)}</div>
+        </div>`;
+    }
+    if (icObj) {
+      html += `
+        <div class="route-card ic">
+          <div class="route-tag">
+            <span class="route-tag-left">${ICONS.scale}<span>${escHtml(t("ic_org_title"))}</span></span>
+            <span class="route-status ${icObj.yes ? "yes" : "no"}">${escHtml(icObj.yes ? t("badge_yes") : t("badge_no"))}</span>
+          </div>
+          <div>${formatInlineMd(icObj.text)}</div>
+        </div>`;
+    }
+    html += `</div>`;
+  }
+
+  const sections = [];
+  let cur = { title: "", lines: [] };
+  for (const l of restLines) {
+    const hm = l.match(/^\s*#{2,3}\s+(.+)$/);
+    if (hm) {
+      if (cur.title || cur.lines.some(x => x.trim())) sections.push(cur);
+      cur = { title: hm[1].trim(), lines: [] };
+    } else {
+      cur.lines.push(l);
+    }
+  }
+  if (cur.title || cur.lines.some(x => x.trim())) sections.push(cur);
+
+  for (const sec of sections) {
+    let bodyHtml = "";
+    let inUl = false;
+    for (const rawL of sec.lines) {
+      const trimmed = rawL.trim();
+      if (!trimmed) {
+        if (inUl) { bodyHtml += "</ul>"; inUl = false; }
+        continue;
+      }
+      if (/^[-*•]\s+/.test(trimmed)) {
+        if (!inUl) { bodyHtml += "<ul>"; inUl = true; }
+        bodyHtml += `<li>${formatInlineMd(trimmed.replace(/^[-*•]\s+/, ""))}</li>`;
+      } else {
+        if (inUl) { bodyHtml += "</ul>"; inUl = false; }
+        bodyHtml += `<p style="margin-top:4px">${formatInlineMd(trimmed)}</p>`;
       }
     }
+    if (inUl) bodyHtml += "</ul>";
 
-    const errMsg = data?.error?.message || `HTTP ${resp.status}`;
-    errors.push(`${model}: ${errMsg}`);
-    if (/API key not valid|API_KEY_INVALID/i.test(errMsg)) break;
-  }
-  throw new Error(errors.join("\n"));
-}
-
-async function routeQueryWithAI(key, q) {
-  const catalogText = DOC_CATALOG.map(x => `[${x.id}] ${x.d} (${x.c})`).join("\n");
-  const routerPrompt =
-    "Ти — маршрутизатор бази правил і законів GTA 5 RP NG.\n" +
-    "Вибери 2–4 НАЙВАЖЛИВІШІ документи у порядку пріоритету:\n" +
-    "1. Якщо питають ЯКУ СТАТТЮ ДАТИ / ПОСАДИТИ / ШТРАФ (стрілянина, напад, втеча, зброя, наркотики, ДТП, шахрайство) -> бери Кримінальний кодекс, КУпАП / Адміністративний / Дорожній кодекс, Закон про зброю. Якщо в тому ж питанні є OOC-порушення (образа рідних, вихід з гри, DM, DB) — ОБОВ'ЯЗКОВО додай Офіційні правила проєкту!\n" +
-    "2. Якщо питання стосується дій співробітників СБУ, НПУ, НГУ, ДБР, держструктур (PG силовика, патруль, засади, форма, службовий транспорт, респа, затримання, бедкоп) — ОБОВ'ЯЗКОВО включай Загальні правила державних організацій (поряд з ОПП або Процесуальним кодексом).\n" +
-    "3. Якщо питання про крайм, пограбування, викрадення, капт, поставки, ВЗХ, AirDrop -> відповідні OOC-правила.\n\n" +
-    "Поверни ВИКЛЮЧНО JSON: {\"doc_ids\":[номер1,номер2,номер3],\"terms\":[\"6-10 слів українською\"]}\n\n" +
-    `Документи:\n${catalogText}\n\nПитання: ${q}`;
-
-  const { text } = await callGemini(key, {
-    contents: [{ parts: [{ text: routerPrompt }] }],
-    generationConfig: { temperature: 0, responseMimeType: "application/json" }
-  });
-
-  const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
-  const parsed = JSON.parse(cleaned);
-
-  const docList = [];
-  if (Array.isArray(parsed.doc_ids)) {
-    for (const id of parsed.doc_ids) {
-      const found = DOC_CATALOG[Number(id)];
-      if (found && !docList.includes(found.d)) docList.push(found.d);
+    if (sec.title) {
+      const isIc = /^ic\b/i.test(sec.title);
+      html += `<div class="ai-sec"><div class="ai-sec-h ${isIc ? "ic" : ""}">${escHtml(sec.title)}</div>${bodyHtml}</div>`;
+    } else if (bodyHtml) {
+      html += `<div>${bodyHtml}</div>`;
     }
   }
-  const terms = Array.isArray(parsed.terms) ? parsed.terms : [];
-  return { docList: docList.slice(0, 4), terms };
+
+  return html || `<div>${formatInlineMd(rawText)}</div>`;
 }
 
-function buildSystemPrompt() {
-  const langRule =
-    SETTINGS.aiLang === "ru"
-      ? "Отвечай строго на русском языке (названия кодексов и номера статей оставляй точными)."
-      : SETTINGS.aiLang === "uk"
-      ? "Відповідай строго українською мовою."
-      : "Отвечай на том же языке, на котором задан вопрос (если вопрос на русском — отвечай по-русски, если на украинском — по-украински).";
+async function askAi() {
+  const question = $query.value.trim();
+  if (!question) return;
 
-  if (SETTINGS.aiStyle === "short") {
-    return (
-      "Ты — быстрый игровой справочник правил и законов GTA 5 RP проекта NG.\n" +
-      langRule + "\n" +
-      "Опирайся ТОЛЬКО на переданные документы, не выдумывай номера статей. Без воды и без фраз вроде «в предоставленных фрагментах».\n" +
-      "ВАЖНО: перед тем как писать «Да» или «Нет», убедись, что ответ совпадает со смыслом вопроса (если действие запрещено — пиши «Нет, нельзя», а не «Да»).\n" +
-      "Формат: короткий прямой ответ + список статей/пунктов (номер, суть, наказание)."
-    );
-  }
+  const activeProviders = SETTINGS.providers.filter(p => p.enabled && p.key && PROVIDERS[p.provider]);
+  $aiBox.classList.add("visible");
+  $aiBox.classList.remove("error");
 
-  return (
-    "Ты — понятный и живой помощник по правилам и законам GTA 5 RP сервера NG.\n" +
-    langRule + "\n" +
-    "ГЛАВНЫЕ ПРАВИЛА:\n" +
-    "1. Опирайся ТОЛЬКО на переданный текст документов NG, никогда не выдумывай статьи.\n" +
-    "2. Отвечай открыто, по-человечески и сразу по делу — без канцелярщины, без вступлений и без фраз «в предоставленных фрагментах». Пиши так, чтобы игрок сразу понял, что делать в ситуации.\n" +
-    "3. Внимательно следи за «Да / Нет»: если игрок спрашивает «можно ли так делать?», а правило это запрещает — пиши «Нет, так делать нельзя», а не «Да».\n" +
-    "4. Если в вопросе смешаны IC-нарушения (законы, статьи КПЗ) и OOC-нарушения (правила сервера, Деморган/Бан) — раздели ответ на два понятных блока: **IC (статьи)** и **OOC (правила сервера)**.\n\n" +
-    "КАК ОФОРМЛЯТЬ:\n" +
-    "- Если спрашивают **какую статью дать / за что сажать**: начни с прямого ответа, а ниже перечисли каждую статью с **жирным номером**, коротко объясни в 1 предложение, **за какое именно действие** она даётся, и укажи точный срок / штраф / конфискацию.\n" +
-    "- Если спрашивают **можно ли / законно ли / какое наказание**: начни с чёткого вердикта и краткого пояснения почему, затем перечисли конкретные **пункты правил** с их сутью, важными исключениями и точным **наказанием**."
-  );
-}
-
-async function askAI() {
-  const key = getApiKey();
-  if (!key) {
-    $aiBox.classList.add("visible", "warn-mode");
-    $aiStatus.textContent = t("no_key_title");
-    $copyAiBtn.style.display = "none";
-    $aiContent.innerHTML =
-      `<div class="no-key-notice">` +
-      `<div>${escapeHtml(t("no_key_msg"))}</div>` +
-      `<button id="open-key-settings-btn" class="btn-xs">${escapeHtml(t("no_key_btn"))}</button>` +
-      `</div>`;
-    const btn = document.getElementById("open-key-settings-btn");
-    if (btn) btn.addEventListener("click", () => openSettings(true));
+  if (!activeProviders.length) {
+    $aiBox.classList.add("error");
+    $aiStatus.textContent = t("ai_title");
+    $aiModelBadge.textContent = "";
+    $aiContent.innerHTML = `<div>${escHtml(t("ai_need_key"))}</div>`;
     return;
   }
 
-  const q = $query.value.trim();
-  if (!q) return;
+  $askAiBtn.disabled = true;
+  $aiStatus.textContent = t("ai_title");
+  $aiModelBadge.textContent = "";
+  $aiContent.innerHTML = `<div class="ai-loading">${ICONS.refresh.replace("<svg", '<svg class="spinning"')}<span>${escHtml(t("ai_thinking"))}</span></div>`;
 
-  $aiBox.classList.remove("warn-mode");
-  $aiBox.classList.add("visible");
-  $copyAiBtn.style.display = "inline-block";
-  $aiStatus.textContent = t("st_routing");
-  $aiContent.innerHTML = "";
-  lastAiRaw = "";
-  $askBtn.disabled = true;
+  const systemPrompt = buildSystemPrompt(question);
+  const context = buildContextForAi(question);
+  const userPrompt = `ПИТАННЯ ГРАВЦЯ:\n${question}\n\nВИТЯГИ З ОФІЦІЙНОЇ БАЗИ NG:\n${context}`;
 
-  try {
-    let contextText = "";
-    let readDocs = [];
-    let cards = [];
-    let highlightTerms = [];
-
+  let errors = [];
+  for (const entry of activeProviders) {
     try {
-      const route = await routeQueryWithAI(key, q);
-      const fullCtx = buildFullDocContext(route, q);
-      contextText = fullCtx.text;
-      readDocs = fullCtx.readDocs;
-
-      const cardRes = searchCardsForRoute(q, route, 10);
-      cards = cardRes.items;
-      highlightTerms = cardRes.terms;
-    } catch {
-      cards = searchRules(q, 18, true);
-      highlightTerms = buildConcepts(q).all;
-      contextText = cards.map(m => `[${m.d} | ${m.s}]\n${m.t}`).join("\n\n");
+      const res = await callProvider(entry, systemPrompt, userPrompt);
+      lastAiRaw = res.text;
+      $aiModelBadge.textContent = `${PROVIDERS[entry.provider].name} • ${res.model}`;
+      $aiContent.innerHTML = renderAiResponse(res.text);
+      $askAiBtn.disabled = false;
+      return;
+    } catch (e) {
+      errors.push(`${PROVIDERS[entry.provider].name}: ${e.message}`);
     }
+  }
 
-    if (!contextText.trim()) {
-      cards = searchRules(q, 18, true);
-      highlightTerms = buildConcepts(q).all;
-      contextText = cards.map(m => `[${m.d} | ${m.s}]\n${m.t}`).join("\n\n");
+  $aiBox.classList.add("error");
+  $aiContent.innerHTML = `<div><b>${escHtml(t("ai_all_failed"))}:</b><br/>${escHtml(errors.join(" | "))}</div>`;
+  $askAiBtn.disabled = false;
+}
+
+function renderProviderList() {
+  const el = document.getElementById("provider-list");
+  if (!SETTINGS.providers.length) {
+    el.innerHTML = `<div class="empty-state" style="padding:14px">${escHtml(t("ai_empty"))}</div>`;
+    return;
+  }
+  el.innerHTML = SETTINGS.providers.map((item, i) => {
+    const p = PROVIDERS[item.provider] || PROVIDERS.gemini;
+    return `
+      <div class="prov-item ${item.enabled ? "" : "disabled"}">
+        <div class="prov-left">
+          <div class="prov-rank">#${i + 1}</div>
+          <div>
+            <div class="prov-name">${escHtml(p.name)} <span class="prov-mask">${escHtml(maskKey(item.key))}</span></div>
+            <div class="prov-model">${escHtml(p.model)}</div>
+          </div>
+        </div>
+        <div class="prov-acts">
+          <button class="mini-btn" data-act="up" data-idx="${i}" type="button">${ICONS.chevUp}</button>
+          <button class="mini-btn" data-act="down" data-idx="${i}" type="button">${ICONS.chevDown}</button>
+          <button class="mini-btn ${item.enabled ? "on" : ""}" data-act="toggle" data-idx="${i}" type="button">${ICONS.check}</button>
+          <button class="mini-btn del" data-act="del" data-idx="${i}" type="button">${ICONS.close}</button>
+        </div>
+      </div>`;
+  }).join("");
+
+  el.querySelectorAll(".mini-btn").forEach(btn => {
+    btn.onclick = () => {
+      const idx = Number(btn.dataset.idx);
+      const act = btn.dataset.act;
+      if (act === "up" && idx > 0) {
+        [SETTINGS.providers[idx - 1], SETTINGS.providers[idx]] = [SETTINGS.providers[idx], SETTINGS.providers[idx - 1]];
+      } else if (act === "down" && idx < SETTINGS.providers.length - 1) {
+        [SETTINGS.providers[idx + 1], SETTINGS.providers[idx]] = [SETTINGS.providers[idx], SETTINGS.providers[idx + 1]];
+      } else if (act === "toggle") {
+        SETTINGS.providers[idx].enabled = !SETTINGS.providers[idx].enabled;
+      } else if (act === "del") {
+        SETTINGS.providers.splice(idx, 1);
+      }
+      saveSettings();
+      updateKeyDot();
+      renderProviderList();
+    };
+  });
+}
+
+function modeBadgeHtml(mode) {
+  if (mode === "auto") return `<span class="mode-badge auto">${escHtml(t("mode_auto"))}</span>`;
+  if (mode === "manual") return `<span class="mode-badge manual">${escHtml(t("mode_manual"))}</span>`;
+  return `<span class="mode-badge embedded">${escHtml(t("mode_embedded"))}</span>`;
+}
+
+function renderRulesMetaUI() {
+  const docsCount = RULES_META?.db?.docs || new Set(RULES.map(r => r.d)).size || 86;
+  const itemsCount = RULES.length || RULES_META?.db?.items || 0;
+  document.getElementById("foot-count").textContent = `${itemsCount.toLocaleString("uk-UA")} ${t("items_unit")}`;
+
+  const dbDate = formatDateTime(RULES_META?.db?.updated_at);
+  const dbBy = RULES_META?.db?.updated_by || "auto";
+  const local = RULES_META?.local || {};
+
+  const lastUpdStr = formatDateTime(local.updated_ts);
+  const lastAutoStr = formatDateTime(local.last_auto_ts);
+  const lastManualStr = formatDateTime(local.last_manual_ts);
+
+  document.getElementById("rules-info-val").textContent = `${docsCount} ${t("docs_unit")}` + (dbDate ? ` • ${dbDate}` : "");
+  document.getElementById("main-sync-text").textContent = lastUpdStr
+    ? `${docsCount} ${t("docs_unit")} • ${lastUpdStr} (${local.updated_mode === "manual" ? t("mode_manual") : t("mode_auto")})`
+    : `${docsCount} ${t("docs_unit")}` + (dbDate ? ` • ${dbDate}` : "");
+
+  document.getElementById("sync-last-val").innerHTML = lastUpdStr
+    ? `<span>${escHtml(lastUpdStr)}</span>${modeBadgeHtml(local.updated_mode)}`
+    : `${modeBadgeHtml("embedded")}`;
+
+  document.getElementById("sync-auto-val").innerHTML = lastAutoStr
+    ? `<span>${escHtml(lastAutoStr)}</span>${modeBadgeHtml("auto")}`
+    : `<span style="color:var(--muted);font-weight:400">${escHtml(t("never"))}</span>`;
+
+  document.getElementById("sync-manual-val").innerHTML = lastManualStr
+    ? `<span>${escHtml(lastManualStr)}</span>${modeBadgeHtml("manual")}`
+    : `<span style="color:var(--muted);font-weight:400">${escHtml(t("never"))}</span>`;
+
+  document.getElementById("sync-db-val").innerHTML = dbDate
+    ? `<span>${escHtml(dbDate)}</span>${modeBadgeHtml(dbBy)}`
+    : `<span style="color:var(--muted)">—</span>`;
+}
+
+async function loadRules() {
+  const res = await fetch("/rules_index.json?t=" + Date.now(), { cache: "no-store" });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const raw = await res.json();
+  RULES = raw.map(r => ({
+    ...r,
+    _docLow: (r.d || "").toLowerCase(),
+    _head: ((r.d || "") + " " + (r.s || "")).toLowerCase(),
+    _low: (r.t || "").toLowerCase(),
+    _full: ((r.d || "") + " " + (r.s || "") + " " + (r.t || "")).toLowerCase()
+  }));
+}
+
+async function loadRulesMeta() {
+  try {
+    const res = await fetch("/rules_meta.json?t=" + Date.now(), { cache: "no-store" });
+    if (res.ok) RULES_META = await res.json();
+  } catch {}
+  renderRulesMetaUI();
+}
+
+function compareSemver(a, b) {
+  const pa = String(a || "0").replace(/^v/i, "").split(".").map(Number);
+  const pb = String(b || "0").replace(/^v/i, "").split(".").map(Number);
+  for (let i = 0; i < 3; i++) {
+    const d = (pa[i] || 0) - (pb[i] || 0);
+    if (d !== 0) return d;
+  }
+  return 0;
+}
+
+async function checkUpdates(manual) {
+  if (manual) {
+    $updateStatus.className = "status-line";
+    $updateStatus.innerHTML = ICONS.refresh.replace("<svg", '<svg class="spinning"') + `<span>${escHtml(t("upd_checking"))}</span>`;
+  }
+  try {
+    const res = await fetch(`https://api.github.com/repos/${APP_INFO.repo}/releases/latest`, {
+      headers: { Accept: "application/vnd.github+json" }
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const rel = await res.json();
+    const latestTag = rel.tag_name || "";
+    const exeAsset = (rel.assets || []).find(a => a.name && a.name.toLowerCase().endsWith(".exe"));
+
+    if (compareSemver(latestTag, APP_INFO.version) > 0) {
+      latestReleaseInfo = {
+        tag: latestTag,
+        htmlUrl: rel.html_url || `${GITHUB_URL}/releases/latest`,
+        exeUrl: exeAsset ? exeAsset.browser_download_url : null
+      };
+      document.getElementById("update-bar-text").innerHTML = ICONS.arrowUp + `<span>${escHtml(t("upd_avail"))}: <b>${escHtml(latestTag)}</b></span>`;
+      document.getElementById("update-bar").classList.add("show");
+      if (manual) {
+        $updateStatus.className = "status-line";
+        $updateStatus.innerHTML = ICONS.arrowUp + `<span>${escHtml(t("upd_avail"))}: ${escHtml(latestTag)}</span>`;
+      }
+    } else if (manual) {
+      $updateStatus.className = "status-line";
+      $updateStatus.innerHTML = ICONS.check + `<span>${escHtml(t("upd_latest"))} (v${escHtml(APP_INFO.version)}).</span>`;
     }
-
-    const labelStr = readDocs.length
-      ? `${t("read_full")} ${readDocs.join(", ")}`
-      : `${t("checked_frags")} ${cards.length}`;
-    renderCards(cards, highlightTerms, labelStr);
-
-    $aiStatus.textContent = t("st_reading");
-
-    const { text, model } = await callGemini(
-      key,
-      {
-        system_instruction: { parts: [{ text: buildSystemPrompt() }] },
-        contents: [{ parts: [{ text: `Вопрос игрока: ${q}\n\nДокументы NG:\n${contextText}` }] }],
-        generationConfig: { temperature: 0.15 }
-      },
-      m => { $aiStatus.textContent = `${t("st_switch")} ${m}...`; }
-    );
-
-    lastAiRaw = text;
-    $aiStatus.textContent = `${t("st_done")} (${model})`;
-    $aiContent.innerHTML = renderMarkdownLite(text);
-    $aiBox.scrollIntoView({ behavior: "smooth", block: "start" });
-  } catch (err) {
-    lastAiRaw = err.message;
-    $aiStatus.textContent = t("st_err");
-    $aiContent.textContent = err.message;
-  } finally {
-    $askBtn.disabled = false;
+  } catch {
+    if (manual) {
+      $updateStatus.className = "status-line err";
+      $updateStatus.innerHTML = ICONS.warn + `<span>${escHtml(t("upd_err"))}</span>`;
+    }
   }
 }
 
-function openSettings(focusKey = false) {
-  $apiKeyInput.value = getApiKey();
-  applySettings(false);
-  $modalBg.classList.add("open");
-  if (focusKey) {
-    setTimeout(() => {
-      $apiKeySection.scrollIntoView({ behavior: "smooth", block: "center" });
-      $apiKeyInput.focus();
-    }, 50);
+function renderChangelogItems(entries) {
+  const el = document.getElementById("cl-list");
+  el.innerHTML = entries.map(e => `
+    <div class="cl-item">
+      <div class="cl-head">
+        <span class="cl-ver">${escHtml(e.tag)}</span>
+        <span class="cl-date">${escHtml(e.date)}</span>
+      </div>
+      <div class="cl-body">
+        ${Array.isArray(e.items)
+          ? `<ul>${e.items.map(x => `<li>${formatInlineMd(x)}</li>`).join("")}</ul>`
+          : `<div>${formatInlineMd(e.body || "")}</div>`}
+      </div>
+    </div>`).join("");
+}
+
+async function loadChangelog() {
+  renderChangelogItems(BUILTIN_CHANGELOG);
+  if (changelogLoaded) return;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${APP_INFO.repo}/releases?per_page=8`, {
+      headers: { Accept: "application/vnd.github+json" }
+    });
+    if (!res.ok) return;
+    const rels = await res.json();
+    if (!Array.isArray(rels) || !rels.length) return;
+    const mapped = rels.map(r => {
+      const bodyLines = (r.body || "").split(/\r?\n/).map(s => s.replace(/^[-*•]\s*/, "").trim()).filter(Boolean);
+      return {
+        tag: r.tag_name || r.name || "Release",
+        date: (r.published_at || "").slice(0, 10),
+        items: bodyLines.length ? bodyLines : null,
+        body: r.name || ""
+      };
+    });
+    const knownTags = new Set(mapped.map(x => x.tag));
+    const combined = [...BUILTIN_CHANGELOG.filter(b => !knownTags.has(b.tag)), ...mapped];
+    renderChangelogItems(combined);
+    changelogLoaded = true;
+  } catch {}
+}
+
+function setChangelogOpen(open) {
+  $modalStage.classList.toggle("cl-open", open);
+  if (open) loadChangelog();
+}
+
+function switchTab(id) {
+  setChangelogOpen(false);
+  document.querySelectorAll(".mtab").forEach(b => b.classList.toggle("active", b.dataset.tab === id));
+  document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id === "tab-" + id));
+}
+
+function keyEventToSpec(e) {
+  if (["Control", "Alt", "Shift", "Meta"].includes(e.key)) return null;
+  const parts = [];
+  if (e.ctrlKey) parts.push("Ctrl");
+  if (e.altKey) parts.push("Alt");
+  if (e.shiftKey) parts.push("Shift");
+  let keyName = "";
+  if (e.code.startsWith("Key")) keyName = e.code.slice(3);
+  else if (e.code.startsWith("Digit")) keyName = e.code.slice(5);
+  else if (/^F\d{1,2}$/.test(e.code)) keyName = e.code;
+  else if (e.code === "Space") keyName = "Space";
+  else if (e.code === "Backquote") keyName = "Backquote";
+  else if (["Tab", "Insert", "Delete", "Home", "End", "PageUp", "PageDown", "Minus", "Equal", "BracketLeft", "BracketRight", "Semicolon", "Quote", "Comma", "Period", "Slash", "Backslash"].includes(e.code)) keyName = e.code;
+  else if (/^Numpad\d$/.test(e.code)) keyName = e.code;
+  else return null;
+  parts.push(keyName);
+  return parts.join("+");
+}
+
+function sendHotkeysToBackend(toggleSpec, quitSpec) {
+  if (window.ipc && typeof window.ipc.postMessage === "function") {
+    postIpc(`set_hotkeys:${toggleSpec}|${quitSpec}`);
+  } else {
+    SETTINGS.toggleHotkey = toggleSpec;
+    SETTINGS.quitHotkey = quitSpec;
+    saveSettings();
+    updateHotkeyDisplays();
+    $hkStatus.className = "hk-status";
+    $hkStatus.textContent = t("hk_saved");
   }
 }
 
-function closeSettings() {
-  const newKey = $apiKeyInput.value.trim();
-  localStorage.setItem("ng_gemini_key", newKey);
-  updateKeyBadge();
-  saveSettings();
-  $modalBg.classList.remove("open");
-  if (newKey && $aiBox.classList.contains("warn-mode")) {
-    $aiBox.classList.remove("visible", "warn-mode");
+window.onHotkeysResult = (ok, toggleStr, quitStr, errMsg) => {
+  if (ok) {
+    SETTINGS.toggleHotkey = toggleStr;
+    SETTINGS.quitHotkey = quitStr;
+    saveSettings();
+    updateHotkeyDisplays();
+    $hkStatus.className = "hk-status";
+    $hkStatus.textContent = t("hk_saved");
+  } else {
+    updateHotkeyDisplays();
+    $hkStatus.className = "hk-status err";
+    $hkStatus.textContent = errMsg || "Помилка реєстрації клавіші.";
   }
-}
+};
+
+window.onUpdateError = msg => {
+  $updateStatus.className = "status-line err";
+  $updateStatus.innerHTML = ICONS.warn + `<span>${escHtml(msg)}</span>`;
+};
+
+window.onRulesSyncDone = async (updated, manual, errMsg) => {
+  const btnSvg = document.querySelector("#sync-rules-btn svg");
+  if (btnSvg) btnSvg.classList.remove("spinning");
+  if (updated) {
+    try { await loadRules(); } catch {}
+  }
+  await loadRulesMeta();
+  if (updated) renderSearch();
+
+  if (manual) {
+    if (errMsg) {
+      $updateStatus.className = "status-line err";
+      $updateStatus.innerHTML = ICONS.warn + `<span>${escHtml(errMsg)}</span>`;
+    } else if (updated) {
+      $updateStatus.className = "status-line";
+      $updateStatus.innerHTML = ICONS.check + `<span>${escHtml(t("sync_updated_manual"))} (${RULES.length} ${escHtml(t("items_unit"))}).</span>`;
+    } else {
+      $updateStatus.className = "status-line";
+      $updateStatus.innerHTML = ICONS.check + `<span>${escHtml(t("sync_same_manual"))}</span>`;
+    }
+  } else if (updated) {
+    $updateStatus.className = "status-line";
+    $updateStatus.innerHTML = ICONS.check + `<span>${escHtml(t("sync_updated_auto"))}.</span>`;
+  }
+};
 
 document.getElementById("drag-header").addEventListener("mousedown", e => {
-  if (e.button !== 0) return;
-  if (e.target.closest("button")) return;
-  ipcSend("drag");
+  if (e.button === 0 && !e.target.closest("button, a, input")) {
+    postIpc("drag");
+  }
 });
 
-$pinBtn.addEventListener("click", () => {
-  SETTINGS.aot = !SETTINGS.aot;
-  $pinBtn.classList.toggle("active", SETTINGS.aot);
+document.getElementById("pin-btn").onclick = () => {
+  SETTINGS.alwaysOnTop = !SETTINGS.alwaysOnTop;
   saveSettings();
-  ipcSend("aot:" + (SETTINGS.aot ? "true" : "false"));
+  applySettings(false);
+};
+
+document.getElementById("hide-btn").onclick = () => postIpc("hide");
+document.getElementById("settings-btn").onclick = () => {
+  setChangelogOpen(false);
+  loadRulesMeta();
+  $modalBg.classList.add("open");
+};
+document.getElementById("close-modal-x").onclick = () => $modalBg.classList.remove("open");
+document.getElementById("save-settings-btn").onclick = () => $modalBg.classList.remove("open");
+document.getElementById("app-version").onclick = () => {
+  $modalBg.classList.add("open");
+  switchTab("app");
+  setTimeout(() => setChangelogOpen(true), 30);
+};
+
+document.querySelectorAll(".mtab").forEach(btn => {
+  btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+});
+document.getElementById("open-cl-btn").onclick = () => setChangelogOpen(true);
+document.getElementById("cl-back-btn").onclick = () => setChangelogOpen(false);
+
+document.getElementById("footer-discord-btn").onclick = () => openExternal(DISCORD_URL);
+document.getElementById("modal-discord-btn").onclick = () => openExternal(DISCORD_URL);
+document.getElementById("open-github-btn").onclick = () => openExternal(GITHUB_URL);
+
+document.querySelectorAll(".qkey-btn").forEach(btn => {
+  btn.onclick = () => openExternal(btn.dataset.open);
 });
 
-$hideBtn.addEventListener("click", () => ipcSend("hide"));
-$settingsBtn.addEventListener("click", () => openSettings(false));
-document.getElementById("close-modal-x").addEventListener("click", closeSettings);
-document.getElementById("save-settings-btn").addEventListener("click", closeSettings);
-document.getElementById("uninstall-btn").addEventListener("click", () => ipcSend("uninstall"));
-$modalBg.addEventListener("click", e => {
-  if (e.target === $modalBg) closeSettings();
+document.getElementById("sync-rules-btn").onclick = function() {
+  const svg = this.querySelector("svg");
+  if (svg) svg.classList.add("spinning");
+  $updateStatus.className = "status-line";
+  $updateStatus.innerHTML = ICONS.refresh.replace("<svg", '<svg class="spinning"') + `<span>${escHtml(t("sync_checking"))}</span>`;
+  postIpc("sync_rules_manual");
+};
+
+document.getElementById("check-update-btn").onclick = () => checkUpdates(true);
+
+document.getElementById("update-notes-btn").onclick = () => {
+  openExternal(latestReleaseInfo?.htmlUrl || `${GITHUB_URL}/releases/latest`);
+};
+document.getElementById("update-now-btn").onclick = () => {
+  if (latestReleaseInfo?.exeUrl) {
+    postIpc("update:" + latestReleaseInfo.exeUrl);
+  } else {
+    openExternal(latestReleaseInfo?.htmlUrl || `${GITHUB_URL}/releases/latest`);
+  }
+};
+
+document.getElementById("uninstall-btn").onclick = function() {
+  if (!uninstallArmed) {
+    uninstallArmed = true;
+    this.classList.add("confirm");
+    this.innerHTML = ICONS.trash + `<span>${t("btn_uninstall_confirm")}</span>`;
+    setTimeout(() => {
+      uninstallArmed = false;
+      this.classList.remove("confirm");
+      this.innerHTML = ICONS.trash + `<span>${t("btn_uninstall")}</span>`;
+    }, 3500);
+    return;
+  }
+  postIpc("uninstall");
+};
+
+let searchTimer = null;
+$query.addEventListener("input", () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(renderSearch, 70);
 });
-document.getElementById("open-browser-btn").addEventListener("click", () => ipcSend("open_key_url"));
+$query.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !activeRecorder) {
+    e.preventDefault();
+    askAi();
+  }
+});
+$clearBtn.onclick = () => {
+  $query.value = "";
+  $aiBox.classList.remove("visible");
+  renderSearch();
+  $query.focus();
+};
+$askAiBtn.onclick = askAi;
+$copyAiBtn.onclick = () => copyToClipboard(lastAiRaw || $aiContent.textContent || "", $copyAiBtn, true);
 
-document.getElementById("open-github-btn").addEventListener("click", () => {
-  ipcSend(`open_url:https://github.com/${APP_INFO.repo}`);
+document.querySelectorAll("#filters .chip").forEach(chip => {
+  chip.onclick = () => {
+    document.querySelectorAll("#filters .chip").forEach(x => x.classList.remove("active"));
+    chip.classList.add("active");
+    curCat = chip.dataset.cat;
+    renderSearch();
+  };
 });
 
-$copyDiscordBtn.addEventListener("click", () => {
-  navigator.clipboard.writeText("@Frezze98");
-  $copyDiscordBtn.textContent = t("discord_copied");
-  setTimeout(() => ($copyDiscordBtn.textContent = t("btn_discord")), 1500);
-});
-
-document.getElementById("check-update-btn").addEventListener("click", () => checkUpdates(true));
-
-$updateNotesBtn.addEventListener("click", () => {
-  const target = LATEST_RELEASE?.htmlUrl || `https://github.com/${APP_INFO.repo}/releases`;
-  ipcSend(`open_url:${target}`);
-});
-
-$updateNowBtn.addEventListener("click", () => {
-  if (!LATEST_RELEASE?.exeUrl) return;
-  $updateNowBtn.disabled = true;
-  $updateNowBtn.textContent = t("upd_downloading");
-  ipcSend(`update:${LATEST_RELEASE.exeUrl}`);
-});
-
-document.getElementById("swatches").addEventListener("click", e => {
-  const sw = e.target.closest(".swatch");
-  if (!sw) return;
-  SETTINGS.accent = sw.dataset.color;
-  applyAccent(SETTINGS.accent);
-  saveSettings();
-});
-
-$customColor.addEventListener("input", e => {
-  SETTINGS.accent = e.target.value;
-  applyAccent(SETTINGS.accent);
-  saveSettings();
-});
-
-document.querySelectorAll(".seg-row").forEach(row => {
-  row.addEventListener("click", e => {
-    const btn = e.target.closest(".seg-btn");
-    if (!btn) return;
-    const key = row.dataset.setting;
-    SETTINGS[key] = btn.dataset.val;
+document.querySelectorAll("#swatches .swatch").forEach(s => {
+  s.onclick = () => {
+    SETTINGS.accent = s.dataset.color;
     saveSettings();
-    applySettings(key === "winSize");
+    applySettings(false);
+  };
+});
+document.getElementById("custom-color").addEventListener("input", e => {
+  SETTINGS.accent = e.target.value;
+  saveSettings();
+  applySettings(false);
+});
+
+document.querySelectorAll("[data-setting]").forEach(group => {
+  const key = group.getAttribute("data-setting");
+  group.querySelectorAll("button[data-val]").forEach(btn => {
+    btn.onclick = () => {
+      SETTINGS[key] = btn.getAttribute("data-val");
+      saveSettings();
+      applySettings(false);
+    };
   });
 });
 
-$query.addEventListener("input", renderSearch);
-$query.addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    askAI();
+function startHkRecord(which, el) {
+  if (activeRecorder) {
+    activeRecorder.el.classList.remove("recording");
+    updateHotkeyDisplays();
   }
-});
-$askBtn.addEventListener("click", askAI);
+  activeRecorder = { which, el };
+  el.classList.add("recording");
+  el.textContent = t("hk_press");
+  $hkStatus.textContent = "";
+}
+document.getElementById("hk-toggle-rec").onclick = function() { startHkRecord("toggle", this); };
+document.getElementById("hk-quit-rec").onclick = function() { startHkRecord("quit", this); };
+document.getElementById("hk-toggle-reset").onclick = () => {
+  activeRecorder = null;
+  document.getElementById("hk-toggle-rec").classList.remove("recording");
+  sendHotkeysToBackend("Alt+Q", SETTINGS.quitHotkey);
+};
+document.getElementById("hk-quit-reset").onclick = () => {
+  activeRecorder = null;
+  document.getElementById("hk-quit-rec").classList.remove("recording");
+  sendHotkeysToBackend(SETTINGS.toggleHotkey, "Alt+Shift+Q");
+};
 
-document.getElementById("filters").addEventListener("click", e => {
-  const btn = e.target.closest(".chip");
-  if (!btn) return;
-  document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-  btn.classList.add("active");
-  activeCat = btn.dataset.cat;
-  renderSearch();
-});
-
-$results.addEventListener("click", e => {
-  const copyBtn = e.target.closest(".copy-btn");
-  if (copyBtn) {
-    e.stopPropagation();
-    navigator.clipboard.writeText(copyBtn.dataset.copy || "");
-    const orig = copyBtn.textContent;
-    copyBtn.textContent = t("copied");
-    setTimeout(() => (copyBtn.textContent = orig), 1200);
-    return;
-  }
-  const faq = e.target.closest(".faq-card");
-  if (faq) {
-    const list = TOP_FAQ[SETTINGS.uiLang] || TOP_FAQ.uk;
-    const item = list[Number(faq.dataset.faq)];
-    if (item) {
-      $query.value = item.q;
-      renderSearch();
+window.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    if (activeRecorder) {
+      activeRecorder.el.classList.remove("recording");
+      activeRecorder = null;
+      updateHotkeyDisplays();
+      return;
+    }
+    if ($modalStage.classList.contains("cl-open")) {
+      setChangelogOpen(false);
+      return;
+    }
+    if ($modalBg.classList.contains("open")) {
+      $modalBg.classList.remove("open");
+      return;
     }
   }
+  if (!activeRecorder) return;
+  e.preventDefault();
+  const spec = keyEventToSpec(e);
+  if (!spec) return;
+  const { which, el } = activeRecorder;
+  activeRecorder = null;
+  el.classList.remove("recording");
+  if (which === "toggle") sendHotkeysToBackend(spec, SETTINGS.quitHotkey);
+  else sendHotkeysToBackend(SETTINGS.toggleHotkey, spec);
 });
 
-$copyAiBtn.addEventListener("click", e => {
-  navigator.clipboard.writeText(lastAiRaw || $aiContent.textContent || "");
-  e.target.textContent = t("copied");
-  setTimeout(() => (e.target.textContent = t("copy")), 1200);
-});
+const $newKeyInput = document.getElementById("new-key-input");
+const $detectBadge = document.getElementById("detect-badge");
+const $provOverride = document.getElementById("provider-override");
+
+function updateKeyDetectBadge() {
+  const raw = $newKeyInput.value.trim();
+  const prov = $provOverride.value === "auto" ? detectProviderByKey(raw) : $provOverride.value;
+  if (!raw) {
+    $detectBadge.className = "detect-badge";
+    $detectBadge.textContent = t("ai_wait_key");
+  } else if (prov && PROVIDERS[prov]) {
+    $detectBadge.className = "detect-badge ok";
+    $detectBadge.textContent = `${t("ai_detected")}: ${PROVIDERS[prov].name}`;
+  } else {
+    $detectBadge.className = "detect-badge";
+    $detectBadge.textContent = t("ai_unknown");
+  }
+}
+$newKeyInput.addEventListener("input", updateKeyDetectBadge);
+$provOverride.addEventListener("change", updateKeyDetectBadge);
+
+document.getElementById("add-key-btn").onclick = () => {
+  const raw = $newKeyInput.value.trim();
+  const prov = $provOverride.value === "auto" ? detectProviderByKey(raw) : $provOverride.value;
+  if (!raw || !prov || !PROVIDERS[prov]) return;
+  SETTINGS.providers.push({ provider: prov, key: raw, enabled: true });
+  saveSettings();
+  $newKeyInput.value = "";
+  $provOverride.value = "auto";
+  updateKeyDetectBadge();
+  updateKeyDot();
+  renderProviderList();
+};
 
 (async function init() {
-  updateKeyBadge();
+  injectIcons();
   applySettings(true);
 
   try {
-    const infoRes = await fetch("/app_info.json");
+    const infoRes = await fetch("/app_info.json?t=" + Date.now(), { cache: "no-store" });
     if (infoRes.ok) {
       APP_INFO = await infoRes.json();
       const vLabel = `v${APP_INFO.version}`;
-      $appVersion.textContent = vLabel;
-      $modalVersion.textContent = vLabel;
+      document.getElementById("app-version").textContent = vLabel;
+      document.getElementById("modal-version").textContent = vLabel;
+      if (APP_INFO.toggleHotkey) SETTINGS.toggleHotkey = APP_INFO.toggleHotkey;
+      if (APP_INFO.quitHotkey) SETTINGS.quitHotkey = APP_INFO.quitHotkey;
+      updateHotkeyDisplays();
     }
   } catch {}
 
   try {
-    const res = await fetch("/rules_index.json");
-    const raw = await res.json();
-    RULES = raw.map(r => ({
-      ...r,
-      _head: (r.d + " " + r.s).toLowerCase(),
-      _low: r.t.toLowerCase(),
-      _full: (r.d + " " + r.s + " " + r.t).toLowerCase()
-    }));
-
-    const seen = new Map();
-    for (const r of RULES) {
-      if (!seen.has(r.d)) {
-        seen.set(r.d, { id: seen.size, d: r.d, c: r.c });
-      }
-    }
-    DOC_CATALOG = Array.from(seen.values());
+    await loadRules();
   } catch (e) {
-    $label.textContent = "Помилка завантаження бази правил: " + e.message;
+    $results.innerHTML = `<div class="empty-state">Помилка завантаження бази правил: ${escHtml(e.message)}</div>`;
   }
 
+  await loadRulesMeta();
+  renderSearch();
   checkUpdates(false);
   $query.focus();
 })();
