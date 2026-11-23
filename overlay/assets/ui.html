@@ -293,6 +293,18 @@
     font-weight: 600;
   }
   .chip.faction { font-size: 11px; padding: 3px 8.5px; }
+  .chip.faq-chip {
+    border-color: rgba(255, 184, 77, 0.35);
+    color: var(--warn);
+    background: rgba(255, 184, 77, 0.08);
+  }
+  .chip.faq-chip:hover { background: rgba(255, 184, 77, 0.16); color: #ffd48a; }
+  .chip.faq-chip.active {
+    background: rgba(255, 184, 77, 0.22);
+    border-color: var(--warn);
+    color: #ffe3b0;
+    font-weight: 700;
+  }
 
   main {
     flex: 1;
@@ -416,6 +428,102 @@
     border-radius: var(--radius);
   }
 
+  .doc-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.18s;
+  }
+  .doc-card.open { border-color: rgba(var(--accent-rgb), 0.42); }
+  .doc-head {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text);
+    padding: 11px 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.16s;
+  }
+  .doc-head:hover { background: rgba(var(--accent-rgb), 0.05); }
+  .doc-head-left { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .doc-bar {
+    width: 3px;
+    height: 22px;
+    border-radius: 3px;
+    background: var(--accent);
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+  .doc-card.open .doc-bar { opacity: 1; box-shadow: 0 0 8px var(--accent); }
+  .doc-title {
+    font-size: calc(var(--font-size) + 0.2px);
+    font-weight: 650;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .doc-head-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .doc-count {
+    font-size: 10.6px;
+    color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.11);
+    padding: 2px 7px;
+    border-radius: 99px;
+    font-weight: 600;
+  }
+  .doc-chev { color: var(--muted); display: flex; transition: transform 0.2s; }
+  .doc-card.open .doc-chev { transform: rotate(180deg); color: var(--accent); }
+
+  .doc-sections {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 11px 11px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .doc-card.open .doc-sections { display: flex; padding-top: 10px; }
+  .doc-sec {
+    background: rgba(0, 0, 0, 0.26);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 9px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .doc-sec-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .doc-sec-title { font-size: 12.2px; font-weight: 700; color: var(--accent); line-height: 1.35; }
+  .doc-sec-body {
+    font-size: calc(var(--font-size) - 0.6px);
+    color: var(--text-soft);
+    line-height: 1.54;
+    white-space: pre-line;
+    word-break: break-word;
+  }
+  .rule-num { color: var(--text); font-weight: 700; }
+  .punish-hl { color: var(--warn); font-weight: 600; }
+
+  .faq-tail-head {
+    margin-top: 10px;
+    padding: 10px 2px 2px;
+    border-top: 1px dashed rgba(255, 184, 77, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    color: var(--warn);
+  }
+  .faq-tail-head-left { display: inline-flex; align-items: center; gap: 6px; }
+
   .ai-card {
     display: none;
     background: linear-gradient(165deg, rgba(var(--accent-rgb), 0.095), rgba(11, 18, 20, 0.94) 32%);
@@ -463,6 +571,16 @@
     line-height: 1.52;
     color: #d7e3df;
   }
+  .ai-fallback-note {
+    font-size: 10.8px;
+    color: var(--muted);
+    background: rgba(255, 184, 77, 0.07);
+    border: 1px solid rgba(255, 184, 77, 0.22);
+    border-radius: 9px;
+    padding: 6px 9px;
+    line-height: 1.45;
+  }
+  .ai-fallback-note b { color: var(--warn); }
   .route-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .route-card {
     border-radius: 11px;
@@ -910,19 +1028,24 @@
   }
   .qkey-btn:hover { color: var(--accent); border-color: rgba(var(--accent-rgb), 0.45); }
 
-  .provider-list { display: flex; flex-direction: column; gap: 6px; }
+  .provider-list { display: flex; flex-direction: column; gap: 7px; }
   .prov-item {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 11px;
-    padding: 8px 10px;
+    border-radius: 12px;
+    padding: 9px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .prov-item.disabled { opacity: 0.48; }
+  .prov-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
   }
-  .prov-item.disabled { opacity: 0.46; }
-  .prov-left { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .prov-left { display: flex; align-items: center; gap: 9px; min-width: 0; flex: 1; }
   .prov-rank {
     width: 22px;
     height: 22px;
@@ -937,7 +1060,44 @@
   }
   .prov-name { font-size: 12.5px; font-weight: 650; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .prov-mask { font-size: 10.8px; color: var(--muted); font-weight: 400; font-family: ui-monospace, Consolas, monospace; }
+  .prov-sub { display: flex; align-items: center; gap: 6px; margin-top: 3px; flex-wrap: wrap; }
   .prov-model { font-size: 10.8px; color: var(--muted); font-family: ui-monospace, Consolas, monospace; }
+  .prov-models-btn {
+    background: rgba(var(--accent-rgb), 0.08);
+    border: 1px solid rgba(var(--accent-rgb), 0.28);
+    color: var(--accent);
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-size: 10.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: 0.15s;
+  }
+  .prov-models-btn:hover, .prov-models-btn.open {
+    background: rgba(var(--accent-rgb), 0.18);
+    border-color: rgba(var(--accent-rgb), 0.55);
+  }
+  .prov-inline-sel {
+    background: #10191c;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 2px 5px;
+    font-size: 11px;
+    outline: none;
+    cursor: pointer;
+  }
+  .prov-test-msg {
+    font-size: 10.6px;
+    margin-top: 3px;
+    color: var(--muted);
+    word-break: break-word;
+  }
+  .prov-test-msg.ok { color: var(--accent); }
+  .prov-test-msg.err { color: var(--danger); }
   .prov-acts { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
   .mini-btn {
     width: 25px;
@@ -953,7 +1113,101 @@
   }
   .mini-btn:hover { color: var(--text); border-color: rgba(255, 255, 255, 0.22); }
   .mini-btn.on { color: var(--accent); border-color: rgba(var(--accent-rgb), 0.35); }
+  .mini-btn.test:hover { color: var(--cyan); border-color: rgba(76, 216, 255, 0.45); }
   .mini-btn.del:hover { color: var(--danger); border-color: rgba(255, 107, 129, 0.5); }
+
+  .prov-models-drawer {
+    background: rgba(0, 0, 0, 0.34);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .m-toolbar {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .m-input {
+    flex: 1;
+    min-width: 0;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 5px 8px;
+    color: var(--text);
+    font-size: 11.2px;
+    font-family: ui-monospace, Consolas, monospace;
+    outline: none;
+  }
+  .m-input:focus { border-color: var(--accent); }
+  .m-btn {
+    height: 26px;
+    padding: 0 8px;
+    border-radius: 7px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    transition: 0.15s;
+  }
+  .m-btn:hover { border-color: rgba(var(--accent-rgb), 0.5); color: var(--accent); }
+  .m-btn.sync { color: var(--cyan); border-color: rgba(76, 216, 255, 0.32); }
+  .m-btn.sync:hover { background: rgba(76, 216, 255, 0.12); border-color: var(--cyan); }
+  .m-list { display: flex; flex-direction: column; gap: 4px; max-height: 185px; overflow-y: auto; }
+  .m-list::-webkit-scrollbar { width: 4px; }
+  .m-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 99px; }
+  .m-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .m-row.disabled { opacity: 0.42; }
+  .m-row-left { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; }
+  .m-rank {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 16px;
+    text-align: center;
+    font-family: ui-monospace, Consolas, monospace;
+  }
+  .m-id {
+    font-size: 11.2px;
+    color: var(--text-soft);
+    font-family: ui-monospace, Consolas, monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .m-acts { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
+  .m-mini {
+    width: 21px;
+    height: 21px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+  }
+  .m-mini:hover { color: var(--text); border-color: rgba(255, 255, 255, 0.22); }
+  .m-mini.on { color: var(--accent); border-color: rgba(var(--accent-rgb), 0.38); }
+  .m-mini.del:hover { color: var(--danger); border-color: rgba(255, 107, 129, 0.5); }
 
   .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .info-tile {
@@ -1079,6 +1333,12 @@
     font-weight: 700;
     cursor: pointer;
   }
+   .inline-link {
+    color: var(--cyan);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .inline-link:hover { color: var(--accent); }
 
   @keyframes spin { to { transform: rotate(360deg); } }
   .spinning { animation: spin 0.9s linear infinite; }
@@ -1126,7 +1386,8 @@
     </div>
     <div class="chips-wrap" id="filters">
       <div class="chips-row">
-        <button class="chip active" data-cat="all" data-i18n="cat_all" type="button">Усі</button>
+        <button class="chip faq-chip active" data-cat="faq" data-i18n="cat_faq" type="button">Топ питань</button>
+        <button class="chip" data-cat="all" data-i18n="cat_all" type="button">Усі</button>
         <button class="chip" data-cat="rules" data-i18n="cat_rules" type="button">Правила</button>
         <button class="chip" data-cat="laws" data-i18n="cat_laws" type="button">Закони</button>
         <button class="chip" data-cat="codes" data-i18n="cat_codes" type="button">Кодекси</button>
@@ -1271,7 +1532,7 @@
               <div class="s-hint" data-i18n="ai_add_hint">Підтримуються ключі Gemini, Groq, OpenRouter, OpenAI, Claude, DeepSeek та xAI. Офлайн-пошук працює без ключа.</div>
               <div class="add-key-box">
                 <div class="key-input-row">
-                  <input class="key-input" id="new-key-input" type="password" placeholder="AIza... / gsk_... / sk-or-... / sk-ant-... / sk-..." />
+                  <input class="key-input" id="new-key-input" type="password" placeholder="AQ... / AIza... / gsk_... / sk-or-... / sk-ant-... / sk-..." />
                   <button class="btn-add" id="add-key-btn" type="button"></button>
                 </div>
                 <div class="detect-bar">
@@ -1279,9 +1540,9 @@
                   <select class="provider-select" id="provider-override">
                     <option value="auto">Автовизначення</option>
                     <option value="gemini">Google Gemini</option>
-                    <option value="groq">Groq (Llama 3.3)</option>
+                    <option value="groq">Groq</option>
                     <option value="openrouter">OpenRouter</option>
-                    <option value="openai">OpenAI (GPT-4o-mini)</option>
+                    <option value="openai">OpenAI</option>
                     <option value="anthropic">Anthropic Claude</option>
                     <option value="deepseek">DeepSeek</option>
                     <option value="xai">xAI Grok</option>
@@ -1300,7 +1561,7 @@
                 <span data-i18n="ai_priority">Пріоритет моделей</span>
                 <span style="font-size:11px;color:var(--accent);font-weight:500;" data-i18n="ai_fallback">Авто-резерв</span>
               </div>
-              <div class="s-hint" data-i18n="ai_priority_hint">Якщо #1 не відповість або перевищить ліміт — запит автоматично перейде до наступного.</div>
+              <div class="s-hint" data-i18n="ai_priority_hint">Натисни «Моделі» всередині картки, щоб налаштувати ієрархію моделей (наприклад 3.1 Pro → 3.8 Flash → 2.5 Flash) або завантажити їх з API.</div>
               <div class="provider-list" id="provider-list"></div>
             </div>
 
@@ -1413,202 +1674,28 @@ const ICONS = {
   eye: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
   rotate: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>`,
   plus: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
-  chevUp: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`,
-  chevDown: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`,
+  chevUp: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`,
+  chevDown: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`,
   cpu: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/></svg>`,
   box: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
   clock: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
   db: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`
 };
 
-const I18N = {
-  uk: {
-    settings: "Налаштування",
-    settings_title: "Налаштування NG Helper",
-    tab_look: "Вигляд і Хоткеї",
-    tab_ai: "ШІ та Ключі",
-    tab_app: "Програма",
-    search_ph: "Пошук по 86 документах або питання для ШІ...",
-    ai_btn: "ШІ",
-    cat_all: "Усі",
-    cat_rules: "Правила",
-    cat_laws: "Закони",
-    cat_codes: "Кодекси",
-    cat_state: "Держ",
-    cat_crime: "Крайм",
-    factions: "Фракції",
-    top_faq: "Топ частих питань NG",
-    search_results: "Знайдено в базі",
-    nothing_found: "Нічого не знайдено. Натисни кнопку ШІ або Enter для розбору ситуації.",
-    copy: "Копіювати",
-    copied: "Скопійовано",
-    punish_prefix: "Покарання",
-    ai_title: "Відповідь ШІ",
-    ai_thinking: "Аналізую правила NG...",
-    ai_need_key: "Додай хоча б один API-ключ у вкладці «ШІ та Ключі».",
-    ai_all_failed: "Жодна з підключених моделей не відповіла",
-    forum_title: "Форум (Адміни / OOC)",
-    ic_org_title: "ДБР / Суд (IC)",
-    badge_yes: "МОЖНА",
-    badge_no: "НІ",
-    set_hotkeys: "Гарячі клавіші",
-    set_hotkeys_hint: "Натисни на поле та затисни потрібну клавішу або комбінацію.",
-    hk_toggle: "Сховати / показати",
-    hk_quit: "Закрити програму",
-    hk_press: "Натисніть...",
-    hk_saved: "Гарячі клавіші збережено.",
-    set_color: "Акцентний колір",
-    set_custom_color: "Свій",
-    set_theme: "Фон вікна",
-    theme_dark: "Темний NG",
-    theme_oled: "OLED Чорний",
-    theme_graphite: "Графіт",
-    set_ui_lang: "Мова інтерфейсу",
-    set_size: "Розмір вікна та шрифту",
-    size_sm: "Компакт",
-    size_md: "Стандарт",
-    size_lg: "Широкий",
-    ai_add_title: "Додати API-ключ нейромережі",
-    ai_autodetect: "Автовизначення",
-    ai_add_hint: "Підтримуються ключі Gemini, Groq, OpenRouter, OpenAI, Claude, DeepSeek та xAI. Офлайн-пошук працює без ключа.",
-    ai_wait_key: "Очікування ключа...",
-    ai_detected: "Визначено",
-    ai_unknown: "Оберіть провайдера справа",
-    ai_add_btn: "Додати",
-    ai_priority: "Пріоритет моделей",
-    ai_fallback: "Авто-резерв",
-    ai_priority_hint: "Якщо #1 не відповість або перевищить ліміт — запит автоматично перейде до наступного.",
-    ai_empty: "Ключі ще не додано. Встав ключ вище.",
-    set_ai_lang: "Мова відповідей ШІ",
-    lang_auto: "Авто",
-    set_style: "Стиль відповідей ШІ",
-    style_open: "Детальний",
-    style_short: "Короткий",
-    app_ver_lbl: "Версія програми",
-    db_ver_lbl: "База правил NG",
-    sync_last_lbl: "Остання зміна бази",
-    sync_auto_lbl: "Автоперевірка (при старті)",
-    sync_manual_lbl: "Оновлення вручну",
-    sync_db_lbl: "Редакція на GitHub",
-    mode_auto: "Авто",
-    mode_manual: "Вручну",
-    mode_embedded: "Вбудована",
-    never: "ще не виконувалось",
-    btn_sync_rules: "Оновити базу правил",
-    btn_check_upd: "Перевірити оновлення",
-    btn_changelog: "Історія змін",
-    btn_github: "Код на GitHub",
-    btn_discord: "Зв'язок у Discord: @Frezze98",
-    btn_back: "Назад",
-    btn_uninstall: "Видалити повністю",
-    btn_uninstall_confirm: "Натисни ще раз для видалення",
-    btn_done: "Готово",
-    upd_now: "Оновити",
-    upd_avail: "Доступна нова версія",
-    upd_latest: "Встановлено останню версію",
-    upd_checking: "Перевірка GitHub Releases...",
-    upd_err: "Не вдалося перевірити оновлення.",
-    sync_checking: "Синхронізація бази правил з GitHub...",
-    sync_updated_manual: "Базу правил оновлено вручну",
-    sync_updated_auto: "Базу правил оновлено автоматично",
-    sync_same_manual: "База правил вже актуальна (перевірено вручну).",
-    items_unit: "пунктів",
-    docs_unit: "док."
-  },
-  ru: {
-    settings: "Настройки",
-    settings_title: "Настройки NG Helper",
-    tab_look: "Вид и Хоткеи",
-    tab_ai: "ИИ и Ключи",
-    tab_app: "Программа",
-    search_ph: "Поиск по 86 документам или вопрос для ИИ...",
-    ai_btn: "ИИ",
-    cat_all: "Все",
-    cat_rules: "Правила",
-    cat_laws: "Законы",
-    cat_codes: "Кодексы",
-    cat_state: "Гос",
-    cat_crime: "Крайм",
-    factions: "Фракции",
-    top_faq: "Топ частых вопросов NG",
-    search_results: "Найдено в базе",
-    nothing_found: "Ничего не найдено. Нажми кнопку ИИ или Enter для разбора ситуации.",
-    copy: "Копировать",
-    copied: "Скопировано",
-    punish_prefix: "Наказание",
-    ai_title: "Ответ ИИ",
-    ai_thinking: "Анализирую правила NG...",
-    ai_need_key: "Добавь хотя бы один API-ключ во вкладке «ИИ и Ключи».",
-    ai_all_failed: "Ни одна из подключённых моделей не ответила",
-    forum_title: "Форум (Админы / OOC)",
-    ic_org_title: "ДБР / Суд (IC)",
-    badge_yes: "МОЖНО",
-    badge_no: "НЕТ",
-    set_hotkeys: "Горячие клавиши",
-    set_hotkeys_hint: "Нажми на поле и зажми нужную клавишу или комбинацию.",
-    hk_toggle: "Скрыть / показать",
-    hk_quit: "Закрыть программу",
-    hk_press: "Нажмите...",
-    hk_saved: "Горячие клавиши сохранены.",
-    set_color: "Акцентный цвет",
-    set_custom_color: "Свой",
-    set_theme: "Фон окна",
-    theme_dark: "Тёмный NG",
-    theme_oled: "OLED Чёрный",
-    theme_graphite: "Графит",
-    set_ui_lang: "Язык интерфейса",
-    set_size: "Размер окна и шрифта",
-    size_sm: "Компакт",
-    size_md: "Стандарт",
-    size_lg: "Широкий",
-    ai_add_title: "Добавить API-ключ нейросети",
-    ai_autodetect: "Автоопределение",
-    ai_add_hint: "Поддерживаются ключи Gemini, Groq, OpenRouter, OpenAI, Claude, DeepSeek и xAI. Офлайн-поиск работает без ключа.",
-    ai_wait_key: "Ожидание ключа...",
-    ai_detected: "Определено",
-    ai_unknown: "Выберите провайдера справа",
-    ai_add_btn: "Добавить",
-    ai_priority: "Приоритет моделей",
-    ai_fallback: "Авто-резерв",
-    ai_priority_hint: "Если #1 не ответит или превысит лимит — запрос автоматически перейдёт к следующему.",
-    ai_empty: "Ключи ещё не добавлены. Вставь ключ выше.",
-    set_ai_lang: "Язык ответов ИИ",
-    lang_auto: "Авто",
-    set_style: "Стиль ответов ИИ",
-    style_open: "Подробный",
-    style_short: "Короткий",
-    app_ver_lbl: "Версия программы",
-    db_ver_lbl: "База правил NG",
-    sync_last_lbl: "Последнее изменение базы",
-    sync_auto_lbl: "Автопроверка (при старте)",
-    sync_manual_lbl: "Обновление вручную",
-    sync_db_lbl: "Редакция на GitHub",
-    mode_auto: "Авто",
-    mode_manual: "Вручную",
-    mode_embedded: "Встроенная",
-    never: "ещё не выполнялось",
-    btn_sync_rules: "Обновить базу правил",
-    btn_check_upd: "Проверить обновления",
-    btn_changelog: "История изменений",
-    btn_github: "Код на GitHub",
-    btn_discord: "Связь в Discord: @Frezze98",
-    btn_back: "Назад",
-    btn_uninstall: "Удалить полностью",
-    btn_uninstall_confirm: "Нажми ещё раз для удаления",
-    btn_done: "Готово",
-    upd_now: "Обновить",
-    upd_avail: "Доступна новая версия",
-    upd_latest: "Установлена последняя версия",
-    upd_checking: "Проверка GitHub Releases...",
-    upd_err: "Не удалось проверить обновления.",
-    sync_checking: "Синхронизация базы правил с GitHub...",
-    sync_updated_manual: "База правил обновлена вручную",
-    sync_updated_auto: "База правил обновлена автоматически",
-    sync_same_manual: "База правил уже актуальна (проверено вручную).",
-    items_unit: "пунктов",
-    docs_unit: "док."
-  }
+const LOCALE_FILES = {
+  uk: "/locales/ua_ua.json",
+  ru: "/locales/ru_ru.json"
 };
+const I18N = {};
+
+async function loadLocale(lang) {
+  const code = LOCALE_FILES[lang] ? lang : "uk";
+  if (I18N[code]) return;
+  try {
+    const res = await fetch(LOCALE_FILES[code]);
+    if (res.ok) I18N[code] = await res.json();
+  } catch {}
+}
 
 const FAQ_ITEMS = [
   {
@@ -1662,45 +1749,181 @@ const FAQ_ITEMS = [
   }
 ];
 
-const SYNONYMS = {
-  "дм": ["dm", "deathmatch", "вбивство", "убивство", "шкода"],
-  "дб": ["db", "наїзд", "транспорт", "збив"],
-  "пг": ["pg", "powergaming", "страх", "опір", "1в2"],
-  "мг": ["mg", "metagaming", "діскорд", "discord", "стрім"],
-  "рк": ["rk", "revenge", "повернення", "помста", "15 хвилин"],
-  "тк": ["tk", "teamkill", "союзник", "напарник"],
-  "ск": ["sk", "spawn", "відродження"],
-  "зз": ["gz", "green", "зелена", "зона", "риболовля", "далекобійник"],
-  "нрд": ["nrd", "нереалістичн", "пробит", "колес"],
-  "відкат": ["відеозапис", "відеофіксац", "фрапс", "72", "48"],
-  "багажник": ["обшук", "ордер", "транспортн", "3.2.1", "19"],
-  "міранда": ["міранди", "затриман", "адвокат", "права"],
-  "угонка": ["угон", "засідк", "150", "кемп"],
-  "гетто": ["патруль", "грабіж", "3.5"],
-  "фз": ["нгу", "напад", "форт"],
-  "поставка": ["перекритт", "колона", "поставок"],
-  "взх": ["хамер"],
-  "форум": ["скарг", "адмін", "ooc", "оос"],
-  "дбр": ["прокуратур", "суд", "статут", "ic"]
-};
+const STOP_WORDS = new Set([
+  "а", "и", "і", "й", "та", "в", "у", "на", "по", "до", "от", "від", "из", "із", "з", "за", "під", "под",
+  "над", "про", "при", "для", "без", "біля", "возле", "около", "рядом", "через", "після", "после", "потом", "потім",
+  "ли", "чи", "не", "ні", "нет", "да", "так", "же", "ж", "бы", "би", "как", "як", "что", "що", "где", "де",
+  "кто", "хто", "когда", "коли", "если", "якщо", "или", "або", "но", "але", "то", "це", "это", "вот", "тут", "там",
+  "может", "може", "можно", "можна", "могут", "можуть", "имеет", "має", "право", "нужно", "потрібно", "надо", "треба",
+  "меня", "мене", "мне", "мені", "мой", "мій", "мою", "моего", "я", "ти", "ты", "он", "він", "она", "вона",
+  "они", "вони", "его", "його", "их", "їх", "нас", "вас", "им", "їм", "будет", "буде", "был", "був", "было", "було",
+  "какое", "яке", "какой", "який", "сколько", "скільки", "почему", "чому", "зачем", "навіщо", "просто", "вообще"
+]);
+
+const STEM_SYNONYMS = [
+  ["мент",      ["нпу", "сбу", "поліц", "держ", "співробітник", "силов"]],
+  ["коп",       ["нпу", "поліц", "держ", "співробітник"]],
+  ["мусор",     ["нпу", "поліц", "держ", "співробітник"]],
+  ["полиц",     ["нпу", "поліц", "держ", "співробітник"]],
+  ["госник",    ["держ", "нпу", "сбу", "нгу", "дбр", "співробітник"]],
+  ["гос",       ["держ", "державн"]],
+  ["силов",     ["силов", "держ", "нпу", "сбу"]],
+  ["караул",    ["засідк", "чергув", "кемп", "очікув", "150", "1.29"]],
+  ["поджид",    ["засідк", "чергув", "кемп", "150", "1.29"]],
+  ["засад",     ["засідк", "чергув", "кемп", "150", "1.29"]],
+  ["засід",     ["засідк", "чергув", "кемп", "150", "1.29"]],
+  ["кемп",      ["засідк", "чергув", "кемп", "150", "1.29"]],
+  ["дежур",     ["чергув", "засідк", "150", "1.29"]],
+  ["ждать",     ["засідк", "чергув", "очікув", "150"]],
+  ["ждет",      ["засідк", "чергув", "очікув", "150"]],
+  ["ждёт",      ["засідк", "чергув", "очікув", "150"]],
+  ["угон",      ["угон", "викраден", "злам", "засідк", "150", "1.29"]],
+  ["взлом",     ["злам", "будинк", "угон", "150", "1.29"]],
+  ["каф",       ["затриман", "кайданк", "арешт", "процесуал", "міранд"]],
+  ["наручник",  ["кайданк", "затриман", "процесуал"]],
+  ["задерж",    ["затриман", "процесуал", "міранд", "адвокат"]],
+  ["повяз",     ["затриман", "кайданк", "процесуал"]],
+  ["арест",     ["арешт", "затриман", "процесуал"]],
+  ["обыск",     ["обшук", "ордер", "багажник", "3.2.1", "19"]],
+  ["шмон",      ["обшук", "ордер", "багажник", "3.2.1"]],
+  ["багаж",     ["багажник", "обшук", "ордер", "транспортн", "3.2.1", "19"]],
+  ["откат",     ["відкат", "відеозапис", "відеофіксац", "72", "48"]],
+  ["відкат",    ["відкат", "відеозапис", "відеофіксац", "72", "48"]],
+  ["фрапс",     ["відкат", "відеозапис", "відеофіксац", "72", "48"]],
+  ["видео",     ["відеозапис", "відеофіксац", "відкат", "72", "48"]],
+  ["дм",        ["dm", "deathmatch", "вбивств", "убивств", "шкод"]],
+  ["убил",      ["dm", "вбивств", "убивств", "шкод"]],
+  ["убий",      ["dm", "вбивств", "убивств"]],
+  ["стрел",     ["вогонь", "збро", "dm", "gunban"]],
+  ["тул",       ["вогонь", "перестрілк", "dm"]],
+  ["дб",        ["db", "наїзд", "транспорт", "збив"]],
+  ["сбил",      ["db", "наїзд", "транспорт"]],
+  ["пг",        ["pg", "powergaming", "страх", "опір", "1.19"]],
+  ["мг",        ["mg", "metagaming", "діскорд", "discord", "стрім"]],
+  ["рк",        ["rk", "revenge", "повернен", "помст", "15 хвилин"]],
+  ["тк",        ["tk", "teamkill", "союзник", "напарник"]],
+  ["ск",        ["sk", "spawn", "відроджен"]],
+  ["зз",        ["gz", "green", "зелен", "зон", "риболов", "далекобійн", "5.5"]],
+  ["зелен",     ["gz", "green", "зелен", "зон", "5.5"]],
+  ["рыбал",     ["риболов", "зелен", "gz", "полюван"]],
+  ["дальноб",   ["далекобійн", "грабіж", "8.3", "gz"]],
+  ["нрд",       ["nrd", "нереалістичн", "колес"]],
+  ["выход",     ["вихід", "6.1", "rp", "деморган"]],
+  ["уход",      ["вихід", "6.1", "rp"]],
+  ["ливн",      ["вихід", "6.1", "rp"]],
+  ["кьюш",      ["вихід", "6.1", "rp"]],
+  ["граб",      ["грабіж", "пограбув", "крайм", "8.3"]],
+  ["ограб",     ["грабіж", "пограбув", "крайм", "8.3"]],
+  ["похит",     ["викраден", "заручник", "крайм"]],
+  ["похищ",     ["викраден", "заручник", "крайм"]],
+  ["гетто",     ["гетто", "патрул", "грабіж", "3.5"]],
+  ["патрул",    ["патрул", "гетто", "3.5", "нпу", "сбу"]],
+  ["миранд",    ["міранд", "затриман", "адвокат", "прав"]],
+  ["міранд",    ["міранд", "затриман", "адвокат", "прав"]],
+  ["адвокат",   ["адвокат", "затриман", "міранд", "процесуал"]],
+  ["допрос",    ["допит", "правила допитів"]],
+  ["поставк",   ["поставк", "перекритт", "колон"]],
+  ["перекрыт",  ["перекритт", "поставк", "колон"]],
+  ["фз",        ["фз", "нгу", "напад", "форт"]],
+  ["взх",       ["взх", "хамер"]],
+  ["аирдроп",   ["airdrop"]],
+  ["взятк",     ["хабар", "корупц"]],
+  ["штраф",     ["штраф", "дорожн", "адміністративн"]],
+  ["жалоб",     ["скарг", "форум", "дбр", "прокуратур", "суд"]],
+  ["форум",     ["скарг", "адмін", "ooc", "оос"]],
+  ["дбр",       ["дбр", "прокуратур", "суд", "статут", "ic"]],
+  ["удостовер", ["посвідчен", "жетон", "бейджик", "боді"]],
+  ["жетон",     ["жетон", "посвідчен", "бейджик", "боді"]],
+  ["маск",      ["маск", "обличч", "особу"]]
+];
 
 const PROVIDERS = {
-  gemini:     { name: "Google Gemini", model: "gemini-2.5-flash",        fallbackModels: ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.5-flash-lite"], keyUrl: "https://aistudio.google.com/apikey" },
-  groq:       { name: "Groq",          model: "llama-3.3-70b-versatile", endpoint: "https://api.groq.com/openai/v1/chat/completions", keyUrl: "https://console.groq.com/keys" },
-  openrouter: { name: "OpenRouter",    model: "google/gemini-2.5-flash", endpoint: "https://openrouter.ai/api/v1/chat/completions", keyUrl: "https://openrouter.ai/keys" },
-  openai:     { name: "OpenAI",        model: "gpt-4o-mini",             endpoint: "https://api.openai.com/v1/chat/completions", keyUrl: "https://platform.openai.com/api-keys" },
-  anthropic:  { name: "Claude",        model: "claude-3-5-haiku-latest", endpoint: "https://api.anthropic.com/v1/messages", keyUrl: "https://console.anthropic.com/settings/keys" },
-  deepseek:   { name: "DeepSeek",      model: "deepseek-chat",           endpoint: "https://api.deepseek.com/chat/completions", keyUrl: "https://platform.deepseek.com/api_keys" },
-  xai:        { name: "xAI Grok",      model: "grok-3-mini",             endpoint: "https://api.x.ai/v1/chat/completions", keyUrl: "https://console.x.ai/" }
+  gemini: {
+    name: "Google Gemini",
+    defaultModels: [
+      "gemini-3.1-pro-preview",
+      "gemini-3.8-flash",
+      "gemini-3.7-flash",
+      "gemini-3.5-flash",
+      "gemini-3-flash-preview",
+      "gemini-2.5-pro",
+      "gemini-2.5-flash",
+      "gemini-2.5-flash-lite"
+    ],
+    modelsUrl: "https://generativelanguage.googleapis.com/v1beta/models?pageSize=100",
+    keyUrl: "https://aistudio.google.com/apikey"
+  },
+  groq: {
+    name: "Groq",
+    defaultModels: [
+      "openai/gpt-oss-120b",
+      "openai/gpt-oss-20b",
+      "qwen/qwen3.8-27b",
+      "llama-3.3-70b-versatile",
+      "llama-3.1-8b-instant"
+    ],
+    endpoint: "https://api.groq.com/openai/v1/chat/completions",
+    modelsUrl: "https://api.groq.com/openai/v1/models",
+    keyUrl: "https://console.groq.com/keys"
+  },
+  openrouter: {
+    name: "OpenRouter",
+    defaultModels: [
+      "openrouter/free",
+      "google/gemini-2.5-flash",
+      "meta-llama/llama-3.3-70b-instruct:free",
+      "deepseek/deepseek-chat-v3-0324:free"
+    ],
+    endpoint: "https://openrouter.ai/api/v1/chat/completions",
+    modelsUrl: "https://openrouter.ai/api/v1/models",
+    keyUrl: "https://openrouter.ai/keys"
+  },
+  openai: {
+    name: "OpenAI",
+    defaultModels: ["gpt-4.1-mini", "gpt-4o-mini", "gpt-4.1", "gpt-4o"],
+    endpoint: "https://api.openai.com/v1/chat/completions",
+    modelsUrl: "https://api.openai.com/v1/models",
+    keyUrl: "https://platform.openai.com/api-keys"
+  },
+  anthropic: {
+    name: "Claude",
+    defaultModels: ["claude-sonnet-4-5", "claude-3-5-haiku-latest", "claude-3-7-sonnet-latest"],
+    endpoint: "https://api.anthropic.com/v1/messages",
+    modelsUrl: "https://api.anthropic.com/v1/models",
+    keyUrl: "https://console.anthropic.com/settings/keys"
+  },
+  deepseek: {
+    name: "DeepSeek",
+    defaultModels: ["deepseek-chat", "deepseek-reasoner"],
+    endpoint: "https://api.deepseek.com/chat/completions",
+    modelsUrl: "https://api.deepseek.com/models",
+    keyUrl: "https://platform.deepseek.com/api_keys"
+  },
+  xai: {
+    name: "xAI Grok",
+    defaultModels: ["grok-3-mini", "grok-3", "grok-2-latest"],
+    endpoint: "https://api.x.ai/v1/chat/completions",
+    modelsUrl: "https://api.x.ai/v1/models",
+    keyUrl: "https://console.x.ai/"
+  }
 };
 
 const BUILTIN_CHANGELOG = [
+{
+    tag: "v1.0.7",
+    date: "2026-11-23",
+    items: [
+      "Прискорено роботу ШІ та Gemini (налаштовано режим мислення й оптимізовано контекст правил).",
+      "Додано автоматичне розгортання та передачу фокуса вікну Discord при переході за посиланням профілю.",
+      "Очищено «Історію змін» від технічних рядків Full Changelog та додано клікабельні посилання."
+    ]
+  },
   {
     tag: "v1.0.6",
     date: "2026-11-23",
     items: [
       "Новий дизайн Neo-Glass HUD із векторними іконками замість емодзі.",
-      "Мульти-ШІ: підтримка Gemini, Groq, OpenRouter, OpenAI, Claude, DeepSeek та xAI з автовизначенням ключів і резервною ієрархією.",
+      "Мульти-ШІ з ієрархією моделей всередині кожного провайдера та завантаженням моделей напряму з API.",
       "Автосинхронізація бази правил (86 документів NG) із відображенням часу оновлення (Авто / Вручну).",
       "Окрема зміна гарячих клавіш на приховування та повне закриття програми.",
       "Розширені фільтри по всіх 8 фракціях, кодексах та законах.",
@@ -1740,16 +1963,37 @@ const DEFAULT_SETTINGS = {
   providers: []
 };
 
+function makeDefaultModels(providerKey) {
+  const list = PROVIDERS[providerKey]?.defaultModels || [];
+  return list.map(id => ({ id, enabled: true }));
+}
+
+function ensureProviderModels(entry) {
+  if (!Array.isArray(entry.models) || entry.models.length === 0) {
+    entry.models = makeDefaultModels(entry.provider);
+  }
+  return entry.models;
+}
+
+function getEnabledModels(entry) {
+  return ensureProviderModels(entry).filter(m => m.enabled && m.id).map(m => m.id);
+}
+
 let SETTINGS = loadSettings();
 let APP_INFO = { version: "1.0.6", repo: "Frezze98/ng-helper", toggleHotkey: SETTINGS.toggleHotkey, quitHotkey: SETTINGS.quitHotkey };
 let RULES = [];
 let RULES_META = null;
-let curCat = "all";
+let curCat = "faq";
 let lastAiRaw = "";
 let latestReleaseInfo = null;
 let uninstallArmed = false;
 let activeRecorder = null;
 let changelogLoaded = false;
+
+let aiReqSeq = 1;
+const aiPending = new Map();
+const provTestResults = {};
+const provExpanded = {};
 
 function loadSettings() {
   let saved = {};
@@ -1760,9 +2004,11 @@ function loadSettings() {
   if (merged.providers.length === 0) {
     const legacyKey = localStorage.getItem("ng_gemini_key") || localStorage.getItem("gemini_api_key") || "";
     if (legacyKey.trim()) {
-      merged.providers.push({ provider: detectProviderByKey(legacyKey) || "gemini", key: legacyKey.trim(), enabled: true });
+      const prov = detectProviderByKey(legacyKey) || "gemini";
+      merged.providers.push({ provider: prov, key: legacyKey.trim(), enabled: true, models: makeDefaultModels(prov) });
     }
   }
+  for (const p of merged.providers) ensureProviderModels(p);
   return merged;
 }
 
@@ -1770,9 +2016,9 @@ function saveSettings() {
   localStorage.setItem("ng_helper_settings_v2", JSON.stringify(SETTINGS));
 }
 
-function t(key) {
-  const dict = I18N[SETTINGS.uiLang] || I18N.uk;
-  return dict[key] || I18N.uk[key] || key;
+function t(key, fallback) {
+  const dict = I18N[SETTINGS.uiLang] || I18N.uk || {};
+  return dict[key] || (I18N.uk && I18N.uk[key]) || fallback || key;
 }
 
 function postIpc(msg) {
@@ -1972,52 +2218,110 @@ function matchesCategory(item, cat) {
   return false;
 }
 
+const WORD_CHAR_RE = /[\p{L}\p{N}]/u;
+
+function hasWordPrefix(text, token) {
+  if (!token) return false;
+  let pos = 0;
+  while ((pos = text.indexOf(token, pos)) !== -1) {
+    if (pos === 0 || !WORD_CHAR_RE.test(text[pos - 1])) {
+      return true;
+    }
+    pos += 1;
+  }
+  return false;
+}
+
 function expandQueryTokens(q) {
-  const base = q.toLowerCase().replace(/[^\p{L}\p{N}.]+/gu, " ").trim().split(/\s+/).filter(Boolean);
-  const out = new Set(base);
+  const rawTokens = q.toLowerCase().replace(/[^\p{L}\p{N}.]+/gu, " ").trim().split(/\s+/).filter(Boolean);
+  const filtered = rawTokens.filter(tok => !STOP_WORDS.has(tok) && (tok.length >= 2 || /^\d+$/.test(tok)));
+  const base = filtered.length ? filtered : rawTokens.filter(tok => tok.length >= 2);
+  const stems = new Set();
+  const synSet = new Set();
+
   for (const tok of base) {
-    if (SYNONYMS[tok]) {
-      for (const s of SYNONYMS[tok]) out.add(s);
+    if (tok.length >= 5) stems.add(tok.slice(0, -1));
+    if (tok.length >= 6) stems.add(tok.slice(0, -2));
+    for (const [prefix, list] of STEM_SYNONYMS) {
+      if (tok === prefix || (prefix.length >= 3 && tok.startsWith(prefix))) {
+        for (const s of list) synSet.add(s);
+      }
     }
   }
-  return { base, expanded: Array.from(out) };
+  for (const b of base) synSet.delete(b);
+  return { base, stems: Array.from(stems), syns: Array.from(synSet) };
 }
 
 function searchRules(q, cat, limit = 24) {
-  const { base, expanded } = expandQueryTokens(q);
+  const { base, stems, syns } = expandQueryTokens(q);
   if (base.length === 0) return [];
   const exactCode = q.match(/(?:ст\.?\s*\d+|п\.?\s*\d+(?:\.\d+)+|\d+\.\d+(?:\.\d+)?)/i);
+  const qLow = q.toLowerCase();
   const scored = [];
 
   for (const r of RULES) {
     if (!matchesCategory(r, cat)) continue;
     let score = 0;
-    if (exactCode && r._full.includes(exactCode[0].toLowerCase().replace(/\s+/g, " "))) score += 45;
-    if (r._full.includes(q.toLowerCase())) score += 30;
-    let baseHits = 0;
+    if (exactCode && hasWordPrefix(r._full, exactCode[0].toLowerCase().replace(/\s+/g, " "))) score += 50;
+    if (qLow.length >= 5 && r._full.includes(qLow)) score += 35;
+
+    let matchedConcepts = 0;
     for (const tok of base) {
-      if (tok.length < 2 && !/^\d+$/.test(tok)) continue;
-      if (r._head.includes(tok)) { score += 12; baseHits++; }
-      else if (r._low.includes(tok)) { score += 6; baseHits++; }
+      if (hasWordPrefix(r._head, tok)) { score += 16; matchedConcepts++; }
+      else if (hasWordPrefix(r._low, tok)) { score += 9; matchedConcepts++; }
     }
-    for (const tok of expanded) {
-      if (base.includes(tok)) continue;
-      if (r._head.includes(tok)) score += 6;
-      else if (r._low.includes(tok)) score += 3;
+    for (const st of stems) {
+      if (hasWordPrefix(r._head, st)) { score += 11; matchedConcepts += 0.7; }
+      else if (hasWordPrefix(r._low, st)) { score += 6; matchedConcepts += 0.7; }
     }
-    if (base.length > 1 && baseHits === base.length) score += 18;
+    let synHits = 0;
+    for (const syn of syns) {
+      if (hasWordPrefix(r._head, syn)) { score += 11; synHits++; }
+      else if (hasWordPrefix(r._low, syn)) { score += 7; synHits++; }
+    }
+    if (synHits >= 3) score += synHits * 5;
+    if (base.length > 1 && matchedConcepts >= base.length) score += 20;
+
     if (score > 0) scored.push({ r, score });
   }
   scored.sort((a, b) => b.score - a.score);
   return scored.slice(0, limit).map(x => x.r);
 }
 
+function searchFaqForAi(q) {
+  const { base, stems, syns } = expandQueryTokens(q);
+  const all = [...base, ...stems, ...syns];
+  if (!all.length) return [];
+  const scored = [];
+  for (const item of FAQ_ITEMS) {
+    const low = `${item.tag} ${item.q} ${item.a} ${item.punish}`.toLowerCase();
+    let score = 0;
+    for (const tok of all) {
+      if (hasWordPrefix(low, tok)) score += base.includes(tok) ? 8 : 5;
+    }
+    if (score >= 10) scored.push({ item, score });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, 4).map(x => x.item);
+}
+
 function highlightText(text, tokens) {
   let safe = escHtml(text);
-  const list = tokens.filter(x => x.length >= 3).slice(0, 6);
+  const list = tokens.filter(x => x.length >= 3).slice(0, 10);
   if (!list.length) return safe;
-  const re = new RegExp("(" + list.map(x => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "gi");
-  return safe.replace(re, "<mark>$1</mark>");
+  const escaped = list.map(x => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  try {
+    const re = new RegExp(`(?<![\\p{L}\\p{N}])(${escaped})`, "giu");
+    return safe.replace(re, "<mark>$1</mark>");
+  } catch {
+    return safe;
+  }
+}
+
+function formatRuleBody(text) {
+  return escHtml(text)
+    .replace(/^(\d+\.\d+(?:\.\d+)?\.?|Стаття\s+\d+(?:\.\d+)?\.?|Розділ\s+[IVX\d]+\.?)/gim, '<span class="rule-num">$1</span>')
+    .replace(/(Деморган[^.\n;]*|GunBan[^.\n;]*|Warn[^.\n;]*|Ban[^.\n;]*|Mute[^.\n;]*)/gi, '<span class="punish-hl">$1</span>');
 }
 
 function copyToClipboard(text, btn, withLabel) {
@@ -2028,59 +2332,118 @@ function copyToClipboard(text, btn, withLabel) {
   setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = old; }, 1200);
 }
 
+function renderFaqCardsHtml(items, offset = 0) {
+  return items.map((i, idx) => `
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="card-tag">${escHtml(i.tag)}</div>
+          <div class="card-title">${escHtml(i.q)}</div>
+        </div>
+        <button class="copy-btn" data-faq-idx="${offset + idx}" type="button">${ICONS.copy}</button>
+      </div>
+      <div class="card-body">${escHtml(i.a)}</div>
+      <div class="punish-row">${ICONS.warn}<span>${escHtml(t("punish_prefix"))}: ${escHtml(i.punish)}</span></div>
+    </div>
+  `).join("");
+}
+
+function bindFaqCopyButtons(items, offset = 0) {
+  $results.querySelectorAll("[data-faq-idx]").forEach(btn => {
+    const i = items[Number(btn.dataset.faqIdx) - offset];
+    if (i) {
+      btn.onclick = () => copyToClipboard(`${i.q}\n${i.a}\n${t("punish_prefix")}: ${i.punish}`, btn, false);
+    }
+  });
+}
+
 function renderSearch() {
   const q = $query.value.trim();
   $clearBtn.classList.toggle("show", q.length > 0);
 
   if (!q) {
-    $resultsLabel.innerHTML = ICONS.bolt + `<span>${t("top_faq")}</span>`;
-    const list = FAQ_ITEMS.filter(i => curCat === "all" || i.cats.includes(curCat));
-    if (!list.length) {
-      const sample = RULES.filter(r => matchesCategory(r, curCat)).slice(0, 12);
-      if (sample.length) {
-        $results.innerHTML = sample.map((r, idx) => `
-          <div class="card">
-            <div class="card-top">
-              <div>
-                <div class="card-tag">${escHtml(r.d)}</div>
-                <div class="card-title">${escHtml(r.s)}</div>
-              </div>
-              <button class="copy-btn" data-copy-idx="${idx}" type="button">${ICONS.copy}</button>
-            </div>
-            <div class="card-body">${escHtml(r.t)}</div>
-          </div>
-        `).join("");
-        $results.querySelectorAll("[data-copy-idx]").forEach(btn => {
-          const r = sample[Number(btn.dataset.copyIdx)];
-          btn.onclick = () => copyToClipboard(`${r.d} — ${r.s}\n${r.t}`, btn, false);
-        });
-        return;
-      }
-      $results.innerHTML = `<div class="empty-state">${escHtml(t("nothing_found"))}</div>`;
+    if (curCat === "faq") {
+      $resultsLabel.innerHTML = ICONS.bolt + `<span>${t("top_faq")}</span>`;
+      $results.innerHTML = renderFaqCardsHtml(FAQ_ITEMS);
+      bindFaqCopyButtons(FAQ_ITEMS);
       return;
     }
-    $results.innerHTML = list.map((i, idx) => `
-      <div class="card">
-        <div class="card-top">
-          <div>
-            <div class="card-tag">${escHtml(i.tag)}</div>
-            <div class="card-title">${escHtml(i.q)}</div>
-          </div>
-          <button class="copy-btn" data-faq-idx="${idx}" type="button">${ICONS.copy}</button>
-        </div>
-        <div class="card-body">${escHtml(i.a)}</div>
-        <div class="punish-row">${ICONS.warn}<span>${escHtml(t("punish_prefix"))}: ${escHtml(i.punish)}</span></div>
-      </div>
-    `).join("");
-    $results.querySelectorAll("[data-faq-idx]").forEach(btn => {
-      const i = list[Number(btn.dataset.faqIdx)];
-      btn.onclick = () => copyToClipboard(`${i.q}\n${i.a}\n${t("punish_prefix")}: ${i.punish}`, btn, false);
+
+    const matchedRules = RULES.filter(r => matchesCategory(r, curCat));
+    const docMap = new Map();
+    for (const r of matchedRules) {
+      if (!docMap.has(r.d)) docMap.set(r.d, []);
+      docMap.get(r.d).push(r);
+    }
+    const docs = Array.from(docMap.entries());
+
+    $resultsLabel.innerHTML = ICONS.box + `<span>${t("docs_list_title")}: ${docs.length}</span>`;
+
+    let html = "";
+    const flatSecs = [];
+    if (docs.length) {
+      html += docs.map(([docTitle, sections], dIdx) => {
+        const autoOpen = docs.length === 1 ? " open" : "";
+        const secHtml = sections.map(sec => {
+          const sIdx = flatSecs.length;
+          flatSecs.push(sec);
+          return `
+            <div class="doc-sec">
+              <div class="doc-sec-head">
+                <div class="doc-sec-title">${escHtml(sec.s)}</div>
+                <button class="copy-btn" data-sec-idx="${sIdx}" type="button">${ICONS.copy}</button>
+              </div>
+              <div class="doc-sec-body">${formatRuleBody(sec.t)}</div>
+            </div>`;
+        }).join("");
+
+        return `
+          <div class="doc-card${autoOpen}" data-doc-idx="${dIdx}">
+            <button class="doc-head" type="button">
+              <div class="doc-head-left">
+                <span class="doc-bar"></span>
+                <span class="doc-title">${escHtml(docTitle)}</span>
+              </div>
+              <div class="doc-head-right">
+                <span class="doc-count">${sections.length} ${escHtml(t("sec_unit"))}</span>
+                <span class="doc-chev">${ICONS.chevDown}</span>
+              </div>
+            </button>
+            <div class="doc-sections">${secHtml}</div>
+          </div>`;
+      }).join("");
+    } else {
+      html += `<div class="empty-state">${escHtml(t("nothing_found"))}</div>`;
+    }
+
+    const catFaqs = FAQ_ITEMS.filter(i => curCat === "all" || i.cats.includes(curCat));
+    const tailFaqs = catFaqs.length ? catFaqs : FAQ_ITEMS.slice(0, 4);
+    const tailTitle = catFaqs.length ? t("faq_tail_title") : t("faq_tail_general");
+
+    html += `
+      <div class="faq-tail-head">
+        <span class="faq-tail-head-left">${ICONS.bolt}<span>${escHtml(tailTitle)}</span></span>
+        <span>${tailFaqs.length}</span>
+      </div>`;
+    html += renderFaqCardsHtml(tailFaqs);
+
+    $results.innerHTML = html;
+
+    $results.querySelectorAll(".doc-head").forEach(btn => {
+      btn.onclick = () => btn.closest(".doc-card").classList.toggle("open");
     });
+    $results.querySelectorAll("[data-sec-idx]").forEach(btn => {
+      const sec = flatSecs[Number(btn.dataset.secIdx)];
+      if (sec) btn.onclick = () => copyToClipboard(`${sec.d} — ${sec.s}\n${sec.t}`, btn, false);
+    });
+    bindFaqCopyButtons(tailFaqs);
     return;
   }
 
-  const hits = searchRules(q, curCat, 25);
-  const { base } = expandQueryTokens(q);
+  const searchCat = curCat === "faq" ? "all" : curCat;
+  const hits = searchRules(q, searchCat, 25);
+  const { base, syns } = expandQueryTokens(q);
+  const hlTokens = [...base, ...syns];
   $resultsLabel.innerHTML = ICONS.search + `<span>${t("search_results")}: ${hits.length}</span>`;
   if (!hits.length) {
     $results.innerHTML = `<div class="empty-state">${escHtml(t("nothing_found"))}</div>`;
@@ -2091,11 +2454,11 @@ function renderSearch() {
       <div class="card-top">
         <div>
           <div class="card-tag">${escHtml(r.d)}</div>
-          <div class="card-title">${highlightText(r.s, base)}</div>
+          <div class="card-title">${highlightText(r.s, hlTokens)}</div>
         </div>
         <button class="copy-btn" data-hit-idx="${idx}" type="button">${ICONS.copy}</button>
       </div>
-      <div class="card-body">${highlightText(r.t, base)}</div>
+      <div class="card-body">${highlightText(r.t, hlTokens)}</div>
     </div>
   `).join("");
   $results.querySelectorAll("[data-hit-idx]").forEach(btn => {
@@ -2124,7 +2487,7 @@ ${styleRule}
 - Якщо порушено ЛИШЕ IC-закони, кодекси (КК, АК, ПК, ДК) чи внутрішній статут фракції (наприклад, не представився, не зачитав Міранду без OOC-порушень, перевищив повноваження) — на форум адмінам НЕ заливають, це вирішується в RP через ДБР, Прокуратуру, Суд або керівництво фракції.
 - Якщо порушено і OOC-правило, і IC-закон — вкажи обидва варіанти.
 
-Формат відповіді (суворо дотримуйся цих маркерів у перших двох рядках):
+Формат відповіді (суворо дотримуйся цих маркерів у перших двох рядках, обов'язково заверши всі розділи до кінця):
 [FORUM: ТАК або НІ] Коротко: чи можна заливати на форум адмінам і за який пункт OOC.
 [IC_ORG: ТАК або НІ] Коротко: чи потрібно йти в ДБР / Прокуратуру / Суд / до керівництва фракції і за яку статтю IC.
 
@@ -2139,117 +2502,289 @@ ${styleRule}
 }
 
 function buildContextForAi(question) {
-  let hits = searchRules(question, curCat, 14);
-  if (hits.length < 8 && curCat !== "all") {
-    const extra = searchRules(question, "all", 14);
+  const activeCat = curCat === "faq" ? "all" : curCat;
+  let hits = searchRules(question, activeCat, 10);
+  if (hits.length < 6 && activeCat !== "all") {
+    const extra = searchRules(question, "all", 10);
     const seen = new Set(hits.map(x => x.d + "|" + x.s + "|" + x.t.slice(0, 40)));
     for (const r of extra) {
       const k = r.d + "|" + r.s + "|" + r.t.slice(0, 40);
       if (!seen.has(k)) { hits.push(r); seen.add(k); }
-      if (hits.length >= 16) break;
+      if (hits.length >= 10) break;
     }
   }
+
   let ctx = "";
+  const faqHits = searchFaqForAi(question).slice(0, 2);
+  for (const f of faqHits) {
+    ctx += `[Швидка довідка NG | ${f.tag}]\n${f.q}\n${f.a}\nПокарання: ${f.punish}\n\n`;
+  }
   for (const r of hits) {
     const chunk = `[${r.d} | ${r.s}]\n${r.t}\n\n`;
-    if (ctx.length + chunk.length > 16500) break;
+    if (ctx.length + chunk.length > 10000) break;
     ctx += chunk;
   }
   return ctx || "Прямих збігів у локальному індексі не знайдено; відповідай обережно, спираючись на загальні норми NG.";
 }
 
-async function callGemini(key, systemPrompt, userPrompt) {
-  const models = PROVIDERS.gemini.fallbackModels;
-  let lastErr = "Gemini error";
-  for (const model of models) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-    const resp = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: systemPrompt }] },
-        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-        generationConfig: { temperature: 0.25, maxOutputTokens: 1100 }
-      })
-    });
-    if (!resp.ok) {
-      lastErr = `Gemini ${resp.status}`;
-      if (resp.status === 401 || resp.status === 403) throw new Error(lastErr);
-      continue;
-    }
-    const data = await resp.json();
-    const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("").trim();
-    if (text) return { text, model };
+window.onAiProxyResult = (id, status, body, err) => {
+  const resolver = aiPending.get(id);
+  if (!resolver) return;
+  aiPending.delete(id);
+  if (err && status === 0) {
+    resolver.reject(new Error(err));
+  } else {
+    resolver.resolve({ ok: status >= 200 && status < 300, status, text: body });
   }
-  throw new Error(lastErr);
+};
+
+async function proxyRequest(method, url, headers, bodyObj) {
+  const isGet = method === "GET";
+  const jsonBody = isGet ? "" : JSON.stringify(bodyObj);
+  if (window.ipc && typeof window.ipc.postMessage === "function") {
+    const id = aiReqSeq++;
+    const hdrEntries = Object.entries(headers).map(([k, v]) => `${k}: ${v}`);
+    const tag = isGet ? "ai_get" : "ai_req";
+    const parts = [tag, String(id), url, String(hdrEntries.length), ...hdrEntries];
+    if (!isGet) parts.push(jsonBody);
+    return new Promise((resolve, reject) => {
+      aiPending.set(id, { resolve, reject });
+      window.ipc.postMessage(parts.join("\n"));
+    });
+  }
+  const resp = await fetch(url, isGet ? { method: "GET", headers } : { method: "POST", headers, body: jsonBody });
+  return { ok: resp.ok, status: resp.status, text: await resp.text() };
 }
 
-async function callOpenAICompat(providerKey, key, systemPrompt, userPrompt) {
+function proxyPost(url, headers, bodyObj) {
+  return proxyRequest("POST", url, headers, bodyObj);
+}
+
+function proxyGet(url, headers) {
+  return proxyRequest("GET", url, headers);
+}
+
+function makeApiErr(name, status, rawBody, fatal = false) {
+  let msg = `${name} ${status}`;
+  let detail = "";
+  try {
+    const parsed = JSON.parse(rawBody);
+    detail = parsed?.error?.message || parsed?.message || (Array.isArray(parsed) ? parsed[0]?.error?.message : "") || "";
+  } catch {}
+  if (status === 402) msg = `${name}: 402 (немає балансу)`;
+  else if (status === 401) msg = `${name}: 401 (невірний ключ)`;
+  else if (detail) msg = `${name} ${status} (${detail.replace(/\s+/g, " ").slice(0, 85)})`;
+
+  const limitExceeded = status === 403 && /limit exceeded|disabled|not been used/i.test(detail);
+  const err = new Error(msg);
+  err.fatal = fatal || status === 401 || status === 402 || limitExceeded;
+  return err;
+}
+
+async function callGeminiSingle(key, model, systemPrompt, userPrompt) {
+  const trimmedKey = key.trim();
+  const genCfg = { temperature: 0.25, maxOutputTokens: 1800 };
+  if (/^gemini-3/i.test(model) && !/pro/i.test(model)) {
+    genCfg.thinkingConfig = { thinkingLevel: "minimal" };
+  } else if (/^gemini-2\.5-flash/i.test(model)) {
+    genCfg.thinkingConfig = { thinkingBudget: 0 };
+  }
+
+  const payload = {
+    systemInstruction: { parts: [{ text: systemPrompt }] },
+    contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+    generationConfig: genCfg
+  };
+
+  const primaryUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+  const resp = await proxyPost(primaryUrl, {
+    "Content-Type": "application/json",
+    "x-goog-api-key": trimmedKey
+  }, payload);
+
+  if (resp.ok) {
+    const data = JSON.parse(resp.text || "{}");
+    const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("").trim();
+    if (text) return { text, model };
+    throw new Error("Gemini empty");
+  }
+
+  if (trimmedKey.startsWith("AQ.") && (resp.status === 401 || resp.status === 403)) {
+    const vxUrl = `https://aiplatform.googleapis.com/v1/publishers/google/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(trimmedKey)}`;
+    const vxResp = await proxyPost(vxUrl, { "Content-Type": "application/json" }, payload);
+    if (vxResp.ok) {
+      const data = JSON.parse(vxResp.text || "{}");
+      const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("").trim();
+      if (text) return { text, model };
+    }
+    throw makeApiErr("Gemini", vxResp.status, vxResp.text, vxResp.status === 401 || vxResp.status === 403);
+  }
+
+  throw makeApiErr("Gemini", resp.status, resp.text, resp.status === 401);
+}
+
+async function callOpenAICompatSingle(providerKey, key, model, systemPrompt, userPrompt) {
   const cfg = PROVIDERS[providerKey];
   const headers = {
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${key}`
+    "Authorization": `Bearer ${key.trim()}`
   };
   if (providerKey === "openrouter") {
     headers["HTTP-Referer"] = GITHUB_URL;
     headers["X-Title"] = "NG Helper";
   }
-  const resp = await fetch(cfg.endpoint, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({
-      model: cfg.model,
-      temperature: 0.25,
-      max_tokens: 1100,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ]
-    })
+
+  const resp = await proxyPost(cfg.endpoint, headers, {
+    model,
+    temperature: 0.25,
+    max_tokens: 1800,
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt }
+    ]
   });
-  if (!resp.ok) throw new Error(`${cfg.name} ${resp.status}`);
-  const data = await resp.json();
+
+  if (!resp.ok) throw makeApiErr(cfg.name, resp.status, resp.text);
+  const data = JSON.parse(resp.text || "{}");
   const text = data?.choices?.[0]?.message?.content?.trim();
   if (!text) throw new Error(`${cfg.name} empty`);
-  return { text, model: cfg.model };
+  return { text, model };
 }
 
-async function callAnthropic(key, systemPrompt, userPrompt) {
+async function callAnthropicSingle(key, model, systemPrompt, userPrompt) {
   const cfg = PROVIDERS.anthropic;
-  const resp = await fetch(cfg.endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": key,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"
-    },
-    body: JSON.stringify({
-      model: cfg.model,
-      max_tokens: 1100,
-      temperature: 0.25,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }]
-    })
+  const resp = await proxyPost(cfg.endpoint, {
+    "Content-Type": "application/json",
+    "x-api-key": key.trim(),
+    "anthropic-version": "2023-06-01"
+  }, {
+    model,
+    max_tokens: 1800,
+    temperature: 0.25,
+    system: systemPrompt,
+    messages: [{ role: "user", content: userPrompt }]
   });
-  if (!resp.ok) throw new Error(`Claude ${resp.status}`);
-  const data = await resp.json();
+  if (!resp.ok) throw makeApiErr("Claude", resp.status, resp.text);
+  const data = JSON.parse(resp.text || "{}");
   const text = data?.content?.map(b => b.text || "").join("").trim();
   if (!text) throw new Error("Claude empty");
-  return { text, model: cfg.model };
+  return { text, model };
 }
 
 async function callProvider(entry, systemPrompt, userPrompt) {
-  if (entry.provider === "gemini") return callGemini(entry.key, systemPrompt, userPrompt);
-  if (entry.provider === "anthropic") return callAnthropic(entry.key, systemPrompt, userPrompt);
-  return callOpenAICompat(entry.provider, entry.key, systemPrompt, userPrompt);
+  const models = getEnabledModels(entry);
+  if (!models.length) {
+    throw new Error(t("no_models_enabled", "Немає увімкнених моделей"));
+  }
+  const provName = PROVIDERS[entry.provider]?.name || entry.provider;
+  let lastErr = "Error";
+  for (const model of models) {
+    $aiModelBadge.textContent = `${provName} • ${model}`;
+    try {
+      if (entry.provider === "gemini") return await callGeminiSingle(entry.key, model, systemPrompt, userPrompt);
+      if (entry.provider === "anthropic") return await callAnthropicSingle(entry.key, model, systemPrompt, userPrompt);
+      return await callOpenAICompatSingle(entry.provider, entry.key, model, systemPrompt, userPrompt);
+    } catch (e) {
+      lastErr = e.message;
+      if (e.fatal) throw e;
+    }
+  }
+  throw new Error(lastErr);
+}
+
+async function fetchModelsFromApi(idx) {
+  const entry = SETTINGS.providers[idx];
+  if (!entry || !entry.key) return;
+  const cfg = PROVIDERS[entry.provider];
+  if (!cfg || !cfg.modelsUrl) return;
+
+  provTestResults[idx] = { state: "loading", text: t("models_loading", "Завантаження моделей з API...") };
+  renderProviderList();
+
+  try {
+    const key = entry.key.trim();
+    let headers = {};
+    if (entry.provider === "gemini") {
+      headers["x-goog-api-key"] = key;
+    } else if (entry.provider === "anthropic") {
+      headers["x-api-key"] = key;
+      headers["anthropic-version"] = "2023-06-01";
+    } else {
+      headers["Authorization"] = `Bearer ${key}`;
+    }
+
+    const resp = await proxyGet(cfg.modelsUrl, headers);
+    if (!resp.ok) throw makeApiErr(cfg.name, resp.status, resp.text);
+
+    const data = JSON.parse(resp.text || "{}");
+    let ids = [];
+
+    if (entry.provider === "gemini") {
+      ids = (data.models || [])
+        .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes("generateContent"))
+        .map(m => String(m.name || "").replace(/^models\//, ""))
+        .filter(id => id.startsWith("gemini-") && !/(embedding|tts|imagen|veo|aqa|robotics|image|audio|computer-use)/i.test(id));
+      ids.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+    } else if (entry.provider === "groq") {
+      ids = (data.data || [])
+        .map(m => m.id)
+        .filter(id => id && !/(whisper|guard|orpheus|tts|playai|safeguard)/i.test(id));
+      ids.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+    } else if (entry.provider === "openrouter") {
+      const freeModels = (data.data || [])
+        .map(m => m.id)
+        .filter(id => id && id.endsWith(":free"))
+        .slice(0, 14);
+      ids = ["openrouter/free", ...freeModels];
+    } else if (entry.provider === "openai") {
+      ids = (data.data || [])
+        .map(m => m.id)
+        .filter(id => id && /^(gpt-|o[1-9]|chatgpt)/i.test(id) && !/(audio|realtime|tts|whisper|image|transcribe|search|diarize)/i.test(id));
+      ids.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+    } else {
+      ids = (data.data || []).map(m => m.id).filter(Boolean);
+    }
+
+    const unique = Array.from(new Set(ids)).slice(0, 20);
+    if (!unique.length) throw new Error("API не повернув доступних текстових моделей.");
+
+    const existing = new Set(ensureProviderModels(entry).map(m => m.id));
+    let added = 0;
+    for (const id of unique) {
+      if (!existing.has(id)) {
+        entry.models.push({ id, enabled: true });
+        added++;
+      }
+    }
+    saveSettings();
+    provExpanded[idx] = true;
+    provTestResults[idx] = {
+      state: "ok",
+      text: `${t("models_loaded", "Знайдено в API")}: ${unique.length} (+${added})`
+    };
+  } catch (e) {
+    provTestResults[idx] = { state: "err", text: e.message };
+  }
+  renderProviderList();
 }
 
 function formatInlineMd(s) {
   return escHtml(s)
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_, label, url) =>
+      `<a href="#" class="inline-link" data-ext-url="${url}">${label}</a>`)
+    .replace(/(^|[^"'>])(https?:\/\/[^\s<]+)/g, (_, pre, url) =>
+      `${pre}<a href="#" class="inline-link" data-ext-url="${url}">${url}</a>`)
     .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
     .replace(/`([^`]+)`/g, "<code>$1</code>");
 }
+
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[data-ext-url]");
+  if (a) {
+    e.preventDefault();
+    openExternal(a.getAttribute("data-ext-url"));
+  }
+});
 
 function renderAiResponse(rawText) {
   const lines = rawText.replace(/\r/g, "").split("\n");
@@ -2373,7 +2908,11 @@ async function askAi() {
       const res = await callProvider(entry, systemPrompt, userPrompt);
       lastAiRaw = res.text;
       $aiModelBadge.textContent = `${PROVIDERS[entry.provider].name} • ${res.model}`;
-      $aiContent.innerHTML = renderAiResponse(res.text);
+      let html = renderAiResponse(res.text);
+      if (errors.length) {
+        html += `<div class="ai-fallback-note"><b>${escHtml(t("ai_skipped_prefix"))}:</b> ${escHtml(errors.join(" | "))}</div>`;
+      }
+      $aiContent.innerHTML = html;
       $askAiBtn.disabled = false;
       return;
     } catch (e) {
@@ -2386,49 +2925,193 @@ async function askAi() {
   $askAiBtn.disabled = false;
 }
 
+async function testProvider(idx) {
+  const entry = SETTINGS.providers[idx];
+  if (!entry || !entry.key) return;
+  const started = performance.now();
+  provTestResults[idx] = { state: "loading", text: t("test_checking") };
+  renderProviderList();
+  try {
+    const res = await callProvider(entry, "Reply only with OK.", "Ping");
+    const sec = ((performance.now() - started) / 1000).toFixed(1);
+    provTestResults[idx] = { state: "ok", text: `OK • ${res.model} (${sec}s)` };
+  } catch (e) {
+    provTestResults[idx] = { state: "err", text: e.message };
+  }
+  renderProviderList();
+}
+
 function renderProviderList() {
   const el = document.getElementById("provider-list");
   if (!SETTINGS.providers.length) {
     el.innerHTML = `<div class="empty-state" style="padding:14px">${escHtml(t("ai_empty"))}</div>`;
     return;
   }
+  const provOptions = (cur) => Object.entries(PROVIDERS)
+    .map(([k, v]) => `<option value="${k}" ${k === cur ? "selected" : ""}>${escHtml(v.name)}</option>`)
+    .join("");
+
+  const modelsLbl = t("models_btn", SETTINGS.uiLang === "ru" ? "Модели" : "Моделі");
+  const fromApiLbl = t("models_from_api", SETTINGS.uiLang === "ru" ? "Из API" : "З API");
+  const addModelPh = t("models_add_ph", SETTINGS.uiLang === "ru" ? "ID модели (напр. gemini-3.8-flash)" : "ID моделі (напр. gemini-3.8-flash)");
+
   el.innerHTML = SETTINGS.providers.map((item, i) => {
-    const p = PROVIDERS[item.provider] || PROVIDERS.gemini;
+    const models = ensureProviderModels(item);
+    const enabledModels = models.filter(m => m.enabled);
+    const topModel = enabledModels[0]?.id || "—";
+    const extraCount = enabledModels.length > 1 ? ` (+${enabledModels.length - 1})` : "";
+    const isOpen = !!provExpanded[i];
+    const tr = provTestResults[i];
+    const testHtml = tr
+      ? `<div class="prov-test-msg ${tr.state === "ok" ? "ok" : tr.state === "err" ? "err" : ""}">${escHtml(tr.text)}</div>`
+      : "";
+
+    const drawerHtml = isOpen ? `
+      <div class="prov-models-drawer">
+        <div class="m-toolbar">
+          <input class="m-input" data-minput="${i}" type="text" placeholder="${escHtml(addModelPh)}" />
+          <button class="m-btn" data-act="add-model" data-idx="${i}" type="button">${ICONS.plus}</button>
+          <button class="m-btn sync" data-act="fetch-models" data-idx="${i}" type="button">${ICONS.refresh}<span>${escHtml(fromApiLbl)}</span></button>
+        </div>
+        <div class="m-list">
+          ${models.map((m, mi) => `
+            <div class="m-row ${m.enabled ? "" : "disabled"}">
+              <div class="m-row-left">
+                <span class="m-rank">${mi + 1}</span>
+                <span class="m-id" title="${escHtml(m.id)}">${escHtml(m.id)}</span>
+              </div>
+              <div class="m-acts">
+                <button class="m-mini" data-mact="up" data-pidx="${i}" data-midx="${mi}" type="button">${ICONS.chevUp}</button>
+                <button class="m-mini" data-mact="down" data-pidx="${i}" data-midx="${mi}" type="button">${ICONS.chevDown}</button>
+                <button class="m-mini ${m.enabled ? "on" : ""}" data-mact="toggle" data-pidx="${i}" data-midx="${mi}" type="button">${ICONS.check}</button>
+                <button class="m-mini del" data-mact="del" data-pidx="${i}" data-midx="${mi}" type="button">${ICONS.close}</button>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>` : "";
+
     return `
       <div class="prov-item ${item.enabled ? "" : "disabled"}">
-        <div class="prov-left">
-          <div class="prov-rank">#${i + 1}</div>
-          <div>
-            <div class="prov-name">${escHtml(p.name)} <span class="prov-mask">${escHtml(maskKey(item.key))}</span></div>
-            <div class="prov-model">${escHtml(p.model)}</div>
+        <div class="prov-top">
+          <div class="prov-left">
+            <div class="prov-rank">#${i + 1}</div>
+            <div style="min-width:0">
+              <div class="prov-name">
+                <select class="prov-inline-sel" data-prov-idx="${i}">${provOptions(item.provider)}</select>
+                <span class="prov-mask">${escHtml(maskKey(item.key))}</span>
+              </div>
+              <div class="prov-sub">
+                <span class="prov-model">${escHtml(topModel + extraCount)}</span>
+                <button class="prov-models-btn ${isOpen ? "open" : ""}" data-act="expand" data-idx="${i}" type="button">
+                  <span>${escHtml(modelsLbl)} (${enabledModels.length}/${models.length})</span>
+                  ${isOpen ? ICONS.chevUp : ICONS.chevDown}
+                </button>
+              </div>
+              ${testHtml}
+            </div>
+          </div>
+          <div class="prov-acts">
+            <button class="mini-btn test" data-act="test" data-idx="${i}" type="button" title="${escHtml(t("test_title"))}">${ICONS.bolt}</button>
+            <button class="mini-btn" data-act="up" data-idx="${i}" type="button">${ICONS.chevUp}</button>
+            <button class="mini-btn" data-act="down" data-idx="${i}" type="button">${ICONS.chevDown}</button>
+            <button class="mini-btn ${item.enabled ? "on" : ""}" data-act="toggle" data-idx="${i}" type="button">${ICONS.check}</button>
+            <button class="mini-btn del" data-act="del" data-idx="${i}" type="button">${ICONS.close}</button>
           </div>
         </div>
-        <div class="prov-acts">
-          <button class="mini-btn" data-act="up" data-idx="${i}" type="button">${ICONS.chevUp}</button>
-          <button class="mini-btn" data-act="down" data-idx="${i}" type="button">${ICONS.chevDown}</button>
-          <button class="mini-btn ${item.enabled ? "on" : ""}" data-act="toggle" data-idx="${i}" type="button">${ICONS.check}</button>
-          <button class="mini-btn del" data-act="del" data-idx="${i}" type="button">${ICONS.close}</button>
-        </div>
+        ${drawerHtml}
       </div>`;
   }).join("");
 
-  el.querySelectorAll(".mini-btn").forEach(btn => {
+  el.querySelectorAll(".prov-inline-sel").forEach(sel => {
+    sel.onchange = () => {
+      const i = Number(sel.dataset.provIdx);
+      SETTINGS.providers[i].provider = sel.value;
+      SETTINGS.providers[i].models = makeDefaultModels(sel.value);
+      delete provTestResults[i];
+      saveSettings();
+      renderProviderList();
+    };
+  });
+
+  el.querySelectorAll("[data-act]").forEach(btn => {
     btn.onclick = () => {
       const idx = Number(btn.dataset.idx);
       const act = btn.dataset.act;
+      if (act === "expand") {
+        provExpanded[idx] = !provExpanded[idx];
+        renderProviderList();
+        return;
+      }
+      if (act === "test") {
+        testProvider(idx);
+        return;
+      }
+      if (act === "fetch-models") {
+        fetchModelsFromApi(idx);
+        return;
+      }
+      if (act === "add-model") {
+        const inp = el.querySelector(`[data-minput="${idx}"]`);
+        const val = (inp?.value || "").trim();
+        if (!val) return;
+        const list = ensureProviderModels(SETTINGS.providers[idx]);
+        if (!list.some(m => m.id === val)) {
+          list.unshift({ id: val, enabled: true });
+          saveSettings();
+          renderProviderList();
+        }
+        return;
+      }
       if (act === "up" && idx > 0) {
         [SETTINGS.providers[idx - 1], SETTINGS.providers[idx]] = [SETTINGS.providers[idx], SETTINGS.providers[idx - 1]];
+        [provTestResults[idx - 1], provTestResults[idx]] = [provTestResults[idx], provTestResults[idx - 1]];
+        [provExpanded[idx - 1], provExpanded[idx]] = [provExpanded[idx], provExpanded[idx - 1]];
       } else if (act === "down" && idx < SETTINGS.providers.length - 1) {
         [SETTINGS.providers[idx + 1], SETTINGS.providers[idx]] = [SETTINGS.providers[idx], SETTINGS.providers[idx + 1]];
+        [provTestResults[idx + 1], provTestResults[idx]] = [provTestResults[idx], provTestResults[idx + 1]];
+        [provExpanded[idx + 1], provExpanded[idx]] = [provExpanded[idx], provExpanded[idx + 1]];
       } else if (act === "toggle") {
         SETTINGS.providers[idx].enabled = !SETTINGS.providers[idx].enabled;
       } else if (act === "del") {
         SETTINGS.providers.splice(idx, 1);
+        Object.keys(provTestResults).forEach(k => delete provTestResults[k]);
+        Object.keys(provExpanded).forEach(k => delete provExpanded[k]);
       }
       saveSettings();
       updateKeyDot();
       renderProviderList();
     };
+  });
+
+  el.querySelectorAll("[data-mact]").forEach(btn => {
+    btn.onclick = () => {
+      const pidx = Number(btn.dataset.pidx);
+      const midx = Number(btn.dataset.midx);
+      const act = btn.dataset.mact;
+      const list = ensureProviderModels(SETTINGS.providers[pidx]);
+      if (act === "up" && midx > 0) {
+        [list[midx - 1], list[midx]] = [list[midx], list[midx - 1]];
+      } else if (act === "down" && midx < list.length - 1) {
+        [list[midx + 1], list[midx]] = [list[midx], list[midx + 1]];
+      } else if (act === "toggle") {
+        list[midx].enabled = !list[midx].enabled;
+      } else if (act === "del") {
+        list.splice(midx, 1);
+      }
+      saveSettings();
+      renderProviderList();
+    };
+  });
+
+  el.querySelectorAll(".m-input").forEach(inp => {
+    inp.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const idx = inp.dataset.minput;
+        el.querySelector(`[data-act="add-model"][data-idx="${idx}"]`)?.click();
+      }
+    });
   });
 }
 
@@ -2562,24 +3245,47 @@ async function loadChangelog() {
   renderChangelogItems(BUILTIN_CHANGELOG);
   if (changelogLoaded) return;
   try {
-    const res = await fetch(`https://api.github.com/repos/${APP_INFO.repo}/releases?per_page=8`, {
+    const res = await fetch(`https://api.github.com/repos/${APP_INFO.repo}/releases?per_page=10`, {
       headers: { Accept: "application/vnd.github+json" }
     });
     if (!res.ok) return;
     const rels = await res.json();
     if (!Array.isArray(rels) || !rels.length) return;
-    const mapped = rels.map(r => {
-      const bodyLines = (r.body || "").split(/\r?\n/).map(s => s.replace(/^[-*•]\s*/, "").trim()).filter(Boolean);
-      return {
-        tag: r.tag_name || r.name || "Release",
-        date: (r.published_at || "").slice(0, 10),
-        items: bodyLines.length ? bodyLines : null,
-        body: r.name || ""
-      };
-    });
-    const knownTags = new Set(mapped.map(x => x.tag));
-    const combined = [...BUILTIN_CHANGELOG.filter(b => !knownTags.has(b.tag)), ...mapped];
-    renderChangelogItems(combined);
+
+    const builtinMap = new Map(BUILTIN_CHANGELOG.map(b => [b.tag, b]));
+    const merged = [];
+    const seenTags = new Set();
+
+    for (const r of rels) {
+      const tag = r.tag_name || r.name || "Release";
+      seenTags.add(tag);
+      const date = (r.published_at || "").slice(0, 10);
+      const rawLines = (r.body || "")
+        .split(/\r?\n/)
+        .map(s => s.trim())
+        .filter(s => s && !/^#{1,3}\s*What's Changed/i.test(s) && !/^\*{0,2}Full Changelog\*{0,2}\s*:/i.test(s))
+        .map(s => s.replace(/^[-•]\s+|^\*\s+/, "").trim())
+        .filter(Boolean);
+
+      const builtin = builtinMap.get(tag);
+      if (builtin && rawLines.length === 0) {
+        merged.push({ ...builtin, date: date || builtin.date });
+      } else if (rawLines.length > 0) {
+        merged.push({ tag, date, items: rawLines });
+      } else {
+        merged.push({
+          tag,
+          date,
+          items: [`Реліз ${tag} на GitHub ([переглянути зміни](${r.html_url || GITHUB_URL + "/releases/tag/" + tag}))`]
+        });
+      }
+    }
+
+    for (const b of BUILTIN_CHANGELOG) {
+      if (!seenTags.has(b.tag)) merged.unshift(b);
+    }
+
+    renderChangelogItems(merged);
     changelogLoaded = true;
   } catch {}
 }
@@ -2794,9 +3500,10 @@ document.getElementById("custom-color").addEventListener("input", e => {
 document.querySelectorAll("[data-setting]").forEach(group => {
   const key = group.getAttribute("data-setting");
   group.querySelectorAll("button[data-val]").forEach(btn => {
-    btn.onclick = () => {
+    btn.onclick = async () => {
       SETTINGS[key] = btn.getAttribute("data-val");
       saveSettings();
+      if (key === "uiLang") await loadLocale(SETTINGS.uiLang);
       applySettings(false);
     };
   });
@@ -2859,10 +3566,14 @@ const $provOverride = document.getElementById("provider-override");
 
 function updateKeyDetectBadge() {
   const raw = $newKeyInput.value.trim();
-  const prov = $provOverride.value === "auto" ? detectProviderByKey(raw) : $provOverride.value;
+  const isManual = $provOverride.value !== "auto";
+  const prov = isManual ? $provOverride.value : detectProviderByKey(raw);
   if (!raw) {
     $detectBadge.className = "detect-badge";
     $detectBadge.textContent = t("ai_wait_key");
+  } else if (!isManual && prov === "openai" && raw.startsWith("sk-") && !raw.startsWith("sk-proj-")) {
+    $detectBadge.className = "detect-badge ok";
+    $detectBadge.textContent = t("sk_ambiguous");
   } else if (prov && PROVIDERS[prov]) {
     $detectBadge.className = "detect-badge ok";
     $detectBadge.textContent = `${t("ai_detected")}: ${PROVIDERS[prov].name}`;
@@ -2878,7 +3589,7 @@ document.getElementById("add-key-btn").onclick = () => {
   const raw = $newKeyInput.value.trim();
   const prov = $provOverride.value === "auto" ? detectProviderByKey(raw) : $provOverride.value;
   if (!raw || !prov || !PROVIDERS[prov]) return;
-  SETTINGS.providers.push({ provider: prov, key: raw, enabled: true });
+  SETTINGS.providers.push({ provider: prov, key: raw, enabled: true, models: makeDefaultModels(prov) });
   saveSettings();
   $newKeyInput.value = "";
   $provOverride.value = "auto";
@@ -2889,6 +3600,8 @@ document.getElementById("add-key-btn").onclick = () => {
 
 (async function init() {
   injectIcons();
+  await loadLocale("uk");
+  if (SETTINGS.uiLang !== "uk") await loadLocale(SETTINGS.uiLang);
   applySettings(true);
 
   try {

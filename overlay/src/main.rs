@@ -6,7 +6,7 @@ use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::os::windows::process::CommandExt;
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Command, Stdio};
 use std::sync::{
     atomic::{AtomicU32, Ordering},
     Arc,
@@ -35,6 +35,8 @@ const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
 const GITHUB_REPO: &str = "Frezze98/ng-helper";
 
 const UI_HTML: &[u8] = include_bytes!("../assets/ui.html");
+const LOCALE_UA: &[u8] = include_bytes!("../assets/locales/ua_ua.json");
+const LOCALE_RU: &[u8] = include_bytes!("../assets/locales/ru_ru.json");
 const RULES_JSON: &[u8] = include_bytes!("../assets/rules_index.json");
 const RULES_META_JSON: &str = include_str!("../assets/rules_meta.json");
 const REMOTE_RULES_META_URL: &str =
@@ -54,12 +56,19 @@ enum UserEvent {
     HideOverlay,
     DragWindow,
     SetAlwaysOnTop(bool),
+    LowerForExternal,
     Resize(f64, f64),
     SetHotkeys(String, String),
     UpdateError(String),
     RulesSyncDone {
         updated: bool,
         manual: bool,
+        error: Option<String>,
+    },
+    AiProxyDone {
+        id: u64,
+        status: u16,
+        body: String,
         error: Option<String>,
     },
     Uninstall,
@@ -101,10 +110,275 @@ fn hotkeys_path() -> PathBuf {
 }
 
 fn escape_js(s: &str) -> String {
-    s.replace('\\', "\\\\")
-        .replace('"', "\\\"")
-        .replace('\n', "\\n")
-        .replace('\r', "")
+    let mut out = String::with_capacity(s.len() + 16);
+    for ch in s.chars() {
+        match ch {
+            '\\' => out.push_str("\\\\"),
+            '"' => out.push_str("\\\""),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            '\u{2028}' => out.push_str("\\u2028"),
+            '\u{2029}' => out.push_str("\\u2029"),
+            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push(c),
+        }
+    }
+    out
+}
+
+fn is_discord_running() -> bool {
+    let output = Command::new("tasklist")
+        .args(["/NH", "/FO", "CSV"])
+        .creation_flags(CREATE_NO_WINDOW)
+        .output();
+
+    if let Ok(out) = output {
+        let text = String::from_utf8_lossy(&out.stdout).to_ascii_lowercase();
+        return text.contains("\"discord.exe\"")
+            || text.contains("\"discordptb.exe\"")
+            || text.contains("\"discordcanary.exe\"");
+    }
+    false
+}
+
+fn focus_discord_window() {
+    let ps = r#"
+$code = @'
+using System;
+using System.Runtime.InteropServices;
+public class WinFocus {
+    [DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+    [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
+    [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint pid);
+    [DllImport("kernel32.dll")] public static extern uint GetCurrentThreadId();
+    [DllImport("user32.dll")] public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+    public static void Activate(IntPtr hWnd) {
+        if (hWnd == IntPtr.Zero) return;
+        ShowWindowAsync(hWnd, 9);
+        IntPtr fg = GetForegroundWindow();
+        uint dummy;
+        uint fgThread = GetWindowThreadProcessId(fg, out dummy);
+        uint curThread = GetCurrentThreadId();
+        if (fgThread != curThread) {
+            AttachThreadInput(curThread, fgThread, true);
+            SetForegroundWindow(hWnd);
+            AttachThreadInput(curThread, fgThread, false);
+        } else {
+            SetForegroundWindow(hWnd);
+        }
+    }
+}
+'@
+Add-Type -TypeDefinition $code -ErrorAction SilentlyContinue
+for ($i = 0; $i -lt 15; $i++) {
+    Start-Sleep -Milliseconds 150
+    $p = Get-Process -Name Discord,DiscordPTB,DiscordCanary -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 } | Select-Object -First 1
+    if ($p) {
+        [WinFocus]::Activate($p.MainWindowHandle)
+        break
+    }
+}
+"#;
+    let _ = Command::new("powershell.exe")
+        .args([
+            "-NoProfile",
+            "-NonInteractive",
+            "-WindowStyle",
+            "Hidden",
+            "-Command",
+            ps,
+        ])
+        .creation_flags(CREATE_NO_WINDOW)
+        .spawn();
+}
+
+fn open_external_url(url: &str) {
+    let allowed = url.starts_with("https://aistudio.google.com/")
+        || url.starts_with(&format!("https://github.com/{}", GITHUB_REPO))
+        || url.starts_with("https://discord.com/users/")
+        || url.starts_with("https://console.groq.com/")
+        || url.starts_with("https://openrouter.ai/")
+        || url.starts_with("https://platform.openai.com/")
+        || url.starts_with("https://console.anthropic.com/")
+        || url.starts_with("https://platform.deepseek.com/")
+        || url.starts_with("https://console.x.ai/");
+    if !allowed {
+        return;
+    }
+
+    let url_owned = url.to_string();
+    if url_owned.starts_with("https://discord.com/users/") {
+        thread::spawn(move || {
+            if let Some(rest) = url_owned.strip_prefix("https://discord.com/users/") {
+                let uid: String = rest.chars().take_while(|c| c.is_ascii_digit()).collect();
+                if !uid.is_empty() && is_discord_running() {
+                    let deep_link = format!("discord://-/users/{uid}");
+                    if Command::new("cmd")
+                        .args(["/C", "start", "", &deep_link])
+                        .creation_flags(CREATE_NO_WINDOW)
+                        .spawn()
+                        .is_ok()
+                    {
+                        focus_discord_window();
+                        return;
+                    }
+                }
+            }
+            let _ = Command::new("cmd")
+                .args(["/C", "start", "", &url_owned])
+                .creation_flags(CREATE_NO_WINDOW)
+                .spawn();
+        });
+        return;
+    }
+
+    let _ = Command::new("cmd")
+        .args(["/C", "start", "", &url_owned])
+        .creation_flags(CREATE_NO_WINDOW)
+        .spawn();
+}
+
+fn is_allowed_ai_url(url: &str) -> bool {
+    const ALLOWED_PREFIXES: &[&str] = &[
+        "https://generativelanguage.googleapis.com/",
+        "https://aiplatform.googleapis.com/",
+        "https://api.groq.com/",
+        "https://openrouter.ai/",
+        "https://api.openai.com/",
+        "https://api.anthropic.com/",
+        "https://api.deepseek.com/",
+        "https://api.x.ai/",
+    ];
+    ALLOWED_PREFIXES.iter().any(|p| url.starts_with(p))
+}
+
+fn run_ai_proxy(payload: String, is_get: bool, proxy: EventLoopProxy<UserEvent>) {
+    let mut lines = payload.split('\n');
+    let id = match lines.next().and_then(|s| s.trim().parse::<u64>().ok()) {
+        Some(v) => v,
+        None => return,
+    };
+    let url = match lines.next() {
+        Some(u) => u.trim().to_string(),
+        None => return,
+    };
+    let hdr_count = lines
+        .next()
+        .and_then(|s| s.trim().parse::<usize>().ok())
+        .unwrap_or(0);
+
+    let mut headers = Vec::with_capacity(hdr_count);
+    for _ in 0..hdr_count {
+        if let Some(h) = lines.next() {
+            let trimmed = h.trim();
+            if !trimmed.is_empty() {
+                headers.push(trimmed.to_string());
+            }
+        }
+    }
+    let body = if is_get {
+        String::new()
+    } else {
+        lines.collect::<Vec<&str>>().join("\n")
+    };
+
+    if !is_allowed_ai_url(&url) {
+        let _ = proxy.send_event(UserEvent::AiProxyDone {
+            id,
+            status: 0,
+            body: String::new(),
+            error: Some("Заборонений URL провайдера ШІ.".into()),
+        });
+        return;
+    }
+
+    thread::spawn(move || {
+        let mut cmd = Command::new("curl.exe");
+        cmd.args([
+            "-sS",
+            "--max-time",
+            "20",
+            "-X",
+            if is_get { "GET" } else { "POST" },
+            "-w",
+            "\n__NG_HTTP_STATUS__:%{http_code}",
+        ]);
+        if !is_get {
+            cmd.args(["--data-binary", "@-"]);
+        }
+        for h in &headers {
+            cmd.args(["-H", h]);
+        }
+        cmd.arg(&url)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .creation_flags(CREATE_NO_WINDOW);
+        if !is_get {
+            cmd.stdin(Stdio::piped());
+        }
+
+        let mut child = match cmd.spawn() {
+            Ok(c) => c,
+            Err(e) => {
+                let _ = proxy.send_event(UserEvent::AiProxyDone {
+                    id,
+                    status: 0,
+                    body: String::new(),
+                    error: Some(format!("curl spawn error: {e}")),
+                });
+                return;
+            }
+        };
+
+        if !is_get {
+            if let Some(mut stdin) = child.stdin.take() {
+                let _ = stdin.write_all(body.as_bytes());
+            }
+        }
+
+        match child.wait_with_output() {
+            Ok(out) => {
+                let stdout = String::from_utf8_lossy(&out.stdout).to_string();
+                let stderr = String::from_utf8_lossy(&out.stderr).trim().to_string();
+
+                if let Some((resp_body, code_str)) = stdout.rsplit_once("\n__NG_HTTP_STATUS__:") {
+                    let status = code_str.trim().parse::<u16>().unwrap_or(0);
+                    let err = if status == 0 && !stderr.is_empty() {
+                        Some(stderr)
+                    } else {
+                        None
+                    };
+                    let _ = proxy.send_event(UserEvent::AiProxyDone {
+                        id,
+                        status,
+                        body: resp_body.to_string(),
+                        error: err,
+                    });
+                } else {
+                    let _ = proxy.send_event(UserEvent::AiProxyDone {
+                        id,
+                        status: 0,
+                        body: stdout,
+                        error: Some(if stderr.is_empty() {
+                            "Порожня відповідь від сервера.".into()
+                        } else {
+                            stderr
+                        }),
+                    });
+                }
+            }
+            Err(e) => {
+                let _ = proxy.send_event(UserEvent::AiProxyDone {
+                    id,
+                    status: 0,
+                    body: String::new(),
+                    error: Some(format!("curl error: {e}")),
+                });
+            }
+        }
+    });
 }
 
 fn extract_json_str(json: &str, key: &str) -> Option<String> {
@@ -510,25 +784,6 @@ fn make_tray_icon() -> Icon {
     Icon::from_rgba(rgba, size as u32, size as u32).expect("failed to create tray icon")
 }
 
-fn open_external_url(url: &str) {
-    let allowed = url.starts_with("https://aistudio.google.com/")
-        || url.starts_with(&format!("https://github.com/{}", GITHUB_REPO))
-        || url.starts_with("https://discord.com/users/")
-        || url.starts_with("https://console.groq.com/")
-        || url.starts_with("https://openrouter.ai/")
-        || url.starts_with("https://platform.openai.com/")
-        || url.starts_with("https://console.anthropic.com/")
-        || url.starts_with("https://platform.deepseek.com/")
-        || url.starts_with("https://console.x.ai/");
-    if !allowed {
-        return;
-    }
-    let _ = Command::new("cmd")
-        .args(["/C", "start", "", url])
-        .creation_flags(CREATE_NO_WINDOW)
-        .spawn();
-}
-
 fn find_uninstaller() -> Option<PathBuf> {
     let mut dirs = Vec::new();
     if let Ok(mut exe_dir) = std::env::current_exe() {
@@ -672,6 +927,8 @@ fn main() {
         .with_custom_protocol("ng".into(), |_webview_id, request| {
             let path = request.uri().path();
             let (mime, body): (&str, Cow<'static, [u8]>) = match path {
+                "/locales/ua_ua.json" => ("application/json; charset=utf-8", Cow::Borrowed(LOCALE_UA)),
+                "/locales/ru_ru.json" => ("application/json; charset=utf-8", Cow::Borrowed(LOCALE_RU)),
                 "/rules_index.json" => ("application/json; charset=utf-8", load_rules_bytes()),
                 "/rules_meta.json" => (
                     "application/json; charset=utf-8",
@@ -707,11 +964,18 @@ fn main() {
             if msg == "open_key_url" {
                 open_external_url(AI_STUDIO_URL);
             } else if let Some(url) = msg.strip_prefix("open_url:") {
+                if url.starts_with("https://discord.com/users/") {
+                    let _ = proxy_ipc.send_event(UserEvent::LowerForExternal);
+                }
                 open_external_url(url);
             } else if let Some(url) = msg.strip_prefix("update:") {
                 run_self_update(url.to_string(), proxy_ipc.clone());
             } else if msg == "sync_rules_manual" {
                 sync_rules_in_background(proxy_ipc.clone(), true);
+            } else if let Some(payload) = msg.strip_prefix("ai_req\n") {
+                run_ai_proxy(payload.to_string(), false, proxy_ipc.clone());
+            } else if let Some(payload) = msg.strip_prefix("ai_get\n") {
+                run_ai_proxy(payload.to_string(), true, proxy_ipc.clone());
             } else if msg == "sync_rules_auto" || msg == "sync_rules" {
                 sync_rules_in_background(proxy_ipc.clone(), false);
             } else if let Some(pair) = msg.strip_prefix("set_hotkeys:") {
@@ -860,6 +1124,9 @@ fn main() {
                 always_on_top = val;
                 window.set_always_on_top(val);
             }
+            Event::UserEvent(UserEvent::LowerForExternal) => {
+                window.set_always_on_top(false);
+            }
             Event::UserEvent(UserEvent::Resize(w, h)) => {
                 window.set_inner_size(LogicalSize::new(w, h));
             }
@@ -926,6 +1193,18 @@ fn main() {
                 let _ = webview.evaluate_script(&format!(
                     "window.onRulesSyncDone && window.onRulesSyncDone({}, {}, \"{}\");",
                     updated, manual, err_str
+                ));
+            }
+            Event::UserEvent(UserEvent::AiProxyDone {
+                id,
+                status,
+                body,
+                error,
+            }) => {
+                let safe_body = escape_js(&body);
+                let safe_err = escape_js(&error.unwrap_or_default());
+                let _ = webview.evaluate_script(&format!(
+                    "window.onAiProxyResult && window.onAiProxyResult({id}, {status}, \"{safe_body}\", \"{safe_err}\");"
                 ));
             }
             Event::UserEvent(UserEvent::Uninstall) => match run_uninstall() {
